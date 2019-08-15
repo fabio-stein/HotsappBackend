@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "User ID=postgres;Password=samplux;Host=localhost;Port=5432;Database=gooley;Pooling=true;" Npgsql.EntityFrameworkCore.PostgreSQL -Force -DataAnnotations -OutputDir "..\DbManager\Model" -Context "DataContext"

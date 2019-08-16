@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonorisApi", "SonorisApi/SonorisApi.csproj", "{FB06C03E-8F38-45C0-A57D-2EACC5B011B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonorisApi", "SonorisApi\SonorisApi.csproj", "{FB06C03E-8F38-45C0-A57D-2EACC5B011B2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbManager", "DbManager\DbManager.csproj", "{09A0A365-3FC2-4B37-B5A1-A1F280993EE8}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeDataApi", "YoutubeDataApi\YoutubeDataApi.csproj", "{9138844F-016C-487F-A1BA-AE0EF21FB551}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageManger", "StorageManger\StorageManger.csproj", "{C7974084-A32C-4070-AD61-1959FF48C3DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonoris.Data", "Sonoris.Data\Sonoris.Data.csproj", "{59744821-9FD9-44BB-B7F3-E814D342E44F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{C7974084-A32C-4070-AD61-1959FF48C3DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7974084-A32C-4070-AD61-1959FF48C3DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7974084-A32C-4070-AD61-1959FF48C3DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

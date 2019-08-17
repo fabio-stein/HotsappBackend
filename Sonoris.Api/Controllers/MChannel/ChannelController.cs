@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using DbManager.Contexts;
-using DbManager.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +10,7 @@ using Sonoris.Api.Controllers.MChannel.action;
 using Sonoris.Api.Controllers.MChannel.model;
 using Sonoris.Api.Services;
 using Sonoris.Api.Services.Storage;
-using Sonoris.Api.Util;
+using Sonoris.Data.Model;
 
 namespace Sonoris.Api.Modules.MChannel
 {
@@ -29,23 +25,24 @@ namespace Sonoris.Api.Modules.MChannel
         }
 
         [HttpPost]
-        public async Task Add([FromForm] ChannelEditForm Channel, [FromServices] StorageService storage)
+        public async Task Add([FromForm] ChannelEditForm Channel)
         {
+            /*
             String imageHash;
             using (var temp = FileUtil.ReceiveTempUploadedFile(Channel.files))
             {
                 imageHash = FileUtil.SimpleMd5(temp);
                 await storage.provider.UploadAsync(temp, $"{imageHash}.png");
-            }
+            }*/
 
             using (var context = new DataContext())
             {
                 context.Channel.Add(new Channel()
                 {
-                    ChName = Channel.chName,
-                    ChImage = imageHash,
-                    ChCoverImage = "Test2",
-                    ChOwner = (int)UserId
+                    Name = Channel.chName,
+                    //ChImage = imageHash,
+                    //ChCoverImage = "Test2",
+                    UserId = (int)UserId
                 });
                 context.SaveChanges();
                 Ok();
@@ -73,9 +70,9 @@ namespace Sonoris.Api.Modules.MChannel
             var worker = manager.workers.Find(w => w.channel.ChId == channel);
             using (var context = new DataContext())
             {
-                var data = context.Channel.Where(c => c.ChId == channel).SingleOrDefault();
+                var data = context.Channel.Where(c => c.Id == channel).SingleOrDefault();
                 if (data != null)
-                    res.Name = data.ChName;
+                    res.Name = data.Name;
             }
             res.Channel = channel;
             if (worker == null)
@@ -127,10 +124,10 @@ namespace Sonoris.Api.Modules.MChannel
 
             using (var context = new DataContext())
             {
-                var item = context.Channel.Where(c => c.ChId == channel).SingleOrDefault();
+                var item = context.Channel.Where(c => c.Id == channel).SingleOrDefault();
                 context.Channel.Remove(item);
 
-                await storage.provider.DeleteAsync(item.ChImage+".png");
+                //await storage.provider.DeleteAsync(item.ChImage+".png");
                 context.SaveChanges();
                 return Ok();
             }
@@ -143,9 +140,9 @@ namespace Sonoris.Api.Modules.MChannel
             {
                 var channels = context.Channel.AsQueryable();
                 if (options.Mine == true)
-                    channels = channels.Where(c => c.ChOwner == UserId);
+                    channels = channels.Where(c => c.UserId == UserId);
                 if (!String.IsNullOrEmpty(options.Name))
-                    channels = channels.Where(c => EF.Functions.ILike(c.ChName, $"%{options.Name}%"));
+                    channels = channels.Where(c => EF.Functions.ILike(c.Name, $"%{options.Name}%"));
 
                 int pageSize = 10;
                 channels = channels.Skip(pageSize * (options.page-1));

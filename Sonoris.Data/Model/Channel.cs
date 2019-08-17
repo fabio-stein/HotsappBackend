@@ -14,6 +14,8 @@ namespace Sonoris.Data.Model
         public int Id { get; set; }
         public string Name { get; set; }
         public int UserId { get; set; }
+        public string Image { get; set; }
+        public string CoverImage { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Media> Media { get; set; }

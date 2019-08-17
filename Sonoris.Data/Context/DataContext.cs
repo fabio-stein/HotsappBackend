@@ -26,7 +26,7 @@ namespace Sonoris.Data.Model
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySQL("server=sonorisdata.csgrxoop9tel.sa-east-1.rds.amazonaws.com;port=3306;user=Sonoris;password=oQxQTlNZB9JqTJPqxWpL;database=sonoris");
+                optionsBuilder.UseMySQL("server=localhost;port=3306;user=root;password=sonorisdev;database=sonoris");
             }
         }
 
@@ -36,12 +36,22 @@ namespace Sonoris.Data.Model
 
             modelBuilder.Entity<Channel>(entity =>
             {
-                entity.ToTable("Channel", "sonoris");
+                entity.ToTable("channel", "sonoris");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_Channel_Owner");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.CoverImage)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("NULL");
+
+                entity.Property(e => e.Image)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("NULL");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -59,7 +69,7 @@ namespace Sonoris.Data.Model
 
             modelBuilder.Entity<Media>(entity =>
             {
-                entity.ToTable("Media", "sonoris");
+                entity.ToTable("media", "sonoris");
 
                 entity.HasIndex(e => e.ChannelId)
                     .HasName("FK_Media_Channel");
@@ -89,7 +99,7 @@ namespace Sonoris.Data.Model
 
             modelBuilder.Entity<PlaylistMedia>(entity =>
             {
-                entity.ToTable("PlaylistMedia", "sonoris");
+                entity.ToTable("playlist_media", "sonoris");
 
                 entity.HasIndex(e => e.ChannelId)
                     .HasName("FK_PlaylistMedia_ChannelId");
@@ -122,7 +132,7 @@ namespace Sonoris.Data.Model
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
-                entity.ToTable("RefreshToken", "sonoris");
+                entity.ToTable("refresh_token", "sonoris");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_RefreshToken_UserId");
@@ -147,7 +157,7 @@ namespace Sonoris.Data.Model
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("User", "sonoris");
+                entity.ToTable("user", "sonoris");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 

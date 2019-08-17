@@ -48,7 +48,7 @@ namespace Sonoris.Api
             services.AddSingleton<FirebaseController>();
             services.AddSingleton<YoutubeDataService>();
             services.AddSingleton<YoutubeManager>();
-            services.AddSingleton<StorageService>();
+            //services.AddSingleton<StorageService>();
 
             services.AddSingleton<MediaService>();
             services.AddSingleton<ChannelPlaylistService>();

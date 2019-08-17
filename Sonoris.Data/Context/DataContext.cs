@@ -17,6 +17,8 @@ namespace Sonoris.Data.Model
 
         public virtual DbSet<Channel> Channel { get; set; }
         public virtual DbSet<Media> Media { get; set; }
+        public virtual DbSet<PlaylistMedia> PlaylistMedia { get; set; }
+        public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<User> User { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -36,7 +38,7 @@ namespace Sonoris.Data.Model
             {
                 entity.ToTable("Channel", "sonoris");
 
-                entity.HasIndex(e => e.Owner)
+                entity.HasIndex(e => e.UserId)
                     .HasName("FK_Channel_Owner");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
@@ -46,11 +48,11 @@ namespace Sonoris.Data.Model
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Owner).HasColumnType("int(11)");
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
 
-                entity.HasOne(d => d.OwnerNavigation)
+                entity.HasOne(d => d.User)
                     .WithMany(p => p.Channel)
-                    .HasForeignKey(d => d.Owner)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Channel_Owner");
             });
@@ -59,12 +61,12 @@ namespace Sonoris.Data.Model
             {
                 entity.ToTable("Media", "sonoris");
 
-                entity.HasIndex(e => e.Channel)
+                entity.HasIndex(e => e.ChannelId)
                     .HasName("FK_Media_Channel");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
-                entity.Property(e => e.Channel).HasColumnType("int(11)");
+                entity.Property(e => e.ChannelId).HasColumnType("int(11)");
 
                 entity.Property(e => e.DurationSeconds).HasColumnType("int(11)");
 
@@ -78,11 +80,69 @@ namespace Sonoris.Data.Model
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.ChannelNavigation)
+                entity.HasOne(d => d.Channel)
                     .WithMany(p => p.Media)
-                    .HasForeignKey(d => d.Channel)
+                    .HasForeignKey(d => d.ChannelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Media_Channel");
+            });
+
+            modelBuilder.Entity<PlaylistMedia>(entity =>
+            {
+                entity.ToTable("PlaylistMedia", "sonoris");
+
+                entity.HasIndex(e => e.ChannelId)
+                    .HasName("FK_PlaylistMedia_ChannelId");
+
+                entity.HasIndex(e => e.MediaId)
+                    .HasName("FK_PlaylistMedia_MediaId");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.ChannelId).HasColumnType("int(11)");
+
+                entity.Property(e => e.EndDateUtc).HasColumnName("EndDateUTC");
+
+                entity.Property(e => e.MediaId).HasColumnType("int(11)");
+
+                entity.Property(e => e.StartDateUtc).HasColumnName("StartDateUTC");
+
+                entity.HasOne(d => d.Channel)
+                    .WithMany(p => p.PlaylistMedia)
+                    .HasForeignKey(d => d.ChannelId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PlaylistMedia_ChannelId");
+
+                entity.HasOne(d => d.Media)
+                    .WithMany(p => p.PlaylistMedia)
+                    .HasForeignKey(d => d.MediaId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PlaylistMedia_MediaId");
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshToken", "sonoris");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_RefreshToken_UserId");
+
+                entity.Property(e => e.Id)
+                    .HasMaxLength(32)
+                    .IsUnicode(false)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.IsRevoked)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshToken)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RefreshToken_UserId");
             });
 
             modelBuilder.Entity<User>(entity =>

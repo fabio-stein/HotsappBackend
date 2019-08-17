@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sonoris.Api", "Sonoris.Api\Sonoris.Api.csproj", "{FB06C03E-8F38-45C0-A57D-2EACC5B011B2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{59744821-9FD9-44BB-B7F3-E814D342E44F} = {59744821-9FD9-44BB-B7F3-E814D342E44F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbManager", "DbManager\DbManager.csproj", "{09A0A365-3FC2-4B37-B5A1-A1F280993EE8}"
 EndProject

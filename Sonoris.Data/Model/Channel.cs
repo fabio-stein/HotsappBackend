@@ -8,13 +8,15 @@ namespace Sonoris.Data.Model
         public Channel()
         {
             Media = new HashSet<Media>();
+            PlaylistMedia = new HashSet<PlaylistMedia>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Owner { get; set; }
+        public int UserId { get; set; }
 
-        public virtual User OwnerNavigation { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<Media> Media { get; set; }
+        public virtual ICollection<PlaylistMedia> PlaylistMedia { get; set; }
     }
 }

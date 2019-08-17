@@ -8,6 +8,7 @@ namespace Sonoris.Data.Model
         public User()
         {
             Channel = new HashSet<Channel>();
+            RefreshToken = new HashSet<RefreshToken>();
         }
 
         public int Id { get; set; }
@@ -17,5 +18,6 @@ namespace Sonoris.Data.Model
         public string FirebaseUid { get; set; }
 
         public virtual ICollection<Channel> Channel { get; set; }
+        public virtual ICollection<RefreshToken> RefreshToken { get; set; }
     }
 }

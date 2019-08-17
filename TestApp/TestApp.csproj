@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SonorisApi\SonorisApi.csproj" />
+    <ProjectReference Include="..\Sonoris.Api\Sonoris.Api.csproj" />
   </ItemGroup>
 
 </Project>

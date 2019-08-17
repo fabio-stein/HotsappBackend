@@ -6,16 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Sonoris.Api.Auth.Model;
 using Sonoris.Api.Configuration;
-using DbManager.Contexts;
-using DbManager.Model;
 using System.Security.Claims;
 using System.Security.Principal;
 using Sonoris.Api.Util;
-using FirebaseApi.models;
 using System.Threading.Tasks;
 using Sonoris.Api.Controllers.MAuth.Model;
 using Microsoft.AspNetCore.Authorization;
 using Sonoris.Api.Controllers.MChannelPlaylist.Action;
+using Sonoris.Data.Model;
+using Sonoris.Data.Context;
 
 namespace Sonoris.Api.Controllers
 {
@@ -30,28 +29,28 @@ namespace Sonoris.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<dynamic> SignIn([FromBody] SignInModel Info,
+        public async Task<object> SignIn([FromBody] SignInModel Info,
             [FromServices]SigningConfigurations signingConfigurations,
             [FromServices]FirebaseController firebaseController)
         {
             using (var context = new DataContext())
             {
-                DbManager.Model.User user = null;
+                User user = null;
 
                 if (Info.refreshToken != null)
                 {
                     Info.idToken = Info.refreshToken;
                     RefreshToken refresh = new RefreshTokenContext().GetToken(Info.refreshToken);
-                    if (refresh.TokRevoked)
+                    if (refresh.IsRevoked)
                         return Unauthorized();
                     else
-                        user = refresh.TokUserNavigation;
+                        user = refresh.User;
 
                 }
                 else
                 {
                     var info = firebaseController.getAccountInfo(Info.idToken).users[0];
-                    user = context.User.SingleOrDefault(q => q.UsrFirebaseUid == info.localId);
+                    user = context.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
                     if (user == null)
                     {
                         if (!info.emailVerified)
@@ -75,7 +74,7 @@ namespace Sonoris.Api.Controllers
                 };
                 if(Info.refreshToken == null)
                 {
-                    ret.refreshToken = new RefreshTokenContext().CreateRefreshToken(user.UsrId).TokId;
+                    ret.refreshToken = new RefreshTokenContext().CreateRefreshToken(user.Id).Id;
                 }
                 return ret;
             }
@@ -88,22 +87,22 @@ namespace Sonoris.Api.Controllers
             {
                 SigningCredentials = _signingConfigurations.SigningCredentials,
                 Subject = identity,
-                Expires = DateTime.Now.AddSeconds(10),
+                Expires = DateTime.Now.AddHours(12),
                 NotBefore = DateTime.Now,
             });
             return securityToken;
         }
 
-        private ClaimsIdentity CreateIdentity(DbManager.Model.User user)
+        private ClaimsIdentity CreateIdentity(User user)
         {
             ClaimsIdentity identity = new ClaimsIdentity(
-                    new GenericIdentity(user.UsrId.ToString(), "Login"),
+                    new GenericIdentity(user.Id.ToString(), "Login"),
                 new[] {
                     /*new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
                     new Claim(JwtRegisteredClaimNames.UniqueName, user.UsrId.ToString()),*/
-                    new Claim("name",user.UsrName),
-                    new Claim("picture",$"https://api.adorable.io/avatars/285/{user.UsrUsername}.png"),
-                    new Claim("UserId", user.UsrId.ToString())
+                    new Claim("name",user.Name),
+                    new Claim("picture",$"https://api.adorable.io/avatars/285/{user.Username}.png"),
+                    new Claim("UserId", user.Id.ToString())
                 });
             return identity;
         }
@@ -112,12 +111,12 @@ namespace Sonoris.Api.Controllers
         {
             using (var context = new DataContext())
             {
-                DbManager.Model.User user = new DbManager.Model.User()
+                User user = new User()
                 {
-                    UsrEmail = info.email,
-                    UsrFirebaseUid = info.localId,
-                    UsrName = info.displayName,
-                    UsrUsername = UsernameGenerator.GenerateNew()
+                    Email = info.email,
+                    FirebaseUid = info.localId,
+                    Name = info.displayName,
+                    Username = UsernameGenerator.GenerateNew()
                 };
                 context.User.Add(user);
                 context.SaveChanges();
@@ -136,8 +135,8 @@ namespace Sonoris.Api.Controllers
             int user = int.Parse(identityClaim.Value);
             using(var context = new DataContext())
             {
-                var item = context.RefreshToken.Where(t => t.TokUser == user && t.TokId == data.token).SingleOrDefault();
-                item.TokRevoked = true;
+                var item = context.RefreshToken.Where(t => t.UserId == user && t.Id == data.token).SingleOrDefault();
+                item.IsRevoked = true;
                 context.RefreshToken.Update(item);
                 context.SaveChanges();
             }

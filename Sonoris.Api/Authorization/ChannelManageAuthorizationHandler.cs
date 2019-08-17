@@ -1,6 +1,6 @@
-﻿using DbManager.Contexts;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Sonoris.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +22,8 @@ namespace Sonoris.Api.Authorization
                 Claim identityClaim = identity.Claims.FirstOrDefault(c => c.Type == "UserId");
                 using (var db = new DataContext())
                 {
-                    var channel = db.Channel.FirstOrDefault(c => c.ChId == resource);
-                    if (channel.ChOwner == int.Parse(identityClaim.Value))
+                    var channel = db.Channel.FirstOrDefault(c => c.Id == resource);
+                    if (channel.UserId == int.Parse(identityClaim.Value))
                         context.Succeed(requirement);
                 }
             }

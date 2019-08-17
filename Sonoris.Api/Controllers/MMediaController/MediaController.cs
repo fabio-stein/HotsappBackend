@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Web;
 using System.Xml;
-using DbManager.Contexts;
-using DbManager.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sonoris.Api.Controllers.MMediaController;
 using Sonoris.Api.Controllers.MMediaController.Action;
 using Sonoris.Api.Services;
 using Sonoris.Api.Services.SChannelPlaylist;
+using Sonoris.Data.Model;
 using YoutubeDataApi;
 
 namespace Sonoris.Api.Modules.MMediaController
@@ -54,7 +53,7 @@ namespace Sonoris.Api.Modules.MMediaController
                 {
                     var newMedia = mediaService.AddMedia(data.channel, data.source, data.title);
                     if(data.addToPlaylist)
-                        playlistService.AddMediaToPlaylist(newMedia.MedId);
+                        playlistService.AddMediaToPlaylist(newMedia.Id);
 
                     scope.Complete();
                 }
@@ -74,7 +73,7 @@ namespace Sonoris.Api.Modules.MMediaController
 
             using (var context = new DataContext())
             {
-                var data = context.Media.Where(m => m.MedChannel == channel).ToList();
+                var data = context.Media.Where(m => m.ChannelId == channel).ToList();
                 var items = data.Select(m => ChannelMediaUtil.ToMediaView(m));
                 return Ok(items);
             }
@@ -85,9 +84,9 @@ namespace Sonoris.Api.Modules.MMediaController
         {
             using (var context = new DataContext())
             {
-                var item = context.Media.Where(m => m.MedId == id).SingleOrDefault();
+                var item = context.Media.Where(m => m.Id == id).SingleOrDefault();
 
-                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.MedChannel, "ChannelManage");
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.ChannelId, "ChannelManage");
                 if (!authorizationResult.Succeeded)
                     return Forbid();
 

@@ -1,9 +1,5 @@
-﻿using DbManager.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Sonoris.Api.Controllers.MMediaController.View;
+﻿using Sonoris.Api.Controllers.MMediaController.View;
+using Sonoris.Data.Model;
 
 namespace Sonoris.Api.Controllers.MMediaController
 {
@@ -12,8 +8,8 @@ namespace Sonoris.Api.Controllers.MMediaController
         public static ChannelMediaView ToMediaView(Media media)
         {
             var v = new ChannelMediaView();
-            v.id = media.MedId;
-            v.name = media.MedName;
+            v.id = media.Id;
+            v.name = media.Title;
             return v;
         }
     }

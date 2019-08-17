@@ -1,6 +1,4 @@
-﻿using DbManager.Contexts;
-using DbManager.Model;
-using Google.Apis.YouTube.v3;
+﻿using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
@@ -9,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using Sonoris.Api.Services.SMedia.model;
+using Sonoris.Data.Model;
 
 namespace Sonoris.Api.Services
 {
@@ -67,13 +66,12 @@ namespace Sonoris.Api.Services
             var duration = ts.TotalSeconds;
 
             var media = new Media();
-            media.MedDurationSeconds = (long)duration;
-            media.MedName = video.Snippet.Title;
-            media.MedChannel = channel;
+            media.DurationSeconds = (int)duration;
+            media.Title = video.Snippet.Title;
+            media.ChannelId = channel;
             if (title != null)
-                media.MedName = title;
-            media.MedSource = source;
-            media.MedType = 1;
+                media.Title = title;
+            media.Source = source;
 
             using (var context = new DataContext())
             {

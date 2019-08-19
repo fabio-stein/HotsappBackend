@@ -1,6 +1,4 @@
-﻿using DbManager.Contexts;
-using DbManager.Model;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,6 +9,8 @@ using System.Timers;
 using Sonoris.Api.Hubs;
 using Sonoris.Api.Hubs.PlayerHub;
 using Sonoris.Api.Hubs.PlayerHub.models;
+using Sonoris.Data.Model;
+using Sonoris.Data.Context;
 
 namespace Sonoris.Api.Services
 {
@@ -18,7 +18,7 @@ namespace Sonoris.Api.Services
     {
         public Timer timer;
         public Channel channel;
-        public ChannelPlaylist playlistItem;
+        public PlaylistMedia playlistItem;
         public IHubContext<PlayerHub> playerHub;
         public ChannelWorkerService manager;
         private ILogger<ChannelWorker> logger;
@@ -32,7 +32,7 @@ namespace Sonoris.Api.Services
             this.logger = logger;
         }
 
-        public ChannelPlaylist GetCurrent()
+        public PlaylistMedia GetCurrent()
         {
             return playlistItem;
         }
@@ -41,9 +41,9 @@ namespace Sonoris.Api.Services
         {
             using (var context = new DataContext())
             {
-                var running = context.ChannelPlaylist.Where(t => t.CplStartDate != null && t.CplEndDate == null && t.CplChannelNavigation.ChId == channel.ChId)
-                        .Include(t => t.CplChannelNavigation)
-                        .Include(t => t.CplMediaNavigation)
+                var running = context.PlaylistMedia.Where(t => t.StartDateUtc != null && t.EndDateUtc == null && t.Channel.Id == channel.Id)
+                        .Include(t => t.Channel)
+                        .Include(t => t.Media)
                         .SingleOrDefault();
                 if (running != null)
                     OnResume(running);
@@ -52,7 +52,7 @@ namespace Sonoris.Api.Services
             }
         }
 
-        public void OnResume(ChannelPlaylist item)
+        public void OnResume(PlaylistMedia item)
         {
             logger.LogInformation("Resuming");
             playlistItem = item;
@@ -77,8 +77,8 @@ namespace Sonoris.Api.Services
         }
         public void ScheduleUpdate()
         {
-            long duration = playlistItem.CplMediaNavigation.MedDurationSeconds;
-            DateTime targetTime = ((DateTime)playlistItem.CplStartDate).AddSeconds(duration);
+            long duration = playlistItem.Media.DurationSeconds;
+            DateTime targetTime = ((DateTime)playlistItem.StartDateUtc).AddSeconds(duration);
             if (targetTime <= DateTime.Now)
             {
                 logger.LogInformation("Target time is before now. Resuming");
@@ -102,7 +102,7 @@ namespace Sonoris.Api.Services
             timer?.Dispose();
             Task.Run(() =>
             {
-                manager.StopWorker(channel.ChId);
+                manager.StopWorker(channel.Id);
             });
         }
 
@@ -113,8 +113,8 @@ namespace Sonoris.Api.Services
             logger.LogInformation("Terminating playlist item");
             using(var context = new DataContext())
             {
-                var item = context.ChannelPlaylist.Where(p => p.CplId == playlistItem.CplId).SingleOrDefault();
-                item.CplEndDate = DateTime.Now;
+                var item = context.PlaylistMedia.Where(p => p.Id == playlistItem.Id).SingleOrDefault();
+                item.EndDateUtc = DateTime.Now;
                 playlistItem = item;
                 context.SaveChanges();
             }
@@ -123,17 +123,17 @@ namespace Sonoris.Api.Services
         public void LoadNextPlaylistItem()
         {
             logger.LogInformation("Loading next playlist item");
-            using(var context = new ChannelPlaylistContext())
+            using(var context = new PlaylistMediaContext())
             {
-                playlistItem = context.getNextToPlay(channel.ChId);
+                playlistItem = context.getNextToPlay(channel.Id);
                 if (playlistItem == null)
                 {
                     logger.LogInformation("No items found");
                     Stop();
                     return;
                 }
-                playlistItem.CplStartDate = DateTime.Now;
-                context.MoveAllSequences(channel.ChId, -1);
+                playlistItem.StartDateUtc = DateTime.Now;
+                context.MoveAllSequences(channel.Id, -1);
 
                 context.SaveChanges();
             }
@@ -152,7 +152,7 @@ namespace Sonoris.Api.Services
         {
             logger.LogInformation("Sending broadcast");
             var update = GetClientUpdate();
-            playerHub.Clients.Group(channel.ChId.ToString()).SendAsync(PlayerHubMessage.CLIENT_UPDATE, update);
+            playerHub.Clients.Group(channel.Id.ToString()).SendAsync(PlayerHubMessage.CLIENT_UPDATE, update);
         }
 
         public void setFixedUpdate(Action action, DateTime targetTime)
@@ -178,12 +178,11 @@ namespace Sonoris.Api.Services
         {
             return new ClientUpdate()
             {
-                Channel = channel.ChId,
-                StartTime = (DateTime)playlistItem.CplStartDate,
-                DurationSeconds = playlistItem.CplMediaNavigation.MedDurationSeconds,
-                MedType = playlistItem.CplMediaNavigation.MedType,
-                Name = playlistItem.CplMediaNavigation.MedName,
-                Source = playlistItem.CplMediaNavigation.MedSource
+                Channel = channel.Id,
+                StartTime = (DateTime)playlistItem.StartDateUtc,
+                DurationSeconds = playlistItem.Media.DurationSeconds,
+                Name = playlistItem.Media.Title,
+                Source = playlistItem.Media.Source
             };
         }
 

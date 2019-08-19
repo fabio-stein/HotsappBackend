@@ -1,5 +1,4 @@
-﻿using DbManager.Contexts;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -9,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Sonoris.Api.Hubs;
 using Sonoris.Api.Hubs.PlayerHub;
+using Sonoris.Data.Model;
 
 namespace Sonoris.Api.Services
 {
@@ -30,9 +30,9 @@ namespace Sonoris.Api.Services
         {
             using(var context = new DataContext())
             {
-                var runningList = context.ChannelPlaylist.Where(t => t.CplStartDate!=null && t.CplEndDate == null)
-                    .Include(t => t.CplChannelNavigation)
-                    .Include(t => t.CplMediaNavigation)
+                var runningList = context.PlaylistMedia.Where(t => t.StartDateUtc!=null && t.EndDateUtc == null)
+                    .Include(t => t.Channel)
+                    .Include(t => t.Media)
                     .ToList();
                 foreach(var item in runningList){
                     Task.Run(() =>
@@ -40,7 +40,7 @@ namespace Sonoris.Api.Services
                         logger.LogInformation($"Starting new worker - Count: {workers.Count+1}");
                         lock (_workersLock)
                         {
-                            var worker = new ChannelWorker(workerLogger, item.CplChannelNavigation, playerHub, this);
+                            var worker = new ChannelWorker(workerLogger, item.Channel, playerHub, this);
                             workers.Add(worker);
                             worker.OnResume(item);
                         }
@@ -52,13 +52,13 @@ namespace Sonoris.Api.Services
         public void StartChannelWorker(int channel)
         {
             //Already started
-            if(workers.Where(w => w.channel.ChId == channel).Count() > 0)
+            if(workers.Where(w => w.channel.Id == channel).Count() > 0)
             {
                 return;
             }
             using (var context = new DataContext())
             {
-                var item = context.Channel.Where(c => c.ChId == channel).SingleOrDefault();
+                var item = context.Channel.Where(c => c.Id == channel).SingleOrDefault();
                 Task.Run(() =>
                 {
                     logger.LogInformation($"Starting new worker ({workers.Count + 1})");
@@ -76,7 +76,7 @@ namespace Sonoris.Api.Services
         {
             return Task.Run(() =>
             {
-                var active = workers.Where(w => w.channel.ChId == channel);
+                var active = workers.Where(w => w.channel.Id == channel);
                 for (int i = 0; i < workers.Count; i++)
                 {
                     var worker = workers[i];
@@ -88,7 +88,7 @@ namespace Sonoris.Api.Services
 
         public void StopWorker(int channel)
         {
-            var active = workers.Where(w => w.channel.ChId == channel);
+            var active = workers.Where(w => w.channel.Id == channel);
             for(int i = 0; i < workers.Count; i++)
             {
                 logger.LogInformation($"Worker stopped ({workers.Count - 1})");

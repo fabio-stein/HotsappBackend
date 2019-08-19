@@ -67,7 +67,7 @@ namespace Sonoris.Api.Modules.MChannel
                 return Forbid();
 
             var res = new ChannelStatusView();
-            var worker = manager.workers.Find(w => w.channel.ChId == channel);
+            var worker = manager.workers.Find(w => w.channel.Id == channel);
             using (var context = new DataContext())
             {
                 var data = context.Channel.Where(c => c.Id == channel).SingleOrDefault();
@@ -79,14 +79,14 @@ namespace Sonoris.Api.Modules.MChannel
                 res.Running = false;
             else
             {
-                res.Name = worker.channel.ChName;
+                res.Name = worker.channel.Name;
                 res.Running = true;
                 if (worker.playlistItem != null)
                 {
-                    res.RunningItem = worker.playlistItem.CplMediaNavigation.MedName;
-                    res.StartDate = (DateTime)worker.playlistItem.CplStartDate;
-                    long duration = worker.playlistItem.CplMediaNavigation.MedDurationSeconds;
-                    res.EndDate = ((DateTime)worker.playlistItem.CplStartDate).AddSeconds(duration);
+                    res.RunningItem = worker.playlistItem.Media.Title;
+                    res.StartDate = (DateTime)worker.playlistItem.StartDateUtc;
+                    long duration = worker.playlistItem.Media.DurationSeconds;
+                    res.EndDate = ((DateTime)worker.playlistItem.StartDateUtc).AddSeconds(duration);
                     res.Duration = duration;
                 }
             }

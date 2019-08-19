@@ -86,7 +86,7 @@ namespace Sonoris.Api
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
-                        .AllowAnyOrigin();
+                        .WithOrigins(_config.GetValue<string>("APP_HOST"));
                     });
             });
         }

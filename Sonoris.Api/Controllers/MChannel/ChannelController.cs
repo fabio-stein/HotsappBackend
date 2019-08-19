@@ -142,7 +142,7 @@ namespace Sonoris.Api.Modules.MChannel
                 if (options.Mine == true)
                     channels = channels.Where(c => c.UserId == UserId);
                 if (!String.IsNullOrEmpty(options.Name))
-                    channels = channels.Where(c => EF.Functions.ILike(c.Name, $"%{options.Name}%"));
+                    channels = channels.Where(c => EF.Functions.Like(c.Name, $"%{options.Name}%"));
 
                 int pageSize = 10;
                 channels = channels.Skip(pageSize * (options.page-1));

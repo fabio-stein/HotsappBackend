@@ -1,5 +1,4 @@
 ﻿using System;
-using DbManager.Contexts;
 using FirebaseApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,11 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Sonoris.Api.Authorization;
 using Sonoris.Api.Configuration;
-using Sonoris.Api.Hubs;
 using Sonoris.Api.Hubs.PlayerHub;
 using Sonoris.Api.Services;
 using Sonoris.Api.Services.SPlaylistMedia;
-using Sonoris.Api.Services.Storage;
+using Sonoris.Data.Context;
+using Sonoris.Data.Model;
 using YoutubeDataApi;
 
 namespace Sonoris.Api
@@ -43,7 +42,7 @@ namespace Sonoris.Api
             services.AddSignalR();
 
             services.AddDbContext<DataContext>();
-            services.AddDbContext<ChannelPlaylistContext>();
+            services.AddDbContext<PlaylistMediaContext>();
 
             services.AddSingleton<FirebaseController>();
             services.AddSingleton<YoutubeDataService>();

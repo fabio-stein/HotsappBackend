@@ -1,8 +1,7 @@
-﻿using DbManager.Contexts;
+﻿using Sonoris.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sonoris.Api.Util
 {
@@ -24,7 +23,7 @@ namespace Sonoris.Api.Util
         {
             using (var context = new DataContext())
             {
-                var user = context.User.Where(u => u.UsrUsername == username).SingleOrDefault();
+                var user = context.User.Where(u => u.Username == username).SingleOrDefault();
                 return user != null;
             }
         }

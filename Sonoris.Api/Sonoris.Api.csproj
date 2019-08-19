@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DbManager\DbManager.csproj" />
     <ProjectReference Include="..\FirebaseApi\FirebaseApi.csproj" />
     <ProjectReference Include="..\Sonoris.Data\Sonoris.Data.csproj" />
     <ProjectReference Include="..\StorageManger\StorageManger.csproj" />

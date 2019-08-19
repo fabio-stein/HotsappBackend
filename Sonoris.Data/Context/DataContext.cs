@@ -111,11 +111,17 @@ namespace Sonoris.Data.Model
 
                 entity.Property(e => e.ChannelId).HasColumnType("int(11)");
 
-                entity.Property(e => e.EndDateUtc).HasColumnName("EndDateUTC");
+                entity.Property(e => e.EndDateUtc)
+                    .HasColumnName("EndDateUTC")
+                    .HasDefaultValueSql("NULL");
+
+                entity.Property(e => e.Index).HasColumnType("int(11)");
 
                 entity.Property(e => e.MediaId).HasColumnType("int(11)");
 
-                entity.Property(e => e.StartDateUtc).HasColumnName("StartDateUTC");
+                entity.Property(e => e.StartDateUtc)
+                    .HasColumnName("StartDateUTC")
+                    .HasDefaultValueSql("NULL");
 
                 entity.HasOne(d => d.Channel)
                     .WithMany(p => p.PlaylistMedia)

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DbManager.Contexts;
-using DbManager.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sonoris.Api.Controllers.MChannelPlaylist;
-using Sonoris.Api.Services.SChannelPlaylist;
+using Sonoris.Api.Services.SPlaylistMedia;
+using Sonoris.Data.Context;
 
 namespace Sonoris.Api.Modules.MChannelPlaylist
 {
@@ -31,7 +30,7 @@ namespace Sonoris.Api.Modules.MChannelPlaylist
             if (!authorizationResult.Succeeded)
                 return Forbid();
 
-            using (var context = new ChannelPlaylistContext())
+            using (var context = new PlaylistMediaContext())
             {
                 var CPLs = context.GetCurrentPlaylist(channel);
                 var items = CPLs.Select(cpl => ChannelPlaylistUtil.ToPlaylistView(cpl));
@@ -40,7 +39,7 @@ namespace Sonoris.Api.Modules.MChannelPlaylist
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMediaToPlaylist([FromBody] ActionAddMediaToPlaylist data, [FromServices] ChannelPlaylistService playlistService)
+        public async Task<IActionResult> AddMediaToPlaylist([FromBody] ActionAddMediaToPlaylist data, [FromServices] PlaylistMediaService playlistService)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, data.channel, "ChannelManage");
             if (!authorizationResult.Succeeded)
@@ -51,12 +50,12 @@ namespace Sonoris.Api.Modules.MChannelPlaylist
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> Remove(long id, [FromServices] ChannelPlaylistService playlistService)
+        public async Task<IActionResult> Remove(long id, [FromServices] PlaylistMediaService playlistService)
         {
-            using (var context = new ChannelPlaylistContext())
+            using (var context = new PlaylistMediaContext())
             {
-                var item = context.ChannelPlaylist.Where(p => p.CplId == id).SingleOrDefault();
-                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.CplChannel, "ChannelManage");
+                var item = context.PlaylistMedia.Where(p => p.Id == id).SingleOrDefault();
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.ChannelId, "ChannelManage");
                 if (!authorizationResult.Succeeded)
                     return Forbid();
             }
@@ -65,12 +64,12 @@ namespace Sonoris.Api.Modules.MChannelPlaylist
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> MoveDown(long id, [FromServices] ChannelPlaylistService playlistService)
+        public async Task<IActionResult> MoveDown(long id, [FromServices] PlaylistMediaService playlistService)
         {
-            using (var context = new ChannelPlaylistContext())
+            using (var context = new PlaylistMediaContext())
             {
-                var item = context.ChannelPlaylist.Where(p => p.CplId == id).SingleOrDefault();
-                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.CplChannel, "ChannelManage");
+                var item = context.PlaylistMedia.Where(p => p.Id == id).SingleOrDefault();
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.ChannelId, "ChannelManage");
                 if (!authorizationResult.Succeeded)
                     return Forbid();
             }
@@ -79,12 +78,12 @@ namespace Sonoris.Api.Modules.MChannelPlaylist
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> MoveUp(long id, [FromServices] ChannelPlaylistService playlistService)
+        public async Task<IActionResult> MoveUp(long id, [FromServices] PlaylistMediaService playlistService)
         {
-            using (var context = new ChannelPlaylistContext())
+            using (var context = new PlaylistMediaContext())
             {
-                var item = context.ChannelPlaylist.Where(p => p.CplId == id).SingleOrDefault();
-                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.CplChannel, "ChannelManage");
+                var item = context.PlaylistMedia.Where(p => p.Id == id).SingleOrDefault();
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, item.ChannelId, "ChannelManage");
                 if (!authorizationResult.Succeeded)
                     return Forbid();
             }

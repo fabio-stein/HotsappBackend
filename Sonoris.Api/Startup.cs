@@ -13,7 +13,7 @@ using Sonoris.Api.Configuration;
 using Sonoris.Api.Hubs;
 using Sonoris.Api.Hubs.PlayerHub;
 using Sonoris.Api.Services;
-using Sonoris.Api.Services.SChannelPlaylist;
+using Sonoris.Api.Services.SPlaylistMedia;
 using Sonoris.Api.Services.Storage;
 using YoutubeDataApi;
 
@@ -51,7 +51,7 @@ namespace Sonoris.Api
             //services.AddSingleton<StorageService>();
 
             services.AddSingleton<MediaService>();
-            services.AddSingleton<ChannelPlaylistService>();
+            services.AddSingleton<PlaylistMediaService>();
 
             services.AddHostedService<ChannelWorkerHostedService>();
             services.AddSingleton<ChannelWorkerService>();

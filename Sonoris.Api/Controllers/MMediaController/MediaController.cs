@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sonoris.Api.Controllers.MMediaController;
 using Sonoris.Api.Controllers.MMediaController.Action;
 using Sonoris.Api.Services;
-using Sonoris.Api.Services.SChannelPlaylist;
+using Sonoris.Api.Services.SPlaylistMedia;
 using Sonoris.Data.Model;
 using YoutubeDataApi;
 
@@ -37,7 +37,7 @@ namespace Sonoris.Api.Modules.MMediaController
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMedia([FromServices] MediaService mediaService, [FromServices] ChannelPlaylistService playlistService, [FromBody] ActionAddMedia data)
+        public async Task<IActionResult> AddMedia([FromServices] MediaService mediaService, [FromServices] PlaylistMediaService playlistService, [FromBody] ActionAddMedia data)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, data.channel, "ChannelManage");
             if (!authorizationResult.Succeeded)

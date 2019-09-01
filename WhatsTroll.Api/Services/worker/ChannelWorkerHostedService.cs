@@ -26,7 +26,7 @@ namespace WhatsTroll.Api.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            return Task.Run(() => { _manager.StartWorkers(); });
+            return Task.Run(() => { _manager.StartWorkers(); });//
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

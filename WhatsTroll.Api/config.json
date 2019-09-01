@@ -1,0 +1,8 @@
+﻿{
+  "FIREBASE_KEY": "AIzaSyCPLpQuOVbDa0SudKuEOL9nWhR_ckqeGLI",
+  "YOUTUBE_DATA_API_KEY": "AIzaSyCju791bC9hkCE8thtQZB25LePTpvBCoWc",
+  "DB_CONNECTION": "User ID=postgres;Password=samplux;Host=localhost;Port=5432;Database=WhatsTroll;Pooling=true;",
+  "AWS_KEY_ID": "AKIAJB57OWVLHXKMVGAQ",
+  "AWS_KEY_SECRET": "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",
+  "AWS_BUCKET": "WhatsTroll"
+}

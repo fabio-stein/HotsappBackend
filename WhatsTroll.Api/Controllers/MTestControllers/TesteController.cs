@@ -15,12 +15,6 @@ namespace WhatsTroll.Api.Controllers
     public class TesteController : Controller
     {
 
-        [HttpGet]
-        public IActionResult WorkerTest([FromServices] ChannelWorkerService service)
-        {
-            return Ok(service.workers);
-        }
-
 
         SmtpConfig smtpConfig = new SmtpConfig()
         {

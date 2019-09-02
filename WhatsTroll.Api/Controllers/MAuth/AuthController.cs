@@ -12,7 +12,6 @@ using WhatsTroll.Api.Util;
 using System.Threading.Tasks;
 using WhatsTroll.Api.Controllers.MAuth.Model;
 using Microsoft.AspNetCore.Authorization;
-using WhatsTroll.Api.Controllers.MChannelPlaylist.Action;
 using WhatsTroll.Data.Model;
 using WhatsTroll.Data.Context;
 
@@ -123,6 +122,7 @@ namespace WhatsTroll.Api.Controllers
             }
         }
 
+        /*
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout([FromBody] ActionLogout data)
@@ -141,7 +141,7 @@ namespace WhatsTroll.Api.Controllers
                 context.SaveChanges();
             }
             return Ok();
-        }
+        }*/
 
     }
 }

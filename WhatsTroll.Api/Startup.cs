@@ -7,12 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WhatsTroll.Api.Authorization;
 using WhatsTroll.Api.Configuration;
-using WhatsTroll.Api.Hubs.PlayerHub;
-using WhatsTroll.Api.Services;
-using WhatsTroll.Api.Services.SPlaylistMedia;
-using WhatsTroll.Data.Context;
 using WhatsTroll.Data.Model;
 using YoutubeDataApi;
 
@@ -42,18 +37,9 @@ namespace WhatsTroll.Api
             services.AddSignalR();
 
             services.AddDbContext<DataContext>();
-            services.AddDbContext<PlaylistMediaContext>();
 
             services.AddSingleton<FirebaseController>();
             services.AddSingleton<YoutubeDataService>();
-            services.AddSingleton<YoutubeManager>();
-            //services.AddSingleton<StorageService>();
-
-            services.AddSingleton<MediaService>();
-            services.AddSingleton<PlaylistMediaService>();
-
-            //services.AddHostedService<ChannelWorkerHostedService>();
-            services.AddSingleton<ChannelWorkerService>();
         }
 
         public void Configure(IApplicationBuilder app,
@@ -66,11 +52,6 @@ namespace WhatsTroll.Api
             }
             app.UseAuthentication();
             app.UseMvc();
-
-            app.UseSignalR(route =>
-            {
-                route.MapHub<PlayerHub>("/PlayerHub");
-            });
         }
 
 
@@ -123,10 +104,7 @@ namespace WhatsTroll.Api
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ChannelManage", policy =>
-                    policy.Requirements.Add(new ChannelManageRequirement()));
             });
-            services.AddSingleton<IAuthorizationHandler, ChannelManageAuthorizationHandler>();
 
         }
 

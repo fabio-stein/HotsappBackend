@@ -50,7 +50,7 @@ namespace WhatsTroll.Manager
                     Message = message
                 };
                 OnMessageReceived.Invoke(this, mr);
-                OnMessage(match.Value);
+                //OnMessage(match.Value);
             }
         }
 

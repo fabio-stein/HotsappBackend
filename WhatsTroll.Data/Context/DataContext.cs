@@ -19,7 +19,9 @@ namespace WhatsTroll.Data.Model
         public virtual DbSet<MessageReceived> MessageReceived { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
+        public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserAccount> UserAccount { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -120,6 +122,19 @@ namespace WhatsTroll.Data.Model
                     .HasConstraintName("FK_RefreshToken_UserId");
             });
 
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.ToTable("transaction", "whatstroll");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
+
+                entity.Property(e => e.DateTimeUtc).HasColumnName("DateTimeUTC");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+            });
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("user", "whatstroll");
@@ -144,6 +159,22 @@ namespace WhatsTroll.Data.Model
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasMaxLength(15)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<UserAccount>(entity =>
+            {
+                entity.ToTable("user_account", "whatstroll");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.Balance)
+                    .HasColumnType("decimal(8,2)")
+                    .HasDefaultValueSql("0.00");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(255)
                     .IsUnicode(false);
             });
         }

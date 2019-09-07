@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatsTroll.Data", "WhatsTro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatsTroll.Manager", "WhatsTroll.Manager\WhatsTroll.Manager.csproj", "{444E82CE-4194-4753-B5A9-85DBEC142569}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatsTroll.Payment", "WhatsTroll.Payment\WhatsTroll.Payment.csproj", "{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{444E82CE-4194-4753-B5A9-85DBEC142569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{444E82CE-4194-4753-B5A9-85DBEC142569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{444E82CE-4194-4753-B5A9-85DBEC142569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,12 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WhatsTroll.Data;
 
 namespace WhatsTroll.Api.Util
 {
     public class UsernameGenerator
     {
-        public static String GenerateNew()
+        public UsernameGenerator()
+        {
+
+        }
+        public String GenerateNew()
         {
             String username;
             while (true)
@@ -19,16 +24,16 @@ namespace WhatsTroll.Api.Util
             return username;
         }
 
-        private static bool CheckExists(String username)
+        private bool CheckExists(String username)
         {
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 var user = context.User.Where(u => u.Username == username).SingleOrDefault();
                 return user != null;
             }
         }
 
-        private static String Generate()
+        private String Generate()
         {
             int r = new Random().Next(nameList.Count);
             var f = nameList[r];
@@ -37,7 +42,7 @@ namespace WhatsTroll.Api.Util
             return f;
         }
 
-        private static readonly List<String> nameList = new List<string> {
+        private readonly List<String> nameList = new List<string> {
             //Fruits
             "apple",
             "apricot",

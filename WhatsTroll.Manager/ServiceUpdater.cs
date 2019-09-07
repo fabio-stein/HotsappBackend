@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WhatsTroll.Data;
 using WhatsTroll.Data.Model;
 
 namespace WhatsTroll.Manager
@@ -43,7 +44,7 @@ namespace WhatsTroll.Manager
 
         public async Task CheckMessagesToSend()
         {
-            using(var context = new DataContext())
+            using(var context = DataFactory.CreateNew())
             {
                 var message = context.Message.Where(m => m.SentDateUtc == null)
                     .OrderBy(m => m.Id)
@@ -60,7 +61,7 @@ namespace WhatsTroll.Manager
 
         public void SendUpdate(string status)
         {
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 var s = context.Phoneservice.First();
                 s.LastUpdate = DateTime.UtcNow;
@@ -71,7 +72,7 @@ namespace WhatsTroll.Manager
 
         public void OnMessageReceived(object sender, Data.MessageReceived mr)
         {
-            using(var context = new DataContext())
+            using(var context = DataFactory.CreateNew())
             {
                 var message = new MessageReceived()
                 {

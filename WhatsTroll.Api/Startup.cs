@@ -8,7 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WhatsTroll.Api.Configuration;
-using WhatsTroll.Data.Model;
+using WhatsTroll.Api.Util;
+using WhatsTroll.Data;
+using WhatsTroll.Payment;
 using YoutubeDataApi;
 
 namespace WhatsTroll.Api
@@ -35,11 +37,14 @@ namespace WhatsTroll.Api
             ConfigureCors(services);
 
             services.AddSignalR();
+            var connectionString = _config.GetConnectionString("MySqlConnectionString");
+            services.AddSingleton(new DataFactory(connectionString));
 
-            services.AddDbContext<DataContext>();
-
-            services.AddSingleton<FirebaseController>();
+            services.AddSingleton<FirebaseService>();
             services.AddSingleton<YoutubeDataService>();
+            services.AddSingleton<BalanceService>();
+            services.AddSingleton<UsernameGenerator>();
+            services.AddSingleton<PaymentService>();
         }
 
         public void Configure(IApplicationBuilder app,

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WhatsTroll.Data;
 using WhatsTroll.Data.Model;
 
 namespace WhatsTroll.Api.Controllers.MMessages
@@ -15,7 +16,7 @@ namespace WhatsTroll.Api.Controllers.MMessages
         [HttpPost]
         public IActionResult GetMessage([FromBody] int Id)
         {
-            using(var context = new DataContext())
+            using(var context = DataFactory.CreateNew())
             {
                 if(Id == 0)
                 {
@@ -31,7 +32,7 @@ namespace WhatsTroll.Api.Controllers.MMessages
         [HttpPost]
         public IActionResult SendMessage([FromBody] MsgInfo msg)
         {
-            using(var context = new DataContext())
+            using(var context = DataFactory.CreateNew())
             {
                 var send = new Message()
                 {

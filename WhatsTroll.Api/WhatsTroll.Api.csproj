@@ -28,13 +28,8 @@
     <ProjectReference Include="..\FirebaseApi\FirebaseApi.csproj" />
     <ProjectReference Include="..\WhatsTroll.Data\WhatsTroll.Data.csproj" />
     <ProjectReference Include="..\StorageManger\StorageManger.csproj" />
+    <ProjectReference Include="..\WhatsTroll.Payment\WhatsTroll.Payment.csproj" />
     <ProjectReference Include="..\YoutubeDataApi\YoutubeDataApi.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

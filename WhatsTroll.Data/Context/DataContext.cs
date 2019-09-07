@@ -13,6 +13,7 @@ namespace WhatsTroll.Data.Model
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
+
         }
 
         public virtual DbSet<Message> Message { get; set; }
@@ -22,15 +23,6 @@ namespace WhatsTroll.Data.Model
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySQL("server=localhost;port=3306;user=root;password=sonorisdev;database=whatstroll");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -126,6 +118,9 @@ namespace WhatsTroll.Data.Model
             {
                 entity.ToTable("transaction", "whatstroll");
 
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_transaction_UserId");
+
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
                 entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
@@ -133,6 +128,12 @@ namespace WhatsTroll.Data.Model
                 entity.Property(e => e.DateTimeUtc).HasColumnName("DateTimeUTC");
 
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_transaction_UserId");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -164,18 +165,23 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<UserAccount>(entity =>
             {
+                entity.HasKey(e => e.UserId);
+
                 entity.ToTable("user_account", "whatstroll");
 
-                entity.Property(e => e.Id).HasColumnType("int(11)");
+                entity.Property(e => e.UserId)
+                    .HasColumnType("int(11)")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.Balance)
                     .HasColumnType("decimal(8,2)")
                     .HasDefaultValueSql("0.00");
 
-                entity.Property(e => e.UserId)
-                    .IsRequired()
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.UserAccount)
+                    .HasForeignKey<UserAccount>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_user_account_UserId");
             });
         }
     }

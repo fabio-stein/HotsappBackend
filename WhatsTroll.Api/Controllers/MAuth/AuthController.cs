@@ -11,9 +11,11 @@ using System.Security.Principal;
 using WhatsTroll.Api.Util;
 using System.Threading.Tasks;
 using WhatsTroll.Api.Controllers.MAuth.Model;
-using Microsoft.AspNetCore.Authorization;
 using WhatsTroll.Data.Model;
 using WhatsTroll.Data.Context;
+using System.Transactions;
+using WhatsTroll.Data;
+using WhatsTroll.Payment;
 
 namespace WhatsTroll.Api.Controllers
 {
@@ -21,18 +23,24 @@ namespace WhatsTroll.Api.Controllers
     public class AuthController: Controller
     {
         private readonly SigningConfigurations _signingConfigurations;
+        private BalanceService _balanceService;
+        private UsernameGenerator _usernameGenerator;
+        private FirebaseService _firebaseService;
+        private DataFactory _dataFactory;
 
-        public AuthController(SigningConfigurations signingConfigurations)
+        public AuthController(SigningConfigurations signingConfigurations, BalanceService balanceService, UsernameGenerator usernameGenerator, FirebaseService firebaseService, DataFactory dataFactory)
         {
             _signingConfigurations = signingConfigurations;
+            _balanceService = balanceService;
+            _usernameGenerator = usernameGenerator;
+            _firebaseService = firebaseService;
+            _dataFactory = dataFactory;
         }
 
         [HttpPost]
-        public async Task<object> SignIn([FromBody] SignInModel Info,
-            [FromServices]SigningConfigurations signingConfigurations,
-            [FromServices]FirebaseController firebaseController)
+        public async Task<ActionResult> SignIn([FromBody] SignInModel Info)
         {
-            using (var context = new DataContext())
+            using (var scope = new TransactionScope())
             {
                 User user = null;
 
@@ -48,14 +56,17 @@ namespace WhatsTroll.Api.Controllers
                 }
                 else
                 {
-                    var info = firebaseController.getAccountInfo(Info.idToken).users[0];
-                    user = context.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
+                    var info = _firebaseService.getAccountInfo(Info.idToken).users[0];
+                    using (var context = DataFactory.CreateNew())
+                    {
+                        user = context.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
+                    }
                     if (user == null)
                     {
                         if (!info.emailVerified)
                             return null;
                         Console.WriteLine("NOT REGISTERED");
-                        CreateUser(info);
+                        user = await CreateUser(info);
                     }
                 }
 
@@ -71,12 +82,14 @@ namespace WhatsTroll.Api.Controllers
                     accessToken = token,
                     message = "OK"
                 };
-                if(Info.refreshToken == null)
+                if (Info.refreshToken == null)
                 {
                     ret.refreshToken = new RefreshTokenContext().CreateRefreshToken(user.Id).Id;
                 }
-                return ret;
+                scope.Complete();
+                return Ok(ret);
             }
+            
         }
 
         public SecurityToken CreateToken(ClaimsIdentity identity)
@@ -106,19 +119,23 @@ namespace WhatsTroll.Api.Controllers
             return identity;
         }
 
-        private void CreateUser(FirebaseApi.models.User info)
+        private async Task<User> CreateUser(FirebaseApi.models.User info)
         {
-            using (var context = new DataContext())
+            var username = _usernameGenerator.GenerateNew();
+            using (var context = DataFactory.CreateNew())
             {
                 User user = new User()
                 {
                     Email = info.email,
                     FirebaseUid = info.localId,
                     Name = info.displayName,
-                    Username = UsernameGenerator.GenerateNew()
+                    Username = username
                 };
-                context.User.Add(user);
-                context.SaveChanges();
+                await context.User.AddAsync(user);
+                await context.SaveChangesAsync();
+                await _balanceService.CreateBalance(user.Id);
+                await context.SaveChangesAsync();
+                return user;
             }
         }
 
@@ -133,7 +150,7 @@ namespace WhatsTroll.Api.Controllers
             var identity = User.Identity as ClaimsIdentity;
             Claim identityClaim = identity.Claims.FirstOrDefault(c => c.Type == "UserId");
             int user = int.Parse(identityClaim.Value);
-            using(var context = new DataContext())
+            using(var context = DataFactory.CreateNew())
             {
                 var item = context.RefreshToken.Where(t => t.UserId == user && t.Id == data.token).SingleOrDefault();
                 item.IsRevoked = true;

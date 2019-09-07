@@ -5,14 +5,11 @@ using System;
 
 namespace FirebaseApi
 {
-    public class FirebaseController
+    public class FirebaseService
     {
         private string FIREBASE_KEY;
-        public FirebaseController()
+        public FirebaseService(IConfiguration config)
         {
-            var config = new ConfigurationBuilder()
-             .AddJsonFile("config.json")
-             .Build();
             FIREBASE_KEY = config["FIREBASE_KEY"];
         }
 

@@ -18,7 +18,7 @@ namespace WhatsTroll.Data.Context
                 UserId = User,
                 IsRevoked = false
             };
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 context.RefreshToken.Add(refresh);
                 context.SaveChanges();
@@ -28,7 +28,7 @@ namespace WhatsTroll.Data.Context
 
         public RefreshToken GetToken(String token)
         {
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 var item = context.RefreshToken.Where(t => t.Id == token)
                     .Include(t => t.User)
@@ -39,7 +39,7 @@ namespace WhatsTroll.Data.Context
 
         public void RevokeToken(String token)
         {
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 var item = context.RefreshToken.Where(t => t.Id == token && !t.IsRevoked).FirstOrDefault();
                 item.IsRevoked = true;

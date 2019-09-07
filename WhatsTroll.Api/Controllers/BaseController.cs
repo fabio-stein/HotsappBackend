@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WhatsTroll.Api.Controllers
 {
-    public class BaseController : Controller
+    public class BaseController : ControllerBase
     {
         public int? UserId
         {

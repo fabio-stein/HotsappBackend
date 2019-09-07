@@ -9,5 +9,7 @@ namespace WhatsTroll.Data.Model
         public int UserId { get; set; }
         public decimal Amount { get; set; }
         public DateTime DateTimeUtc { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

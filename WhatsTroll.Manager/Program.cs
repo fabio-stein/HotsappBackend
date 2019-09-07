@@ -10,12 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using WhatsTroll.Data.Model;
 using System.Linq;
+using WhatsTroll.Data;
+
 namespace WhatsTroll.Manager
 {
     class Program
     {
         static async Task Main(string[] args)
         {
+            new DataFactory("server=localhost;port=3306;user=root;password=sonorisdev;database=whatstroll");
             var service = new ServiceUpdater();
 
             await Task.Delay(600000);

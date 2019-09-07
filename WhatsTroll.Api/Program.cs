@@ -8,12 +8,8 @@ namespace WhatsTroll.Api
 {
     public class Program
     {
-        private static IConfiguration config;
         public static void Main(string[] args)
         {
-            config = new ConfigurationBuilder()
-                .AddJsonFile("config.json")
-                .Build();
             BuildWebHost(args).Run();
         }
 

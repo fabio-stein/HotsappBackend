@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WhatsTroll.Data;
 using WhatsTroll.Data.Model;
 using YoutubeDataApi;
 using YoutubeDataApi.model;
@@ -12,7 +13,7 @@ namespace WhatsTroll.Api.Controllers
         public BaseResponse Add([FromServices] YoutubeDataService DataController)
         {
             
-            using (var context = new DataContext())
+            using (var context = DataFactory.CreateNew())
             {
                 /*
                 var snippet = DataController.GetVideo().items[0].snippet;

@@ -6,11 +6,12 @@ using WhatsTroll.Data;
 
 namespace WhatsTroll.Api.Util
 {
-    public class UsernameGenerator
+    public class UsernameGeneratorService
     {
-        public UsernameGenerator()
+        private DataContext _dataContext;
+        public UsernameGeneratorService(DataContext dataContext)
         {
-
+            _dataContext = dataContext;
         }
         public String GenerateNew()
         {
@@ -26,11 +27,8 @@ namespace WhatsTroll.Api.Util
 
         private bool CheckExists(String username)
         {
-            using (var context = DataFactory.CreateNew())
-            {
-                var user = context.User.Where(u => u.Username == username).SingleOrDefault();
+                var user = _dataContext.User.Where(u => u.Username == username).SingleOrDefault();
                 return user != null;
-            }
         }
 
         private String Generate()

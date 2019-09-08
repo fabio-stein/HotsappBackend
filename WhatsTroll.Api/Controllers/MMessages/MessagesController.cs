@@ -13,37 +13,36 @@ namespace WhatsTroll.Api.Controllers.MMessages
     [ApiController]
     public class MessagesController : ControllerBase
     {
+        private DataContext _dataContext;
+        public MessagesController(DataContext dataContext)
+        {
+            _dataContext = dataContext;
+        }
         [HttpPost]
         public IActionResult GetMessage([FromBody] int Id)
         {
-            using(var context = DataFactory.CreateNew())
+            if (Id == 0)
             {
-                if(Id == 0)
-                {
-                    var last = context.MessageReceived.LastOrDefault();
-                    if (last != null)
-                        Id = last.Id - 1;
-                }
-                var nextMessage = context.MessageReceived.Where(m => m.Id > Id).OrderBy(m => m.Id).FirstOrDefault();
-                return Ok(nextMessage);
+                var last = _dataContext.MessageReceived.LastOrDefault();
+                if (last != null)
+                    Id = last.Id - 1;
             }
+            var nextMessage = _dataContext.MessageReceived.Where(m => m.Id > Id).OrderBy(m => m.Id).FirstOrDefault();
+            return Ok(nextMessage);
         }
 
         [HttpPost]
         public IActionResult SendMessage([FromBody] MsgInfo msg)
         {
-            using(var context = DataFactory.CreateNew())
+            var send = new Message()
             {
-                var send = new Message()
-                {
-                    PhoneNumber = "555599436679",
-                    UserId = 3,
-                    Text = msg.message
-                };
-                context.Message.Add(send);
-                context.SaveChanges();
-                return Ok();
-            }
+                PhoneNumber = "555599436679",
+                UserId = 3,
+                Text = msg.message
+            };
+            _dataContext.Message.Add(send);
+            _dataContext.SaveChanges();
+            return Ok();
         }
 
         public class MsgInfo

@@ -12,10 +12,10 @@ using WhatsTroll.Api.Util;
 using System.Threading.Tasks;
 using WhatsTroll.Api.Controllers.MAuth.Model;
 using WhatsTroll.Data.Model;
-using WhatsTroll.Data.Context;
 using System.Transactions;
 using WhatsTroll.Data;
 using WhatsTroll.Payment;
+using WhatsTroll.Api.Services;
 
 namespace WhatsTroll.Api.Controllers
 {
@@ -24,17 +24,19 @@ namespace WhatsTroll.Api.Controllers
     {
         private readonly SigningConfigurations _signingConfigurations;
         private BalanceService _balanceService;
-        private UsernameGenerator _usernameGenerator;
+        private UsernameGeneratorService _usernameGenerator;
         private FirebaseService _firebaseService;
-        private DataFactory _dataFactory;
+        private DataContext _dataContext;
+        private RefreshTokenService _refreshTokenService;
 
-        public AuthController(SigningConfigurations signingConfigurations, BalanceService balanceService, UsernameGenerator usernameGenerator, FirebaseService firebaseService, DataFactory dataFactory)
+        public AuthController(SigningConfigurations signingConfigurations, BalanceService balanceService, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService)
         {
             _signingConfigurations = signingConfigurations;
             _balanceService = balanceService;
             _usernameGenerator = usernameGenerator;
             _firebaseService = firebaseService;
-            _dataFactory = dataFactory;
+            _dataContext = dataContext;
+            _refreshTokenService = refreshTokenService;
         }
 
         [HttpPost]
@@ -47,7 +49,7 @@ namespace WhatsTroll.Api.Controllers
                 if (Info.refreshToken != null)
                 {
                     Info.idToken = Info.refreshToken;
-                    RefreshToken refresh = new RefreshTokenContext().GetToken(Info.refreshToken);
+                    RefreshToken refresh = _refreshTokenService.GetToken(Info.refreshToken);
                     if (refresh.IsRevoked)
                         return Unauthorized();
                     else
@@ -57,10 +59,7 @@ namespace WhatsTroll.Api.Controllers
                 else
                 {
                     var info = _firebaseService.getAccountInfo(Info.idToken).users[0];
-                    using (var context = DataFactory.CreateNew())
-                    {
-                        user = context.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
-                    }
+                    user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
                     if (user == null)
                     {
                         if (!info.emailVerified)
@@ -84,7 +83,7 @@ namespace WhatsTroll.Api.Controllers
                 };
                 if (Info.refreshToken == null)
                 {
-                    ret.refreshToken = new RefreshTokenContext().CreateRefreshToken(user.Id).Id;
+                    ret.refreshToken = _refreshTokenService.CreateRefreshToken(user.Id).Id;
                 }
                 scope.Complete();
                 return Ok(ret);
@@ -122,21 +121,19 @@ namespace WhatsTroll.Api.Controllers
         private async Task<User> CreateUser(FirebaseApi.models.User info)
         {
             var username = _usernameGenerator.GenerateNew();
-            using (var context = DataFactory.CreateNew())
+
+            User user = new User()
             {
-                User user = new User()
-                {
-                    Email = info.email,
-                    FirebaseUid = info.localId,
-                    Name = info.displayName,
-                    Username = username
-                };
-                await context.User.AddAsync(user);
-                await context.SaveChangesAsync();
-                await _balanceService.CreateBalance(user.Id);
-                await context.SaveChangesAsync();
-                return user;
-            }
+                Email = info.email,
+                FirebaseUid = info.localId,
+                Name = info.displayName,
+                Username = username
+            };
+            await _dataContext.User.AddAsync(user);
+            await _dataContext.SaveChangesAsync();
+            await _balanceService.CreateBalance(user.Id);
+            await _dataContext.SaveChangesAsync();
+            return user;
         }
 
         /*

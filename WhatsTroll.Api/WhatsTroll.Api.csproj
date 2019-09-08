@@ -25,11 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FirebaseApi\FirebaseApi.csproj" />
+    <ProjectReference Include="..\FirebaseApi\WhatsTroll.Firebase.csproj" />
     <ProjectReference Include="..\WhatsTroll.Data\WhatsTroll.Data.csproj" />
-    <ProjectReference Include="..\StorageManger\StorageManger.csproj" />
     <ProjectReference Include="..\WhatsTroll.Payment\WhatsTroll.Payment.csproj" />
-    <ProjectReference Include="..\YoutubeDataApi\YoutubeDataApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

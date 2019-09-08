@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WhatsTroll.Data.Model;
 using WhatsTroll.Payment;
 
 namespace WhatsTroll.Api.Controllers.MPayment
@@ -15,11 +16,13 @@ namespace WhatsTroll.Api.Controllers.MPayment
     {
         private BalanceService _balanceService;
         private PaymentService _paymentService;
+        private DataContext _dataContext;
 
-        public PaymentController(BalanceService balanceService, PaymentService paymentService)
+        public PaymentController(BalanceService balanceService, PaymentService paymentService, DataContext dataContext)
         {
             _balanceService = balanceService;
             _paymentService = paymentService;
+            _dataContext = dataContext;
         }
         [HttpGet]
         public async Task<ActionResult> CurrentBalance()

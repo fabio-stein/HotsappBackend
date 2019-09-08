@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using WhatsTroll.Data;
+using WhatsTroll.Data.Model;
 
 namespace WhatsTroll.Payment
 {
@@ -13,9 +14,11 @@ namespace WhatsTroll.Payment
     {
         private PaypalClient _paypalClient;
         private BalanceService _balanceService;
-        public PaymentService(IConfiguration configuration, BalanceService balanceService)
+        private DataContext _dataContext;
+        public PaymentService(IConfiguration configuration, BalanceService balanceService, DataContext dataContext)
         {
             _balanceService = balanceService;
+            _dataContext = dataContext;
 
             var clientId = configuration.GetSection("Payment")["PaypalClientId"];
             var clientSecret = configuration.GetSection("Payment")["PaypalClientSecret"];
@@ -37,19 +40,16 @@ namespace WhatsTroll.Payment
                 if (amount.CurrencyCode != "BRL" || value < 5)
                     throw new Exception("Invalid Operation");
 
-                using (var context = DataFactory.CreateNew())
+                var payment = new Data.Model.Payment()
                 {
-                    var payment = new Data.Model.Payment()
-                    {
-                        Amount = value,
-                        DateTimeUtc = DateTime.UtcNow,
-                        PaypalOrderId = order.Id,
-                        UserId = userId
-                    };
-                    await context.Payment.AddAsync(payment);
-                    await context.SaveChangesAsync();
-                    await _balanceService.AddCredits(userId, value, payment.Id);
-                }
+                    Amount = value,
+                    DateTimeUtc = DateTime.UtcNow,
+                    PaypalOrderId = order.Id,
+                    UserId = userId
+                };
+                await _dataContext.Payment.AddAsync(payment);
+                await _dataContext.SaveChangesAsync();
+                await _balanceService.AddCredits(userId, value, payment.Id);
                 scope.Complete();
             }
         }

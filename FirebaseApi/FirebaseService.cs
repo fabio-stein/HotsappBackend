@@ -10,7 +10,7 @@ namespace FirebaseApi
         private string FIREBASE_KEY;
         public FirebaseService(IConfiguration config)
         {
-            FIREBASE_KEY = config["FIREBASE_KEY"];
+            FIREBASE_KEY = config["FirebaseApiKey"];
         }
 
         private T FirebasePostRequest<T,K>(string ApiMethod, K Data)

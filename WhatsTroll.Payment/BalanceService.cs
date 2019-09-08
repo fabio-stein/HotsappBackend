@@ -36,7 +36,7 @@ namespace WhatsTroll.Payment
             }
         }
 
-        public async Task AddCredits(int userId, decimal amount)
+        public async Task AddCredits(int userId, decimal amount, int? paymentId = null)
         {
             using (var context = DataFactory.CreateNew())
             {
@@ -45,7 +45,8 @@ namespace WhatsTroll.Payment
                 {
                     Amount = amount,
                     UserId = userId,
-                    DateTimeUtc = DateTime.UtcNow
+                    DateTimeUtc = DateTime.UtcNow,
+                    PaymentId = paymentId
                 });
                 account.Balance += amount;
                 if (account.Balance < 0)

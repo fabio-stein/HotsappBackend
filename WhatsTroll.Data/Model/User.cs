@@ -7,6 +7,7 @@ namespace WhatsTroll.Data.Model
     {
         public User()
         {
+            Payment = new HashSet<Payment>();
             RefreshToken = new HashSet<RefreshToken>();
             Transaction = new HashSet<Transaction>();
         }
@@ -18,6 +19,7 @@ namespace WhatsTroll.Data.Model
         public string FirebaseUid { get; set; }
 
         public virtual UserAccount UserAccount { get; set; }
+        public virtual ICollection<Payment> Payment { get; set; }
         public virtual ICollection<RefreshToken> RefreshToken { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
     }

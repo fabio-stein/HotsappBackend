@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WhatsTroll.Api.Configuration;
 using WhatsTroll.Api.Util;
 using WhatsTroll.Data;
+using WhatsTroll.Data.Model;
 using WhatsTroll.Payment;
 using YoutubeDataApi;
 
@@ -38,6 +40,7 @@ namespace WhatsTroll.Api
 
             services.AddSignalR();
             var connectionString = _config.GetConnectionString("MySqlConnectionString");
+            services.AddDbContext<DataContext>(options => options.UseMySQL(connectionString));
             services.AddSingleton(new DataFactory(connectionString));
 
             services.AddSingleton<FirebaseService>();

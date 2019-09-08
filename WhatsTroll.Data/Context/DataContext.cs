@@ -13,11 +13,11 @@ namespace WhatsTroll.Data.Model
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
-
         }
 
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<MessageReceived> MessageReceived { get; set; }
+        public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
@@ -75,6 +75,33 @@ namespace WhatsTroll.Data.Model
                     .HasDefaultValueSql("NULL");
             });
 
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.ToTable("payment", "whatstroll");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_payment_UserId");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
+
+                entity.Property(e => e.DateTimeUtc).HasColumnName("DateTimeUTC");
+
+                entity.Property(e => e.PaypalOrderId)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("NULL");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Payment)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_payment_UserId");
+            });
+
             modelBuilder.Entity<Phoneservice>(entity =>
             {
                 entity.ToTable("phoneservice", "whatstroll");
@@ -126,6 +153,10 @@ namespace WhatsTroll.Data.Model
                 entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
 
                 entity.Property(e => e.DateTimeUtc).HasColumnName("DateTimeUTC");
+
+                entity.Property(e => e.PaymentId)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("NULL");
 
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
 

@@ -14,9 +14,12 @@ namespace WhatsTroll.Api.Controllers.MPayment
     public class PaymentController : BaseController
     {
         private BalanceService _balanceService;
-        public PaymentController(BalanceService balanceService)
+        private PaymentService _paymentService;
+
+        public PaymentController(BalanceService balanceService, PaymentService paymentService)
         {
             _balanceService = balanceService;
+            _paymentService = paymentService;
         }
         [HttpGet]
         public async Task<ActionResult> CurrentBalance()
@@ -31,13 +34,12 @@ namespace WhatsTroll.Api.Controllers.MPayment
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        public async Task<ActionResult> GetTest()
+        [HttpPut("{orderId}")]
+        public async Task<ActionResult> CaptureOrder(string orderId)
         {
-            var order = await PaymentService.CaptureOrder("2G2458003L4094242", true);
+            await _paymentService.CaptureOrder(orderId, (int)UserId);
 
-            return Ok(order);
+            return Ok();
         }
     }
 }

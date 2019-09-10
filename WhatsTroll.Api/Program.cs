@@ -15,6 +15,14 @@ namespace WhatsTroll.Api
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(options =>
+                {
+                    options.Listen(IPAddress.Any, 80);         // http:*:80
+                    options.Listen(IPAddress.Any, 443, listenOptions =>
+                    {
+                        listenOptions.UseHttps("certificate.pfx", "Windows81");
+                    });
+                })
                 .UseStartup<Startup>()
                 //.UseUrls(config["APP_HOST"].ToString())
                 /*.UseKestrel(options =>

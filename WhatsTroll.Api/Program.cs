@@ -20,7 +20,7 @@ namespace WhatsTroll.Api
                     options.Listen(IPAddress.Any, 80);         // http:*:80
                     options.Listen(IPAddress.Any, 443, listenOptions =>
                     {
-                        listenOptions.UseHttps("certificate.pfx", "Windows81");
+                        listenOptions.UseHttps("certificate.key", "Windows81");
                     });
                 })
                 .UseStartup<Startup>()

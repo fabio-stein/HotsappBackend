@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using WhatsTroll.Data.Model;
 using System.Linq;
 using WhatsTroll.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace WhatsTroll.Manager
 {
@@ -18,6 +19,8 @@ namespace WhatsTroll.Manager
     {
         static async Task Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("");
             new DataFactory("server=localhost;port=3306;user=root;password=sonorisdev;database=whatstroll");
             var service = new ServiceUpdater();
 

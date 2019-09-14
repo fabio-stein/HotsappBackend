@@ -24,18 +24,6 @@ namespace WhatsTroll.Api
                     });
                 })
                 .UseStartup<Startup>()
-                //.UseUrls(config["APP_HOST"].ToString())
-                /*.UseKestrel(options =>
-                {
-                    options.Listen(IPAddress.Any, 5000, listenOptions =>
-                    {
-                        var cert = new X509Certificate2("certificate.pfx", "Windows81");
-
-                        listenOptions.UseHttps(cert);
-
-                    });
-
-                })*/
                 .Build();
     }
 }

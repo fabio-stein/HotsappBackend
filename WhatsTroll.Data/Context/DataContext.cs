@@ -30,7 +30,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.ToTable("message", "whatstroll");
+                entity.ToTable("message");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
@@ -53,7 +53,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<MessageReceived>(entity =>
             {
-                entity.ToTable("message_received", "whatstroll");
+                entity.ToTable("message_received");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
@@ -77,7 +77,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<Payment>(entity =>
             {
-                entity.ToTable("payment", "whatstroll");
+                entity.ToTable("payment");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_payment_UserId");
@@ -104,7 +104,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<Phoneservice>(entity =>
             {
-                entity.ToTable("phoneservice", "whatstroll");
+                entity.ToTable("phoneservice");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
@@ -118,7 +118,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
-                entity.ToTable("refresh_token", "whatstroll");
+                entity.ToTable("refresh_token");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_RefreshToken_UserId");
@@ -143,7 +143,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.ToTable("transaction", "whatstroll");
+                entity.ToTable("transaction");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_transaction_UserId");
@@ -169,7 +169,7 @@ namespace WhatsTroll.Data.Model
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("user", "whatstroll");
+                entity.ToTable("user");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
@@ -198,7 +198,7 @@ namespace WhatsTroll.Data.Model
             {
                 entity.HasKey(e => e.UserId);
 
-                entity.ToTable("user_account", "whatstroll");
+                entity.ToTable("user_account");
 
                 entity.Property(e => e.UserId)
                     .HasColumnType("int(11)")

@@ -58,6 +58,7 @@ namespace WhatsTroll.Api
                 app.UseDeveloperExceptionPage();
             }
             app.UseAuthentication();
+            app.UseHsts();
             app.UseMvc();
         }
 

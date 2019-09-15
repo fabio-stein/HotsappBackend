@@ -17,8 +17,8 @@ namespace WhatsTroll.Api
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(options =>
                 {
-                    options.Listen(IPAddress.Any, 80);
-                    options.Listen(IPAddress.Any, 443, listenOptions =>
+                    options.Listen(IPAddress.Any, 5001);
+                    options.Listen(IPAddress.Any, 5000, listenOptions =>
                     {
                         listenOptions.UseHttps("certificate.key", "Windows81");
                     });

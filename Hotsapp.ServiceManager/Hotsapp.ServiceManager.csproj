@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WhatsTroll.Data\WhatsTroll.Data.csproj" />
+    <ProjectReference Include="..\Hotsapp.Data\Hotsapp.Data.csproj" />
   </ItemGroup>
 
 </Project>

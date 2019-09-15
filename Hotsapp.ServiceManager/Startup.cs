@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using WhatsTroll.Data.Model;
+using Hotsapp.Data.Model;
 
 namespace Hotsapp.ServiceManager
 {

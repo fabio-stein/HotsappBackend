@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WhatsTroll.Data.Model;
+using Hotsapp.Data.Model;
 
 namespace Hotsapp.ServiceManager.Util
 {

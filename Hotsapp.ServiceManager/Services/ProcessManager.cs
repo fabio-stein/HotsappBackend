@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -11,10 +12,11 @@ namespace Hotsapp.ServiceManager.Services
     {
         private Process process = new Process();
         public event EventHandler<string> OnOutputReceived;
+        IHostingEnvironment _env;
 
-        public ProcessManager()
+        public ProcessManager(IHostingEnvironment env)
         {
-
+            _env = env;
         }
 
         public async Task SendCommand(string command)
@@ -24,8 +26,13 @@ namespace Hotsapp.ServiceManager.Services
 
         public void Start()
         {
+            Console.WriteLine("Starting new process");
             var startInfo = new ProcessStartInfo();
-            startInfo.FileName = "wsl";
+            
+            if(_env.IsDevelopment())
+                startInfo.FileName = "wsl";
+            else
+                startInfo.FileName = "/bin/bash";
             startInfo.CreateNoWindow = true;
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;

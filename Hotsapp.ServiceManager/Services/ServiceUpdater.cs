@@ -5,26 +5,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hotsapp.Data.Model;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 namespace Hotsapp.ServiceManager.Services
 {
-    public class ServiceUpdater
+    public class ServiceUpdater : IHostedService, IDisposable
     {
-        PhoneService phone = new PhoneService();
-        public ServiceUpdater()
+        PhoneService _phoneService;
+        private Timer _timer;
+
+        public ServiceUpdater(PhoneService phoneService)
         {
-            
+            _phoneService = phoneService;
         }
 
         public async Task Start()
         {
+            Console.WriteLine("Starting");
             SendUpdate("STARTING");
             _ = UpdateTask();
-            phone.OnMessageReceived += OnMessageReceived;
-            await phone.Start();
-            await phone.Login();
-
-            await Task.Delay(6000000);
+            _phoneService.OnMessageReceived += OnMessageReceived;
+            await _phoneService.Start();
+            await _phoneService.Login();
         }
 
         public async Task UpdateTask()
@@ -33,7 +36,7 @@ namespace Hotsapp.ServiceManager.Services
             bool? isOnline = null;
             try
             {
-                isOnline = await phone.IsOnline();
+                isOnline = await _phoneService.IsOnline();
             }
             catch (Exception e){
                 Console.WriteLine(e.ToString());
@@ -59,7 +62,7 @@ namespace Hotsapp.ServiceManager.Services
                 if(message != null)
                 {
                     Console.WriteLine("New message to send!");
-                    await phone.SendMessage(message.PhoneNumber, message.Text);
+                    await _phoneService.SendMessage(message.PhoneNumber, message.Text);
                     message.SentDateUtc = DateTime.UtcNow;
                     await context.SaveChangesAsync();
                 }
@@ -91,6 +94,36 @@ namespace Hotsapp.ServiceManager.Services
                 context.MessageReceived.Add(message);
                 context.SaveChanges();
             }
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine("Timed Background Service is starting.");
+            Start();
+
+            _timer = new Timer(DoWork, null, TimeSpan.Zero,
+                TimeSpan.FromSeconds(5));
+
+            return Task.CompletedTask;
+        }
+
+        private void DoWork(object state)
+        {
+            Console.WriteLine("Timed Background Service is working.");
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine("Timed Background Service is stopping.");
+
+            _timer?.Change(Timeout.Infinite, 0);
+
+            return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _timer?.Dispose();
         }
     }
 }

@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Hotsapp.ServiceManager.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Hotsapp.ServiceManager
 {
@@ -15,13 +13,6 @@ namespace Hotsapp.ServiceManager
     {
         public static void Main(string[] args)
         {
-            Task.Run(async () =>
-            {
-                await Task.Delay(5000);
-                var updater = new ServiceUpdater();
-                updater.Start();
-                await Task.Delay(6000000);
-            });
             CreateWebHostBuilder(args).Build().Run();
         }
 

@@ -9,28 +9,28 @@ namespace Hotsapp.ServiceManager.Services
 {
     public class PhoneService
     {
-        ProcessManager pm = new ProcessManager();
+        ProcessManager _pm;
         public event EventHandler<MessageReceived> OnMessageReceived;
-        public PhoneService()
+        public PhoneService(ProcessManager pm)
         {
-
+            _pm = pm;
         }
 
         public async Task Start()
         {
-            pm.OnOutputReceived += Pm_OnOutputReceived;
-            pm.Start();
-            await pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 639552450578 --config-pushname Hotsapp \" /dev/null");
+            _pm.OnOutputReceived += Pm_OnOutputReceived;
+            _pm.Start();
+            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 639552450578 --config-pushname Hotsapp \" /dev/null");
             
-            await pm.SendCommand("");
-            await pm.WaitOutput("offline", 10000);
+            await _pm.SendCommand("");
+            await _pm.WaitOutput("offline", 10000);
             Console.WriteLine("READY");
         }
 
         public async Task Login()
         {
-            await pm.SendCommand("/L");
-            await pm.WaitOutput("Auth: Logged in!");
+            await _pm.SendCommand("/L");
+            await _pm.WaitOutput("Auth: Logged in!");
             Console.WriteLine("LOGIN SUCCESS");
         }
 
@@ -76,17 +76,17 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SendMessage(string number, string message)
         {
-            await pm.SendCommand($"/message send {number} \"{message}\"");
-            await pm.WaitOutput("Sent:");
+            await _pm.SendCommand($"/message send {number} \"{message}\"");
+            await _pm.WaitOutput("Sent:");
         }
 
         public async Task<bool> IsOnline()
         {
-            pm.SendCommand("");
-            pm.SendCommand("");
-            pm.SendCommand("");
-            var offline = pm.WaitOutput("offline");
-            var online = pm.WaitOutput("connected");
+            _pm.SendCommand("");
+            _pm.SendCommand("");
+            _pm.SendCommand("");
+            var offline = _pm.WaitOutput("offline");
+            var online = _pm.WaitOutput("connected");
             var timeout = Task.Delay(1000);
             var res = await Task.WhenAny(offline, online, timeout);
             if (res == online)

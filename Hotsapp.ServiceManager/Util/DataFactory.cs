@@ -9,10 +9,16 @@ namespace Hotsapp.ServiceManager.Util
 {
     public class DataFactory
     {
+        private static string _connectionString;
+        public DataFactory(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
         public static DataContext GetContext()
         {
             var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySQL("server=hotsapp.csgrxoop9tel.sa-east-1.rds.amazonaws.com;port=3306;user=hotsapp;password=NbK2CMOfkkxFqryJF1AO;database=hotsapp");
+            builder.UseMySQL(_connectionString);
             return new DataContext(builder.Options);
             //return DIConfig.GetSetvice<DataContext>();
         }

@@ -30,8 +30,8 @@ namespace Hotsapp.ServiceManager
 
         public void ConfigureServices(IServiceCollection services)
         {
-                        var connectionString = _config.GetConnectionString("MySqlConnectionString");
-
+            var connectionString = _config.GetConnectionString("MySqlConnectionString");
+            new DataFactory(connectionString);
             /*var builder = new DbContextOptionsBuilder<DataContext>();
             builder.UseMySQL(connectionString);
             services.AddSingleton(new DataContext(builder.Options));*/

@@ -22,7 +22,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task Start()
         {
-            await Task.Delay(30000);
+            await Task.Delay(5000);
             try
             {
                 Console.WriteLine("Starting");

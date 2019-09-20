@@ -35,7 +35,7 @@ namespace Hotsapp.ServiceManager
             /*var builder = new DbContextOptionsBuilder<DataContext>();
             builder.UseMySQL(connectionString);
             services.AddSingleton(new DataContext(builder.Options));*/
-            services.AddDbContext<DataContext>(options => options.UseMySQL(connectionString));
+            services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
             services.AddSingleton<ProcessManager>();
             services.AddSingleton<PhoneService>();
             services.AddHostedService<ServiceUpdater>();

@@ -18,7 +18,7 @@ namespace Hotsapp.ServiceManager.Util
         public static DataContext GetContext()
         {
             var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySQL(_connectionString);
+            builder.UseMySql(_connectionString);
             return new DataContext(builder.Options);
             //return DIConfig.GetSetvice<DataContext>();
         }

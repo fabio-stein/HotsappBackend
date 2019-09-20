@@ -39,7 +39,7 @@ namespace Hotsapp.Api
             ConfigureCors(services);
             
             var connectionString = _config.GetConnectionString("MySqlConnectionString");
-            services.AddDbContext<DataContext>(options => options.UseMySQL(connectionString));
+            services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
 
             services.AddSingleton<FirebaseService>();
 

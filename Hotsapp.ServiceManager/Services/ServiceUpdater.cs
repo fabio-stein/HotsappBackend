@@ -105,6 +105,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            Task.Delay(5000).Wait();
             Console.WriteLine("Timed Background Service is starting.");
             Start();
 

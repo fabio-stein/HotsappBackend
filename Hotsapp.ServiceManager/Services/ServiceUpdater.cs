@@ -22,12 +22,19 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task Start()
         {
-            Console.WriteLine("Starting");
-            SendUpdate("STARTING");
-            _ = UpdateTask();
-            _phoneService.OnMessageReceived += OnMessageReceived;
-            await _phoneService.Start();
-            await _phoneService.Login();
+            try
+            {
+                Console.WriteLine("Starting");
+                SendUpdate("STARTING");
+                _ = UpdateTask();
+                _phoneService.OnMessageReceived += OnMessageReceived;
+                await _phoneService.Start();
+                await _phoneService.Login();
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
         public async Task UpdateTask()
@@ -110,6 +117,7 @@ namespace Hotsapp.ServiceManager.Services
         private void DoWork(object state)
         {
             Console.WriteLine("Timed Background Service is working.");
+            var b = 0 / 3;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

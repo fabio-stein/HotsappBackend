@@ -40,7 +40,6 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task UpdateTask()
         {
-            await Task.Delay(1000);
             bool? isOnline = null;
             try
             {
@@ -118,7 +117,6 @@ namespace Hotsapp.ServiceManager.Services
         private void DoWork(object state)
         {
             Console.WriteLine("Timed Background Service is working.");
-            var b = 0 / 3;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

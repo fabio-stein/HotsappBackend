@@ -11,6 +11,7 @@ namespace Hotsapp.Data.Model
         public DateTime DateTimeUtc { get; set; }
         public int? PaymentId { get; set; }
 
+        public virtual Payment Payment { get; set; }
         public virtual User User { get; set; }
     }
 }

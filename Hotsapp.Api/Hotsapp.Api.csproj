@@ -9,9 +9,15 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Controllers\MAuth\Data\**" />
+    <Content Remove="Controllers\MAuth\Data\**" />
+    <EmbeddedResource Remove="Controllers\MAuth\Data\**" />
+    <None Remove="Controllers\MAuth\Data\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
-    <Folder Include="Controllers\MAuth\Data\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

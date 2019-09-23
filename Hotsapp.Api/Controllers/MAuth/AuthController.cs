@@ -42,53 +42,49 @@ namespace Hotsapp.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> SignIn([FromBody] SignInModel Info)
         {
-            using (var scope = new TransactionScope())
+            User user = null;
+
+            if (Info.refreshToken != null)
             {
-                User user = null;
-
-                if (Info.refreshToken != null)
-                {
-                    Info.idToken = Info.refreshToken;
-                    RefreshToken refresh = _refreshTokenService.GetToken(Info.refreshToken);
-                    if (refresh.IsRevoked)
-                        return Unauthorized();
-                    else
-                        user = refresh.User;
-
-                }
+                Info.idToken = Info.refreshToken;
+                RefreshToken refresh = _refreshTokenService.GetToken(Info.refreshToken);
+                if (refresh.IsRevoked)
+                    return Unauthorized();
                 else
-                {
-                    var info = _firebaseService.getAccountInfo(Info.idToken).users[0];
-                    user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
-                    if (user == null)
-                    {
-                        if (!info.emailVerified)
-                            return null;
-                        Console.WriteLine("NOT REGISTERED");
-                        user = await CreateUser(info);
-                    }
-                }
+                    user = refresh.User;
 
-                ClaimsIdentity identity = CreateIdentity(user);
-                SecurityToken securityToken = CreateToken(identity);
-                String token = new JwtSecurityTokenHandler().WriteToken(securityToken);
-
-                AuthResponse ret = new AuthResponse()
-                {
-                    authenticated = true,
-                    //email = info.email,
-                    expiration = DateTime.Now.AddSeconds(10),
-                    accessToken = token,
-                    message = "OK"
-                };
-                if (Info.refreshToken == null)
-                {
-                    ret.refreshToken = _refreshTokenService.CreateRefreshToken(user.Id).Id;
-                }
-                scope.Complete();
-                return Ok(ret);
             }
-            
+            else
+            {
+                var info = _firebaseService.getAccountInfo(Info.idToken).users[0];
+                user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
+                if (user == null)
+                {
+                    if (!info.emailVerified)
+                        return null;
+                    Console.WriteLine("NOT REGISTERED");
+                    user = await CreateUser(info);
+                }
+            }
+
+            ClaimsIdentity identity = CreateIdentity(user);
+            SecurityToken securityToken = CreateToken(identity);
+            String token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+            AuthResponse ret = new AuthResponse()
+            {
+                authenticated = true,
+                //email = info.email,
+                expiration = DateTime.Now.AddSeconds(10),
+                accessToken = token,
+                message = "OK"
+            };
+            if (Info.refreshToken == null)
+            {
+                ret.refreshToken = _refreshTokenService.CreateRefreshToken(user.Id).Id;
+            }
+            return Ok(ret);
+
         }
 
         public SecurityToken CreateToken(ClaimsIdentity identity)
@@ -130,9 +126,7 @@ namespace Hotsapp.Api.Controllers
                 Username = username
             };
             await _dataContext.User.AddAsync(user);
-            await _dataContext.SaveChangesAsync();
             await _balanceService.CreateBalance(user.Id);
-            await _dataContext.SaveChangesAsync();
             return user;
         }
 

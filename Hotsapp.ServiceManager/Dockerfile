@@ -20,4 +20,8 @@ RUN dotnet publish "Hotsapp.ServiceManager.csproj" -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
 ENTRYPOINT ["dotnet", "Hotsapp.ServiceManager.dll"]

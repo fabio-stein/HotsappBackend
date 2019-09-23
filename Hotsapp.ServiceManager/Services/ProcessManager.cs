@@ -49,10 +49,16 @@ namespace Hotsapp.ServiceManager.Services
 
         private async Task ReadOutput(StreamReader sr)
         {
-            while (true)
+            try
             {
-                var line = await sr.ReadLineAsync();
-                OnOutputReceived.Invoke(this, line);
+                while (true)
+                {
+                    var line = await sr.ReadLineAsync();
+                    OnOutputReceived.Invoke(this, line);
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 

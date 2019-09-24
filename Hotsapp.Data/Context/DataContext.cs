@@ -16,7 +16,6 @@ namespace Hotsapp.Data.Model
         }
 
         public virtual DbSet<Message> Message { get; set; }
-        public virtual DbSet<MessageReceived> MessageReceived { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
@@ -41,40 +40,19 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
-                entity.Property(e => e.PhoneNumber)
+                entity.Property(e => e.Content)
                     .IsRequired()
-                    .HasColumnType("varchar(255)");
+                    .HasColumnType("text");
 
-                entity.Property(e => e.SentDateUtc)
-                    .HasColumnName("SentDateUTC")
+                entity.Property(e => e.DateTimeUtc)
+                    .HasColumnName("DateTimeUTC")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.Text)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
+                entity.Property(e => e.ExternalNumber).HasColumnType("varchar(255)");
 
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-            });
+                entity.Property(e => e.InternalNumber).HasColumnType("varchar(255)");
 
-            modelBuilder.Entity<MessageReceived>(entity =>
-            {
-                entity.ToTable("message_received");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.FromNumber)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.Message)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.ReceiveDateUtc)
-                    .HasColumnName("ReceiveDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.ToNumber).HasColumnType("varchar(255)");
+                entity.Property(e => e.IsInternal).HasColumnType("tinyint(1)");
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -113,7 +91,9 @@ namespace Hotsapp.Data.Model
                     .HasColumnName("CreateDateUTC")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.LastUpdate).HasColumnType("datetime");
+                entity.Property(e => e.LastUpdateUtc)
+                    .HasColumnName("LastUpdateUTC")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.Status)
                     .IsRequired()

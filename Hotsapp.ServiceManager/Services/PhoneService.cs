@@ -20,7 +20,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             _pm.OnOutputReceived += Pm_OnOutputReceived;
             _pm.Start();
-            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 639552450578 --config-pushname Hotsapp \" /dev/null");
+            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 84826193915 --config-pushname Hotsapp \" /dev/null");
             
             await _pm.SendCommand("");
             await _pm.WaitOutput("offline", 10000);
@@ -50,27 +50,6 @@ namespace Hotsapp.ServiceManager.Services
                     Message = message
                 };
                 OnMessageReceived.Invoke(this, mr);
-                OnMessage(match.Value);
-            }
-        }
-
-        private async Task OnMessage(string value)
-        {
-            value = value.ToLower().Trim();
-            switch (value)
-            {
-                case "viado":
-                    await SendMessage("555599436679", "viado eh vc");
-                    break;
-                case "lixo":
-                    await SendMessage("555599436679", "toma no cu");
-                    break;
-                case "cuzao":
-                    await SendMessage("555599436679", "eh vc seu lixoo");
-                    break;
-                default:
-                    await SendMessage("555599436679", "vai se fude");
-                    break;
             }
         }
 

@@ -23,11 +23,11 @@ namespace Hotsapp.Api.Controllers.MMessages
         {
             if (Id == 0)
             {
-                var last = _dataContext.MessageReceived.LastOrDefault();
+                var last = _dataContext.Message.LastOrDefault();
                 if (last != null)
                     Id = last.Id - 1;
             }
-            var nextMessage = _dataContext.MessageReceived.Where(m => m.Id > Id).OrderBy(m => m.Id).FirstOrDefault();
+            var nextMessage = _dataContext.Message.Where(m => m.Id > Id && !m.IsInternal).OrderBy(m => m.Id).FirstOrDefault();
             return Ok(nextMessage);
         }
 
@@ -36,9 +36,12 @@ namespace Hotsapp.Api.Controllers.MMessages
         {
             var send = new Message()
             {
-                PhoneNumber = "555599436679",
-                UserId = 3,
-                Text = msg.message
+                ExternalNumber = "555599436679",
+                InternalNumber = "84826193915",
+                Content = msg.message,
+                IsInternal = true,
+                DateTimeUtc = DateTime.UtcNow,
+                Processed = false
             };
             _dataContext.Message.Add(send);
             _dataContext.SaveChanges();

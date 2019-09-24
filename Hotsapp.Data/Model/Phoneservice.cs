@@ -7,7 +7,7 @@ namespace Hotsapp.Data.Model
     {
         public int Id { get; set; }
         public DateTime CreateDateUtc { get; set; }
-        public DateTime LastUpdate { get; set; }
+        public DateTime LastUpdateUtc { get; set; }
         public string Status { get; set; }
     }
 }

@@ -6,9 +6,11 @@ namespace Hotsapp.Data.Model
     public partial class Message
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public string Text { get; set; }
-        public DateTime? SentDateUtc { get; set; }
-        public string PhoneNumber { get; set; }
+        public DateTime DateTimeUtc { get; set; }
+        public string Content { get; set; }
+        public string InternalNumber { get; set; }
+        public string ExternalNumber { get; set; }
+        public bool IsInternal { get; set; }
+        public bool Processed { get; set; }
     }
 }

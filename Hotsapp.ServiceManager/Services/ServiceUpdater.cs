@@ -14,63 +14,25 @@ namespace Hotsapp.ServiceManager.Services
     {
         PhoneService _phoneService;
         private Timer _timer;
+        private bool updateRunning = false;
 
         public ServiceUpdater(PhoneService phoneService)
         {
             _phoneService = phoneService;
         }
 
-        public async Task Start()
-        {
-            await Task.Delay(5000);
-            try
-            {
-                Console.WriteLine("Starting");
-                SendUpdate("STARTING");
-                _ = UpdateTask();
-                _phoneService.OnMessageReceived += OnMessageReceived;
-                await _phoneService.Start();
-                await _phoneService.Login();
-            }catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-        }
-
-        public async Task UpdateTask()
-        {
-            bool? isOnline = null;
-            try
-            {
-                isOnline = await _phoneService.IsOnline();
-            }
-            catch (Exception e){
-                Console.WriteLine(e.ToString());
-            }
-            string status = "ERROR";
-            if (isOnline != null)
-            {
-                status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
-            }
-            SendUpdate(status);
-            await CheckMessagesToSend();
-
-            _ = UpdateTask();
-        }
-
         public async Task CheckMessagesToSend()
         {
             var context = DataFactory.GetContext();
             {
-                var message = context.Message.Where(m => m.SentDateUtc == null)
+                var message = context.Message.Where(m => m.IsInternal && !m.Processed)
                     .OrderBy(m => m.Id)
                     .FirstOrDefault();
                 if(message != null)
                 {
                     Console.WriteLine("New message to send!");
-                    await _phoneService.SendMessage(message.PhoneNumber, message.Text);
-                    message.SentDateUtc = DateTime.UtcNow;
+                    await _phoneService.SendMessage(message.ExternalNumber, message.Content);
+                    message.Processed = true;
                     await context.SaveChangesAsync();
                 }
             }
@@ -81,7 +43,7 @@ namespace Hotsapp.ServiceManager.Services
             var context = DataFactory.GetContext();
             {
                 var s = context.Phoneservice.First();
-                s.LastUpdate = DateTime.UtcNow;
+                s.LastUpdateUtc = DateTime.UtcNow;
                 s.Status = status;
                 context.SaveChanges();
             }
@@ -91,32 +53,64 @@ namespace Hotsapp.ServiceManager.Services
         {
             var context = DataFactory.GetContext();
             {
-                var message = new MessageReceived()
+                var message = new Message()
                 {
-                    Message = mr.Message,
-                    FromNumber = mr.Number,
-                    ToNumber = "639552450578",
-                    ReceiveDateUtc = DateTime.UtcNow
+                    Content = mr.Message,
+                    ExternalNumber = mr.Number,
+                    InternalNumber = "84826193915",
+                    DateTimeUtc = DateTime.UtcNow,
+                    IsInternal = false
                 };
-                context.MessageReceived.Add(message);
+                context.Message.Add(message);
                 context.SaveChanges();
             }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Timed Background Service is starting.");
-            Start();
+            Console.WriteLine("Starting");
+            SendUpdate("STARTING");
+            UpdateTask(null);
+            _phoneService.OnMessageReceived += OnMessageReceived;
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(30));
+            _phoneService.Start().Wait();
+            _phoneService.Login().Wait();
+
+            _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(500));
 
             return Task.CompletedTask;
         }
 
-        private void DoWork(object state)
+        private void UpdateTask(object state)
         {
-            Console.WriteLine("Timed Background Service is working.");
+            if (updateRunning)
+                return;
+            updateRunning = true;
+            try
+            {
+                bool? isOnline = null;
+                try
+                {
+                    isOnline = _phoneService.IsOnline().Result;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+                string status = "ERROR";
+                if (isOnline != null)
+                {
+                    status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
+                }
+                SendUpdate(status);
+                CheckMessagesToSend().Wait();
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            updateRunning = false;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

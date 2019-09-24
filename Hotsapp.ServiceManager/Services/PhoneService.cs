@@ -20,7 +20,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             _pm.OnOutputReceived += Pm_OnOutputReceived;
             _pm.Start();
-            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 84826193915 --config-pushname Hotsapp \" /dev/null");
+            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 639552450578 --config-pushname Hotsapp \" /dev/null");
             
             await _pm.SendCommand("");
             await _pm.WaitOutput("offline", 10000);

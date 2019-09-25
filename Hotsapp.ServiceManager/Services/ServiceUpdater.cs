@@ -7,18 +7,21 @@ using System.Threading.Tasks;
 using Hotsapp.Data.Model;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
+using System.IO;
 
 namespace Hotsapp.ServiceManager.Services
 {
     public class ServiceUpdater : IHostedService, IDisposable
     {
         PhoneService _phoneService;
+        NumberManager _numberManager;
         private Timer _timer;
         private bool updateRunning = false;
 
-        public ServiceUpdater(PhoneService phoneService)
+        public ServiceUpdater(PhoneService phoneService, NumberManager numberManager)
         {
             _phoneService = phoneService;
+            _numberManager = numberManager;
         }
 
         public async Task CheckMessagesToSend()
@@ -57,7 +60,7 @@ namespace Hotsapp.ServiceManager.Services
                 {
                     Content = mr.Message,
                     ExternalNumber = mr.Number,
-                    InternalNumber = "639552450578",
+                    InternalNumber = _numberManager.currentNumber,
                     DateTimeUtc = DateTime.UtcNow,
                     IsInternal = false
                 };
@@ -69,6 +72,12 @@ namespace Hotsapp.ServiceManager.Services
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("Starting");
+            _numberManager.TryAllocateNumber().Wait();
+            if (_numberManager.currentNumber == null)
+                throw new Exception("Cannot allocate any number");
+
+            _numberManager.LoadData();
+
             SendUpdate("STARTING");
             UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
@@ -78,7 +87,6 @@ namespace Hotsapp.ServiceManager.Services
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
                 TimeSpan.FromMilliseconds(500));
-
             return Task.CompletedTask;
         }
 
@@ -89,6 +97,7 @@ namespace Hotsapp.ServiceManager.Services
             updateRunning = true;
             try
             {
+                _numberManager.PutCheck().Wait();
                 bool? isOnline = null;
                 try
                 {
@@ -104,7 +113,14 @@ namespace Hotsapp.ServiceManager.Services
                     status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
                 }
                 SendUpdate(status);
-                CheckMessagesToSend().Wait();
+                if (isOnline != null && isOnline == true)
+                {
+                    CheckMessagesToSend().Wait();
+                }
+                else
+                {
+                    //_phoneService.Login().Wait();
+                }
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -116,8 +132,11 @@ namespace Hotsapp.ServiceManager.Services
         public Task StopAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("Timed Background Service is stopping.");
+            _phoneService.Stop();
 
             _timer?.Change(Timeout.Infinite, 0);
+
+            _numberManager.ReleaseNumber().Wait();
 
             return Task.CompletedTask;
         }

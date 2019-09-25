@@ -17,6 +17,7 @@ namespace Hotsapp.ServiceManager.Services
         public NumberManager(IConfiguration config)
         {
             yowsupConfigPath = config["YowsupExtractPath"];
+            Directory.CreateDirectory(yowsupConfigPath);//Create if not exists
         }
         public async Task<VirtualNumber> TryAllocateNumber()
         {

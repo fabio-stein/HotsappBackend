@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -30,6 +31,8 @@ namespace Hotsapp.ServiceManager.Services
             _processManager.Start();
 
             var configPath = _configuration["YowsupConfigPath"] + _numberManager.currentNumber;
+            Directory.CreateDirectory(configPath);//Create if not exists
+
             await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
             
             await _processManager.SendCommand("");

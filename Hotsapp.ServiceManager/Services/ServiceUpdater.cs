@@ -113,15 +113,9 @@ namespace Hotsapp.ServiceManager.Services
                     status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
                 }
                 SendUpdate(status);
-                if (isOnline != null && isOnline == true)
-                {
-                    CheckMessagesToSend().Wait();
-                }
-                else
-                {
-                    //_phoneService.Login().Wait();
-                }
-            }catch(Exception e)
+                CheckMessagesToSend().Wait();
+            }
+            catch(Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);

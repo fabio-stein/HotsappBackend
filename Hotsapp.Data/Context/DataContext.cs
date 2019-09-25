@@ -22,6 +22,8 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
+        public virtual DbSet<VirtualNumber> VirtualNumber { get; set; }
+        public virtual DbSet<VirtualNumberData> VirtualNumberData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -53,6 +55,10 @@ namespace Hotsapp.Data.Model
                 entity.Property(e => e.InternalNumber).HasColumnType("varchar(255)");
 
                 entity.Property(e => e.IsInternal).HasColumnType("tinyint(1)");
+
+                entity.Property(e => e.Processed)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("'1'");
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -174,7 +180,7 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.Username)
                     .IsRequired()
-                    .HasColumnType("varchar(15)");
+                    .HasColumnType("varchar(20)");
             });
 
             modelBuilder.Entity<UserAccount>(entity =>
@@ -195,6 +201,43 @@ namespace Hotsapp.Data.Model
                     .HasForeignKey<UserAccount>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_user_account_UserId");
+            });
+
+            modelBuilder.Entity<VirtualNumber>(entity =>
+            {
+                entity.HasKey(e => e.Number)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("virtual_number");
+
+                entity.Property(e => e.Number).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.LastCheckUtc)
+                    .HasColumnName("LastCheckUTC")
+                    .HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<VirtualNumberData>(entity =>
+            {
+                entity.ToTable("virtual_number_data");
+
+                entity.HasIndex(e => e.Number)
+                    .HasName("FK_virtual_number_data_Number");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.Data).HasColumnType("blob");
+
+                entity.Property(e => e.InsertDateUtc)
+                    .HasColumnName("InsertDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Number).HasColumnType("varchar(255)");
+
+                entity.HasOne(d => d.NumberNavigation)
+                    .WithMany(p => p.VirtualNumberData)
+                    .HasForeignKey(d => d.Number)
+                    .HasConstraintName("FK_virtual_number_data_Number");
             });
         }
     }

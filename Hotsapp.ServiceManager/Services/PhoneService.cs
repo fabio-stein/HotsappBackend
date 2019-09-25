@@ -4,33 +4,48 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Hotsapp.ServiceManager.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace Hotsapp.ServiceManager.Services
 {
     public class PhoneService
     {
-        ProcessManager _pm;
+        ProcessManager _processManager;
         public event EventHandler<MessageReceived> OnMessageReceived;
-        public PhoneService(ProcessManager pm)
+        private NumberManager _numberManager;
+        private IHostingEnvironment _hostingEnvironment;
+        private IConfiguration _configuration;
+        public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment)
         {
-            _pm = pm;
+            _processManager = processManager;
+            _numberManager = numberManager;
+            _configuration = config;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task Start()
         {
-            _pm.OnOutputReceived += Pm_OnOutputReceived;
-            _pm.Start();
-            await _pm.SendCommand("script -q -c \"yowsup-cli demos --yowsup --config-phone 84826193915 --config-pushname Hotsapp \" /dev/null");
+            _processManager.OnOutputReceived += Pm_OnOutputReceived;
+            _processManager.Start();
+
+            var configPath = _configuration["YowsupConfigPath"] + _numberManager.currentNumber;
+            await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
             
-            await _pm.SendCommand("");
-            await _pm.WaitOutput("offline", 10000);
+            await _processManager.SendCommand("");
+            await _processManager.WaitOutput("offline", 10000);
             Console.WriteLine("READY");
+        }
+
+        public void Stop()
+        {
+            _processManager.Stop();
         }
 
         public async Task Login()
         {
-            await _pm.SendCommand("/L");
-            await _pm.WaitOutput("Auth: Logged in!");
+            await _processManager.SendCommand("/L");
+            await _processManager.WaitOutput("Auth: Logged in!");
             Console.WriteLine("LOGIN SUCCESS");
         }
 
@@ -55,17 +70,17 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SendMessage(string number, string message)
         {
-            await _pm.SendCommand($"/message send {number} \"{message}\"");
-            await _pm.WaitOutput("Sent:");
+            await _processManager.SendCommand($"/message send {number} \"{message}\"");
+            await _processManager.WaitOutput("Sent:");
         }
 
         public async Task<bool> IsOnline()
         {
-            _pm.SendCommand("");
-            _pm.SendCommand("");
-            _pm.SendCommand("");
-            var offline = _pm.WaitOutput("offline");
-            var online = _pm.WaitOutput("connected");
+            _processManager.SendCommand("");
+            _processManager.SendCommand("");
+            _processManager.SendCommand("");
+            var offline = _processManager.WaitOutput("offline");
+            var online = _processManager.WaitOutput("connected");
             var timeout = Task.Delay(1000);
             var res = await Task.WhenAny(offline, online, timeout);
             if (res == online)

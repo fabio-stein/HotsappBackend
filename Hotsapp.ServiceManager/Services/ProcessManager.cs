@@ -47,6 +47,11 @@ namespace Hotsapp.ServiceManager.Services
             _ = ReadOutput(process.StandardError);
         }
 
+        public void Stop()
+        {
+            process.Kill();
+        }
+
         private async Task ReadOutput(StreamReader sr)
         {
             try

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hotsapp.Data.Model;
+using Hotsapp.Data.Context;
 
 namespace Hotsapp.ServiceManager.Util
 {
@@ -21,6 +22,13 @@ namespace Hotsapp.ServiceManager.Util
             builder.UseMySql(_connectionString);
             return new DataContext(builder.Options);
             //return DIConfig.GetSetvice<DataContext>();
+        }
+
+        public static NumberContext GetNumberContext()
+        {
+            var builder = new DbContextOptionsBuilder<DataContext>();
+            builder.UseMySql(_connectionString);
+            return new NumberContext(builder.Options);
         }
     }
 }

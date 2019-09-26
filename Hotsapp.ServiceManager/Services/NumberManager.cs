@@ -19,18 +19,12 @@ namespace Hotsapp.ServiceManager.Services
             yowsupConfigPath = config["YowsupExtractPath"];
             Directory.CreateDirectory(yowsupConfigPath);//Create if not exists
         }
-        public async Task<VirtualNumber> TryAllocateNumber()
+        public async Task<string> TryAllocateNumber()
         {
-            using (var context = DataFactory.GetContext())
+            using(var context = DataFactory.GetNumberContext())
             {
-                var maxCheck = DateTime.UtcNow.AddMinutes(-5);
-                var number = context.VirtualNumber.Where(n => n.LastCheckUtc == null || n.LastCheckUtc < maxCheck).FirstOrDefault();
-                if (number != null)
-                {
-                    currentNumber = number.Number;
-                    number.LastCheckUtc = DateTime.UtcNow;
-                    await context.SaveChangesAsync();
-                }
+                var number = await context.TryAllocateNumber();
+                currentNumber = number;
                 return number;
             }
         }

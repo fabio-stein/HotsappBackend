@@ -10,14 +10,18 @@ namespace Hotsapp.Data.Context
 {
     public class NumberContext : DataContext
     {
-        string allocateNumberQuery = @"SET @phone = null;
+        string allocateNumberQuery = @"
+BEGIN;
+SET @phone = null;
 SELECT @phone := Number FROM virtual_number
   WHERE LastCheckUTC IS NULL OR LastCheckUTC < @timeLimit
   LIMIT 1;
 UPDATE virtual_number
   SET LastCheckUTC = @newDate
   WHERE Number = @phone;
-SELECT @phone;";
+SELECT @phone;
+COMMIT;
+";
         private DbContextOptions<NumberContext> options;
 
         public NumberContext(DbContextOptions<DataContext> options)

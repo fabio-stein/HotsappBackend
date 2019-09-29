@@ -10,9 +10,10 @@ namespace Hotsapp.ServiceManager.Services
 {
     public class ProcessManager
     {
-        private Process process = new Process();
+        private Process process;
         public event EventHandler<string> OnOutputReceived;
         IHostingEnvironment _env;
+        private event EventHandler OnTerminating;
 
         public ProcessManager(IHostingEnvironment env)
         {
@@ -27,6 +28,7 @@ namespace Hotsapp.ServiceManager.Services
         public void Start()
         {
             Console.WriteLine("Starting new process");
+            process = new Process();
             var startInfo = new ProcessStartInfo();
             
             if(_env.IsDevelopment())
@@ -49,6 +51,21 @@ namespace Hotsapp.ServiceManager.Services
 
         public void Stop()
         {
+            ForceKill();
+        }
+
+        private void ForceKill()
+        {
+            try
+            {
+                process.Kill();
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Start();
+            SendCommand("pkill -9 -f yowsup").Wait();
+            Task.Delay(1000).Wait();
             process.Kill();
         }
 
@@ -100,7 +117,23 @@ namespace Hotsapp.ServiceManager.Services
                     tcs.SetException(new Exception("No Response"));
                 }
             });
+
             timeoutTask.Start();
+
+            EventHandler terminatedHandler = (o, e) =>
+            {
+                if (!cts.IsCancellationRequested)
+                {
+                    OnOutputReceived -= handler;
+                    cts.Cancel();
+                    new Task(() =>
+                    {
+                        tcs.SetResult(null);
+                    }).Start();
+                }
+            };
+
+            OnTerminating += terminatedHandler;
             return tcs.Task;
         }
     }

@@ -17,6 +17,8 @@ namespace Hotsapp.ServiceManager.Services
         private NumberManager _numberManager;
         private IHostingEnvironment _hostingEnvironment;
         private IConfiguration _configuration;
+        public bool isDead { get; private set; } = false;
+        private bool initialized = false;
         public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment)
         {
             _processManager = processManager;
@@ -27,7 +29,12 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task Start()
         {
-            _processManager.OnOutputReceived += Pm_OnOutputReceived;
+            isDead = false;
+            if (!initialized)
+            {
+                _processManager.OnOutputReceived += Pm_OnOutputReceived;
+                initialized = true;
+            }
             _processManager.Start();
 
             var configPath = _configuration["YowsupConfigPath"] + _numberManager.currentNumber;
@@ -54,7 +61,13 @@ namespace Hotsapp.ServiceManager.Services
 
         private void Pm_OnOutputReceived(object sender, string e)
         {
+            if (e == null)
+                return;
             Console.WriteLine(e);
+
+            if (e.Contains("Exception in thread Thread"))
+                isDead = true;
+
             var match = Regex.Match(e, "(?<=\t).*");
             if (match.Success)
             {

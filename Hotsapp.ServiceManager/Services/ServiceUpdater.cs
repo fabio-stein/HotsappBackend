@@ -17,6 +17,8 @@ namespace Hotsapp.ServiceManager.Services
         NumberManager _numberManager;
         private Timer _timer;
         private bool updateRunning = false;
+        private DateTime? lastLoginAttempt = null;
+        private bool isOnline = false;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager)
         {
@@ -84,6 +86,7 @@ namespace Hotsapp.ServiceManager.Services
 
             _phoneService.Start().Wait();
             _phoneService.Login().Wait();
+            lastLoginAttempt = DateTime.UtcNow;
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
                 TimeSpan.FromMilliseconds(500));
@@ -95,10 +98,10 @@ namespace Hotsapp.ServiceManager.Services
             if (updateRunning)
                 return;
             updateRunning = true;
+            Console.WriteLine("UPDATE TASK RUN");
             try
             {
                 _numberManager.PutCheck().Wait();
-                bool? isOnline = null;
                 try
                 {
                     isOnline = _phoneService.IsOnline().Result;
@@ -106,12 +109,9 @@ namespace Hotsapp.ServiceManager.Services
                 catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
+                    isOnline = false;
                 }
-                string status = "ERROR";
-                if (isOnline != null)
-                {
-                    status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
-                }
+                string status = status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
                 SendUpdate(status);
                 CheckMessagesToSend().Wait();
             }
@@ -119,8 +119,46 @@ namespace Hotsapp.ServiceManager.Services
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+                isOnline = false;
             }
+
+            try
+            {
+                CheckDisconnection().Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
             updateRunning = false;
+        }
+
+        private async Task CheckDisconnection()
+        {
+            var minTimeToCheckAgain = DateTime.UtcNow.AddSeconds(-15);
+            if (lastLoginAttempt == null || lastLoginAttempt > minTimeToCheckAgain)
+                return;
+
+            if (_phoneService.isDead)
+            {
+                Console.WriteLine("[Connection Checker] PhoneService IsDead! Reconnecting.");
+                _phoneService.Stop();
+                await _phoneService.Start();
+                await _phoneService.Login();
+                lastLoginAttempt = DateTime.UtcNow;
+                return;
+            }
+
+            if (!isOnline)
+            {
+                Console.WriteLine("[Connection Checker] PhoneService is offline! Reconnecting.");
+                await _phoneService.Login();
+                lastLoginAttempt = DateTime.UtcNow;
+                return;
+            }
+            
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

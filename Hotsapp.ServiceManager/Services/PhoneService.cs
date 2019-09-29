@@ -59,6 +59,11 @@ namespace Hotsapp.ServiceManager.Services
             Console.WriteLine("LOGIN SUCCESS");
         }
 
+        public async Task SetProfilePicture()
+        {
+            await _processManager.SendCommand("/profile setPicture /app/Assets/profile.jpg");
+        }
+
         private void Pm_OnOutputReceived(object sender, string e)
         {
             if (e == null)

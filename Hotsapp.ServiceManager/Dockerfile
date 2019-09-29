@@ -9,6 +9,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["Hotsapp.ServiceManager/Hotsapp.ServiceManager.csproj", "Hotsapp.ServiceManager/"]
 COPY ["Hotsapp.Data/Hotsapp.Data.csproj", "Hotsapp.Data/"]
+COPY ["Hotsapp.ServiceManager/Assets", "Assets"]
 RUN dotnet restore "Hotsapp.ServiceManager/Hotsapp.ServiceManager.csproj"
 COPY . .
 WORKDIR "/src/Hotsapp.ServiceManager"
@@ -20,6 +21,7 @@ RUN dotnet publish "Hotsapp.ServiceManager.csproj" -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+COPY --from=build /src/Assets /app/Assets
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

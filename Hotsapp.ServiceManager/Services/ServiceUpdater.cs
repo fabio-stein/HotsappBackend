@@ -87,6 +87,7 @@ namespace Hotsapp.ServiceManager.Services
             _phoneService.Start().Wait();
             _phoneService.Login().Wait();
             lastLoginAttempt = DateTime.UtcNow;
+            _phoneService.SetProfilePicture().Wait();
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
                 TimeSpan.FromMilliseconds(500));

@@ -64,6 +64,11 @@ namespace Hotsapp.ServiceManager.Services
             await _processManager.SendCommand("/profile setPicture /app/Assets/profile.jpg");
         }
 
+        public async Task SetStatus()
+        {
+            await _processManager.SendCommand($"/profile setStatus \"{_configuration["ProfileStatus"]}\"");
+        }
+
         private void Pm_OnOutputReceived(object sender, string e)
         {
             if (e == null)

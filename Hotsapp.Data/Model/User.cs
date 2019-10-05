@@ -9,6 +9,7 @@ namespace Hotsapp.Data.Model
         {
             Payment = new HashSet<Payment>();
             RefreshToken = new HashSet<RefreshToken>();
+            SingleMessage = new HashSet<SingleMessage>();
             Transaction = new HashSet<Transaction>();
         }
 
@@ -21,6 +22,7 @@ namespace Hotsapp.Data.Model
         public virtual UserAccount UserAccount { get; set; }
         public virtual ICollection<Payment> Payment { get; set; }
         public virtual ICollection<RefreshToken> RefreshToken { get; set; }
+        public virtual ICollection<SingleMessage> SingleMessage { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

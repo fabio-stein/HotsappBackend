@@ -11,14 +11,13 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\MAuth\Data\**" />
+    <Compile Remove="wwwroot\**" />
     <Content Remove="Controllers\MAuth\Data\**" />
+    <Content Remove="wwwroot\**" />
     <EmbeddedResource Remove="Controllers\MAuth\Data\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
     <None Remove="Controllers\MAuth\Data\**" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <None Remove="wwwroot\**" />
   </ItemGroup>
 
   <ItemGroup>

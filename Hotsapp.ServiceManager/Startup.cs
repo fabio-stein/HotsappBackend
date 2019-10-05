@@ -1,5 +1,5 @@
 ﻿using Hotsapp.ServiceManager.Services;
-using Hotsapp.ServiceManager.Util;
+using Hotsapp.Data.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +11,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Hotsapp.Data.Model;
+using Hotsapp.ServiceManager.Util;
 
 namespace Hotsapp.ServiceManager
 {

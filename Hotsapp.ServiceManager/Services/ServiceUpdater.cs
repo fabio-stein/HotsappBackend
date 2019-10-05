@@ -1,4 +1,4 @@
-﻿using Hotsapp.ServiceManager.Util;
+﻿using Hotsapp.Data.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +18,14 @@ namespace Hotsapp.ServiceManager.Services
         private bool updateRunning = false;
         private DateTime? lastLoginAttempt = null;
         private bool isOnline = false;
+        private int offlineCount = 0;
+        private IHostingEnvironment _hostingEnvironment;
 
-        public ServiceUpdater(PhoneService phoneService, NumberManager numberManager)
+        public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment)
         {
             _phoneService = phoneService;
             _numberManager = numberManager;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task CheckMessagesToSend()
@@ -86,7 +89,8 @@ namespace Hotsapp.ServiceManager.Services
             _phoneService.Start().Wait();
             _phoneService.Login().Wait();
             lastLoginAttempt = DateTime.UtcNow;
-            _phoneService.SetProfilePicture().Wait();
+            if(_hostingEnvironment.IsProduction())
+                _phoneService.SetProfilePicture().Wait();
             _phoneService.SetStatus().Wait();
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
@@ -123,6 +127,11 @@ namespace Hotsapp.ServiceManager.Services
                 isOnline = false;
             }
 
+            if (isOnline)
+                offlineCount = 0;
+            else
+                offlineCount++;
+
             try
             {
                 CheckDisconnection().Wait();
@@ -152,7 +161,7 @@ namespace Hotsapp.ServiceManager.Services
                 return;
             }
 
-            if (!isOnline)
+            if (offlineCount >= 5)
             {
                 Console.WriteLine("[Connection Checker] PhoneService is offline! Reconnecting.");
                 await _phoneService.Login();

@@ -33,7 +33,7 @@ COMMIT;
         {
             using(var conn = Database.GetDbConnection())
             {
-                var minTime = DateTime.UtcNow.AddMinutes(-5);
+                var minTime = DateTime.UtcNow.AddMinutes(-1);
                 var number = await conn.QuerySingleOrDefaultAsync<string>(allocateNumberQuery, new { timeLimit = minTime, newDate = DateTime.UtcNow });
                 return number;
             }

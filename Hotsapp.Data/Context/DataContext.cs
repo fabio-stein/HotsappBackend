@@ -19,6 +19,7 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
+        public virtual DbSet<SingleMessage> SingleMessage { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
@@ -30,7 +31,7 @@ namespace Hotsapp.Data.Model
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySql("server=localhost;port=3306;user=root;password=sonorisdev;database=hotsapp");
+                optionsBuilder.UseMySql("server=localhost;port=3306;user=root;password=sonorisdev;database=hotsapp;TreatTinyAsBoolean=true;");
             }
         }
 
@@ -126,6 +127,40 @@ namespace Hotsapp.Data.Model
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RefreshToken_UserId");
+            });
+
+            modelBuilder.Entity<SingleMessage>(entity =>
+            {
+                entity.ToTable("single_message");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_single_message_UserId");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.Content)
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                entity.Property(e => e.CreateDateUtc)
+                    .HasColumnName("CreateDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Processed)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.ToNumber)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.SingleMessage)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_single_message_UserId");
             });
 
             modelBuilder.Entity<Transaction>(entity =>
@@ -225,8 +260,6 @@ namespace Hotsapp.Data.Model
                     .HasName("FK_virtual_number_data_Number");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.Data).HasColumnType("blob");
 
                 entity.Property(e => e.InsertDateUtc)
                     .HasColumnName("InsertDateUTC")

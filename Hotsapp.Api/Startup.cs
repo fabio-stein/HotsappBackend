@@ -13,6 +13,7 @@ using Hotsapp.Api.Services;
 using Hotsapp.Api.Util;
 using Hotsapp.Data.Model;
 using Hotsapp.Payment;
+using Hotsapp.Data.Util;
 
 namespace Hotsapp.Api
 {
@@ -40,6 +41,7 @@ namespace Hotsapp.Api
             
             var connectionString = _config.GetConnectionString("MySqlConnectionString");
             services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
+            new DataFactory(connectionString);
 
             services.AddSingleton<FirebaseService>();
 
@@ -47,6 +49,7 @@ namespace Hotsapp.Api
             services.AddTransient<UsernameGeneratorService>();
             services.AddTransient<PaymentService>();
             services.AddTransient<RefreshTokenService>();
+            services.AddHostedService<SingleMessageProcessService>();
         }
 
         public void Configure(IApplicationBuilder app,
@@ -75,7 +78,7 @@ namespace Hotsapp.Api
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
-                        .WithOrigins(_config.GetValue<string>("APP_HOST"));
+                        .WithOrigins(_config["AppHost"]);
                     });
             });
         }

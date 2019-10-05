@@ -1,5 +1,5 @@
 ﻿using Hotsapp.Data.Model;
-using Hotsapp.ServiceManager.Util;
+using Hotsapp.Data.Util;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

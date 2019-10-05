@@ -1,12 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Hotsapp.Data.Context;
 using Hotsapp.Data.Model;
-using Hotsapp.Data.Context;
+using Microsoft.EntityFrameworkCore;
 
-namespace Hotsapp.ServiceManager.Util
+namespace Hotsapp.Data.Util
 {
     public class DataFactory
     {

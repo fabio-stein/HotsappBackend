@@ -102,14 +102,14 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task<bool> IsOnline()
         {
-            _processManager.SendCommand("");
-            _processManager.SendCommand("");
-            _processManager.SendCommand("");
             var offline = _processManager.WaitOutput("offline");
             var online = _processManager.WaitOutput("connected");
+            _processManager.SendCommand("");
+            _processManager.SendCommand("");
+            _processManager.SendCommand("");
             var timeout = Task.Delay(1000);
             var res = await Task.WhenAny(offline, online, timeout);
-            TryDisposeTasks(new Task[] { offline, online, timeout });
+            //TryDisposeTasks(new Task[] { offline, online, timeout });
             if (res == online)
                 return true;
             else

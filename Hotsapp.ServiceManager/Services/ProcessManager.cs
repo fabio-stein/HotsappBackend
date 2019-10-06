@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -85,57 +86,74 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
-        public Task<string> WaitOutput(string data, int? timeout = 5000)
+        public async Task<string> WaitOutput(string data, int? timeout = 5000)
         {
-            var cts = new CancellationTokenSource();
-            TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+            //Define handlers
+            TaskCompletionSource<string> outputTcs = new TaskCompletionSource<string>();
+            TaskCompletionSource<string> terminatingTcs = new TaskCompletionSource<string>();
+            EventHandler<string> outputHandler = null;
+            EventHandler terminationHandler = null;
+            Task timeoutTask = null;
 
-            EventHandler<string> handler = (o, e) =>
+            //Create handlers
+            outputHandler = (o, e) =>
             {
-                if (!cts.IsCancellationRequested && e.Contains(data))
-                {
-                    cts.Cancel();
-                    new Task(() =>
-                    {
-                        tcs.SetResult(e);
-                    }).Start();
-                }
+                if(e.Contains(data))
+                    outputTcs.SetResult(e);
             };
 
-            OnOutputReceived += handler;
-
-            var timeoutTask = new Task(async () =>
+            timeoutTask = new Task(() =>
             {
-                try
-                {
-                    await Task.Delay((int)timeout, cts.Token);
-                }catch(OperationCanceledException e) {
-                    OnOutputReceived -= handler;
-                }
-                if (!cts.Token.IsCancellationRequested)
-                {
-                    OnOutputReceived -= handler;
-                    tcs.SetException(new Exception("No Response"));
-                }
+                Task.Delay((int)timeout).Wait();
             });
 
-            timeoutTask.Start();
-
-            EventHandler terminatedHandler = (o, e) =>
+            terminationHandler = (o, e) =>
             {
-                if (!cts.IsCancellationRequested)
-                {
-                    OnOutputReceived -= handler;
-                    cts.Cancel();
-                    new Task(() =>
-                    {
-                        tcs.SetResult(null);
-                    }).Start();
-                }
+                terminatingTcs.SetResult(null);
             };
 
-            OnTerminating += terminatedHandler;
-            return tcs.Task;
+            //Start handlers
+            OnOutputReceived += outputHandler;
+            OnTerminating += terminationHandler;
+
+            var result = await Task.WhenAny(outputTcs.Task, timeoutTask, terminatingTcs.Task);
+            TryDisposeAll(new IDisposable[]{ outputTcs.Task, terminatingTcs.Task });
+            try
+            {
+                OnOutputReceived -= outputHandler;
+                OnTerminating -= terminationHandler;
+            }catch(Exception e)
+            {
+
+            }
+            if (result == outputTcs.Task)
+                return outputTcs.Task.Result;
+            else if (result == timeoutTask)
+                throw new Exception("Response timeout");
+            else
+            {
+                throw new Exception("No reponse");
+            }
+        }
+
+        private static void TryDisposeAll(IDisposable[] objs)
+        {
+            var list = new List<IDisposable>(objs);
+            list.ForEach(item =>
+            {
+                TryDispose(item);
+            });
+        }
+
+        private static void TryDispose(IDisposable obj)
+        {
+            try
+            {
+                obj.Dispose();
+            }catch(Exception e)
+            {
+
+            }
         }
     }
 }

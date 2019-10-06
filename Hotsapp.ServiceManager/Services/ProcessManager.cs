@@ -56,6 +56,7 @@ namespace Hotsapp.ServiceManager.Services
 
         private void ForceKill()
         {
+            Console.WriteLine("Killing Yowsup");
             try
             {
                 process.Kill();

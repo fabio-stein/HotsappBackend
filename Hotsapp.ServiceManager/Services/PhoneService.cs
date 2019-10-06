@@ -109,10 +109,23 @@ namespace Hotsapp.ServiceManager.Services
             var online = _processManager.WaitOutput("connected");
             var timeout = Task.Delay(1000);
             var res = await Task.WhenAny(offline, online, timeout);
+            TryDisposeTasks(new Task[] { offline, online, timeout });
             if (res == online)
                 return true;
             else
                 return false;
+        }
+
+        private static void TryDisposeTasks(Task[] tasks)
+        {
+            var list = new List<Task>(tasks);
+            list.ForEach(task =>
+            {
+                try
+                {
+                    task.Dispose();
+                }catch(Exception e) { }
+            });
         }
     }
 }

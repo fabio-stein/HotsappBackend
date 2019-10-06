@@ -30,7 +30,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task CheckMessagesToSend()
         {
-            var context = DataFactory.GetContext();
+            using (var context = DataFactory.GetContext())
             {
                 var message = context.Message.Where(m => m.IsInternal && !m.Processed)
                     .OrderBy(m => m.Id)
@@ -47,7 +47,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public void SendUpdate(string status)
         {
-            var context = DataFactory.GetContext();
+            using (var context = DataFactory.GetContext())
             {
                 var s = context.Phoneservice.First();
                 s.LastUpdateUtc = DateTime.UtcNow;
@@ -58,7 +58,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public void OnMessageReceived(object sender, Data.MessageReceived mr)
         {
-            var context = DataFactory.GetContext();
+            using (var context = DataFactory.GetContext())
             {
                 var message = new Message()
                 {

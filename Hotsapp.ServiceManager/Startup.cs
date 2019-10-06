@@ -41,6 +41,7 @@ namespace Hotsapp.ServiceManager
             services.AddSingleton<PhoneService>();
             services.AddHostedService<ServiceUpdater>();
             services.AddSingleton<NumberManager>();
+            services.AddHostedService<GCService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)

@@ -47,7 +47,7 @@ namespace Hotsapp.Api.Services
             using(var conn = DataFactory.OpenConnection())
             {
                 conn.Query(@"UPDATE virtual_number vn
-  LEFT JOIN number_period np ON (np.StartDateUTC <= UTC_TIMESTAMP() AND (np.EndDateUTC IS NULL OR np.EndDateUTC >= UTC_TIMESTAMP()))
+  LEFT JOIN number_period np ON (np.VirtualNumberId = vn.Number AND np.StartDateUTC <= UTC_TIMESTAMP() AND (np.EndDateUTC IS NULL OR np.EndDateUTC >= UTC_TIMESTAMP()))
   SET vn.CurrentOwnerId = np.UserId");
             }
         }

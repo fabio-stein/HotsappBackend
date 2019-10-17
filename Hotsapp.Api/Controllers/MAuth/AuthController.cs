@@ -4,16 +4,12 @@ using System.Linq;
 using FirebaseApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Hotsapp.Api.Auth.Model;
 using Hotsapp.Api.Configuration;
 using System.Security.Claims;
 using System.Security.Principal;
 using Hotsapp.Api.Util;
 using System.Threading.Tasks;
-using Hotsapp.Api.Controllers.MAuth.Model;
 using Hotsapp.Data.Model;
-using System.Transactions;
-using Hotsapp.Data;
 using Hotsapp.Payment;
 using Hotsapp.Api.Services;
 
@@ -151,5 +147,21 @@ namespace Hotsapp.Api.Controllers
             return Ok();
         }*/
 
+    }
+
+    public class AuthResponse
+    {
+        public bool authenticated { get; set; }
+        public string email { get; set; }
+        public DateTime expiration { get; set; }
+        public string accessToken { get; set; }
+        public string message { get; set; }
+        public string refreshToken { get; set; }
+    }
+
+    public class SignInModel
+    {
+        public string idToken { get; set; }
+        public string refreshToken { get; set; }
     }
 }

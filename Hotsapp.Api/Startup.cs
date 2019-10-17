@@ -50,6 +50,7 @@ namespace Hotsapp.Api
             services.AddTransient<PaymentService>();
             services.AddTransient<RefreshTokenService>();
             services.AddHostedService<SingleMessageProcessService>();
+            services.AddHostedService<DbTasksService>();
         }
 
         public void Configure(IApplicationBuilder app,

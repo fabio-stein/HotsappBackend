@@ -7,10 +7,12 @@ namespace Hotsapp.Data.Model
     {
         public User()
         {
+            NumberPeriod = new HashSet<NumberPeriod>();
             Payment = new HashSet<Payment>();
             RefreshToken = new HashSet<RefreshToken>();
             SingleMessage = new HashSet<SingleMessage>();
             Transaction = new HashSet<Transaction>();
+            VirtualNumber = new HashSet<VirtualNumber>();
         }
 
         public int Id { get; set; }
@@ -20,9 +22,11 @@ namespace Hotsapp.Data.Model
         public string FirebaseUid { get; set; }
 
         public virtual UserAccount UserAccount { get; set; }
+        public virtual ICollection<NumberPeriod> NumberPeriod { get; set; }
         public virtual ICollection<Payment> Payment { get; set; }
         public virtual ICollection<RefreshToken> RefreshToken { get; set; }
         public virtual ICollection<SingleMessage> SingleMessage { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
+        public virtual ICollection<VirtualNumber> VirtualNumber { get; set; }
     }
 }

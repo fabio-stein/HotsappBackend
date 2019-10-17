@@ -1,6 +1,7 @@
 ﻿using Hotsapp.Data.Context;
 using Hotsapp.Data.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
 namespace Hotsapp.Data.Util
 {
@@ -18,6 +19,14 @@ namespace Hotsapp.Data.Util
             builder.UseMySql(_connectionString);
             return new DataContext(builder.Options);
             //return DIConfig.GetSetvice<DataContext>();
+        }
+
+        public static DbConnection OpenConnection()
+        {
+            var builder = new DbContextOptionsBuilder<DataContext>();
+            builder.UseMySql(_connectionString);
+            var ctx = new DataContext(builder.Options);
+            return ctx.Database.GetDbConnection();
         }
 
         public static NumberContext GetNumberContext()

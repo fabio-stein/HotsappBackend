@@ -16,6 +16,7 @@ namespace Hotsapp.Data.Model
         }
 
         public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<NumberPeriod> NumberPeriod { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
@@ -31,7 +32,7 @@ namespace Hotsapp.Data.Model
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySql("server=localhost;port=3306;user=root;password=sonorisdev;database=hotsapp;TreatTinyAsBoolean=true;");
+                optionsBuilder.UseMySql("server=localhost;port=3306;user=root;password=sonorisdev;database=hotsapp");
             }
         }
 
@@ -59,7 +60,43 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.Processed)
                     .HasColumnType("tinyint(1)")
-                    .HasDefaultValueSql("'1'");
+                    .HasDefaultValueSql("'0'");
+            });
+
+            modelBuilder.Entity<NumberPeriod>(entity =>
+            {
+                entity.ToTable("number_period");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_number_period_UserId");
+
+                entity.HasIndex(e => e.VirtualNumberId)
+                    .HasName("FK_number_period_VirtualNumberId");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.EndDateUtc)
+                    .HasColumnName("EndDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.StartDateUtc)
+                    .HasColumnName("StartDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.Property(e => e.VirtualNumberId).HasColumnType("varchar(255)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.NumberPeriod)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_number_period_UserId");
+
+                entity.HasOne(d => d.VirtualNumber)
+                    .WithMany(p => p.NumberPeriod)
+                    .HasForeignKey(d => d.VirtualNumberId)
+                    .HasConstraintName("FK_number_period_VirtualNumberId");
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -245,11 +282,21 @@ namespace Hotsapp.Data.Model
 
                 entity.ToTable("virtual_number");
 
+                entity.HasIndex(e => e.CurrentOwnerId)
+                    .HasName("FK_virtual_number_CurrentOwner");
+
                 entity.Property(e => e.Number).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.CurrentOwnerId).HasColumnType("int(11)");
 
                 entity.Property(e => e.LastCheckUtc)
                     .HasColumnName("LastCheckUTC")
                     .HasColumnType("datetime");
+
+                entity.HasOne(d => d.CurrentOwner)
+                    .WithMany(p => p.VirtualNumber)
+                    .HasForeignKey(d => d.CurrentOwnerId)
+                    .HasConstraintName("FK_virtual_number_CurrentOwner");
             });
 
             modelBuilder.Entity<VirtualNumberData>(entity =>

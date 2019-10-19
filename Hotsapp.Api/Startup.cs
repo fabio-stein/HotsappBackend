@@ -14,6 +14,10 @@ using Hotsapp.Api.Util;
 using Hotsapp.Data.Model;
 using Hotsapp.Payment;
 using Hotsapp.Data.Util;
+using Newtonsoft.Json.Converters;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Hotsapp.Api
 {
@@ -33,7 +37,9 @@ namespace Hotsapp.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(options =>
+    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }));
             services.AddSignalR();
 
             ConfigureAuth(services);

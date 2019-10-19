@@ -42,6 +42,9 @@ namespace Hotsapp.Data.Model
             {
                 entity.ToTable("message");
 
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_message_UserId");
+
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
                 entity.Property(e => e.Content)
@@ -61,6 +64,13 @@ namespace Hotsapp.Data.Model
                 entity.Property(e => e.Processed)
                     .HasColumnType("tinyint(1)")
                     .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Message)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_message_UserId");
             });
 
             modelBuilder.Entity<NumberPeriod>(entity =>

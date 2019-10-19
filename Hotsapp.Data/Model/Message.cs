@@ -12,5 +12,8 @@ namespace Hotsapp.Data.Model
         public string ExternalNumber { get; set; }
         public bool IsInternal { get; set; }
         public bool Processed { get; set; }
+        public int? UserId { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

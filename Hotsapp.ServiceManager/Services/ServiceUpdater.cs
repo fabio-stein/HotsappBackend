@@ -60,13 +60,15 @@ namespace Hotsapp.ServiceManager.Services
         {
             using (var context = DataFactory.GetContext())
             {
+                var number = context.VirtualNumber.SingleOrDefault(n => n.Number == _numberManager.currentNumber);
                 var message = new Message()
                 {
                     Content = mr.Message,
                     ExternalNumber = mr.Number,
                     InternalNumber = _numberManager.currentNumber,
                     DateTimeUtc = DateTime.UtcNow,
-                    IsInternal = false
+                    IsInternal = false,
+                    UserId = number.CurrentOwnerId
                 };
                 context.Message.Add(message);
                 context.SaveChanges();

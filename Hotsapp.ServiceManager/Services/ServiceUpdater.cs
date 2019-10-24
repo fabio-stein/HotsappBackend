@@ -32,7 +32,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             using (var context = DataFactory.GetContext())
             {
-                var message = context.Message.Where(m => m.IsInternal && !m.Processed)
+                var message = context.Message.Where(m => m.IsInternal && !m.Processed && m.InternalNumber == _numberManager.currentNumber)
                     .OrderBy(m => m.Id)
                     .FirstOrDefault();
                 if(message != null)

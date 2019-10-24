@@ -81,7 +81,8 @@ namespace Hotsapp.Api.Controllers
                     InternalNumber = data.NumberId,
                     ExternalNumber = data.ContactNumber,
                     IsInternal = true,
-                    DateTimeUtc = DateTime.UtcNow
+                    DateTimeUtc = DateTime.UtcNow,
+                    Processed = false
                 };
                 await context.Message.AddAsync(message);
                 await context.SaveChangesAsync();

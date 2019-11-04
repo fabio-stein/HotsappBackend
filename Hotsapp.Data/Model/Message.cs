@@ -13,6 +13,7 @@ namespace Hotsapp.Data.Model
         public bool IsInternal { get; set; }
         public bool Processed { get; set; }
         public int? UserId { get; set; }
+        public bool? Error { get; set; }
 
         public virtual User User { get; set; }
     }

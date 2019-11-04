@@ -38,8 +38,9 @@ namespace Hotsapp.ServiceManager.Services
                 if(message != null)
                 {
                     Console.WriteLine("New message to send!");
-                    await _phoneService.SendMessage(message.ExternalNumber, message.Content);
+                    var success = await _phoneService.SendMessage(message.ExternalNumber, message.Content);
                     message.Processed = true;
+                    message.Error = !success;
                     await context.SaveChangesAsync();
                 }
             }

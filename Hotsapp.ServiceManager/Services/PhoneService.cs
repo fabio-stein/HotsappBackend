@@ -94,10 +94,13 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
-        public async Task SendMessage(string number, string message)
+        public async Task<bool> SendMessage(string number, string message)
         {
             await _processManager.SendCommand($"/message send {number} \"{message}\"");
-            await _processManager.WaitOutput("Sent:");
+            var waitSucess = _processManager.WaitOutput("Sent:", 10000);
+            var waitInvalidNumber = _processManager.WaitOutput("is that a valid user", 10000);
+            var result = await Task.WhenAny(waitSucess, waitInvalidNumber);
+            return result == waitSucess;
         }
 
         public async Task<bool> IsOnline()

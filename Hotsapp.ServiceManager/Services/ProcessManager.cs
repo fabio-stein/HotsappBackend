@@ -102,7 +102,7 @@ namespace Hotsapp.ServiceManager.Services
                     outputTcs.SetResult(e);
             };
 
-            timeoutTask = new Task(() =>
+            timeoutTask = Task.Run(() =>
             {
                 Task.Delay((int)timeout).Wait();
             });

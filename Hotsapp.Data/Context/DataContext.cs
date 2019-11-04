@@ -55,6 +55,8 @@ namespace Hotsapp.Data.Model
                     .HasColumnName("DateTimeUTC")
                     .HasColumnType("datetime");
 
+                entity.Property(e => e.Error).HasColumnType("tinyint(1)");
+
                 entity.Property(e => e.ExternalNumber).HasColumnType("varchar(255)");
 
                 entity.Property(e => e.InternalNumber).HasColumnType("varchar(255)");

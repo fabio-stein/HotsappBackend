@@ -34,6 +34,9 @@ COMMIT;
             using(var conn = Database.GetDbConnection())
             {
                 var minTime = DateTime.UtcNow.AddMinutes(-1);
+#if DEBUG
+                minTime = DateTime.UtcNow.AddSeconds(-5);//Faster restart for debug
+#endif
                 var number = await conn.QuerySingleOrDefaultAsync<string>(allocateNumberQuery, new { timeLimit = minTime, newDate = DateTime.UtcNow });
                 return number;
             }

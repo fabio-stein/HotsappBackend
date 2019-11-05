@@ -40,18 +40,22 @@ namespace Hotsapp.Api.Controllers
                 if (number == null)
                     return NotFound();
                 number.CurrentOwnerId = null;
-                var reservations = ctx.NumberPeriod.Where(n => n.UserId == UserId && n.VirtualNumberId == numberId && (n.EndDateUtc == null || n.EndDateUtc >= DateTime.UtcNow)).ToList();
-                foreach (var reserve in reservations)
+                var periods = ctx.NumberPeriod.Where(n => n.UserId == UserId && n.VirtualNumberId == numberId && (n.EndDateUtc == null || n.EndDateUtc >= DateTime.UtcNow)).ToList();
+                foreach (var period in periods)
                 {
-                    if (reserve.StartDateUtc >= DateTime.UtcNow)
+                    if (period.StartDateUtc >= DateTime.UtcNow)
                     {
-                        ctx.NumberPeriod.Remove(reserve);
+                        ctx.NumberPeriod.Remove(period);
                         continue;
                     }
 
-                    reserve.EndDateUtc = DateTime.UtcNow;
-                    ctx.NumberPeriod.Update(reserve);
+                    period.EndDateUtc = DateTime.UtcNow;
+                    ctx.NumberPeriod.Update(period);
                 }
+
+                var reservation = ctx.VirtualNumberReservation.SingleOrDefault(r => r.NumberId == numberId);
+                if (reservation != null)
+                    reservation.EndDateUtc = DateTime.UtcNow;
                 await ctx.SaveChangesAsync();
                 return Ok();
             }
@@ -75,7 +79,13 @@ namespace Hotsapp.Api.Controllers
                 };
                 newNumber.CurrentOwnerId = UserId;
                 await ctx.NumberPeriod.AddAsync(reserve);
-                await _balanceService.TryTakeCredits((int)UserId, 20);
+                await _balanceService.TryTakeCredits((int)UserId, 20, null);
+                await ctx.VirtualNumberReservation.AddAsync(new VirtualNumberReservation()
+                {
+                    StartDateUtc = DateTime.UtcNow,
+                    UserId = (int)UserId,
+                    NumberId = newNumber.Number
+                });
                 await ctx.SaveChangesAsync();
                 return Ok();
             }

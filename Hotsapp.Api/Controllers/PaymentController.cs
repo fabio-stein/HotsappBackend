@@ -33,7 +33,7 @@ namespace Hotsapp.Api.Controllers.MPayment
         [HttpPost]
         public async Task<ActionResult> AddBalance()
         {
-            await _balanceService.AddCredits((int)UserId, 1);
+            await _balanceService.AddCredits((int)UserId, 1, null);
             return Ok();
         }
 

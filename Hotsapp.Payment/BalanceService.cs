@@ -35,7 +35,7 @@ namespace Hotsapp.Payment
             }
         }
 
-        public async Task AddCredits(int userId, decimal amount, int? paymentId = null)
+        public async Task AddCredits(int userId, decimal amount, TransactionOptions options)
         {
             using (var context = DataFactory.GetContext())
             {
@@ -45,7 +45,8 @@ namespace Hotsapp.Payment
                     Amount = amount,
                     UserId = userId,
                     DateTimeUtc = DateTime.UtcNow,
-                    PaymentId = paymentId
+                    PaymentId = (options!=null)?options.paymentId:null,
+                    VirtualNumberReservationId = (options!= null)?options.virtualNumberReservationId:null
                 });
                 account.Balance += amount;
                 if (account.Balance < 0)
@@ -55,10 +56,16 @@ namespace Hotsapp.Payment
             }
         }
 
-        public async Task TryTakeCredits(int userId, decimal amount)
+        public async Task TryTakeCredits(int userId, decimal amount, TransactionOptions options)
         {
-            await AddCredits(userId, amount * -1);
+            await AddCredits(userId, amount * -1, options);
             //TODO - CONCURRENT TRANSACTIONS
+        }
+
+        public class TransactionOptions
+        {
+            public int? paymentId { get; set; }
+            public int? virtualNumberReservationId { get; set; }
         }
     }
 }

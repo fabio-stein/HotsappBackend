@@ -49,7 +49,7 @@ namespace Hotsapp.Payment
                 };
                 await _dataContext.Payment.AddAsync(payment);
                 await _dataContext.SaveChangesAsync();
-                await _balanceService.AddCredits(userId, value, payment.Id);
+                await _balanceService.AddCredits(userId, value, new BalanceService.TransactionOptions { paymentId = payment.Id });
                 scope.Complete();
             }
         }

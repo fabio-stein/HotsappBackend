@@ -14,6 +14,7 @@ namespace Hotsapp.Data.Model
             SingleMessage = new HashSet<SingleMessage>();
             Transaction = new HashSet<Transaction>();
             VirtualNumber = new HashSet<VirtualNumber>();
+            VirtualNumberReservation = new HashSet<VirtualNumberReservation>();
         }
 
         public int Id { get; set; }
@@ -30,5 +31,6 @@ namespace Hotsapp.Data.Model
         public virtual ICollection<SingleMessage> SingleMessage { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
         public virtual ICollection<VirtualNumber> VirtualNumber { get; set; }
+        public virtual ICollection<VirtualNumberReservation> VirtualNumberReservation { get; set; }
     }
 }

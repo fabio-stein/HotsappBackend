@@ -10,8 +10,10 @@ namespace Hotsapp.Data.Model
         public decimal Amount { get; set; }
         public DateTime DateTimeUtc { get; set; }
         public int? PaymentId { get; set; }
+        public int? VirtualNumberReservationId { get; set; }
 
         public virtual Payment Payment { get; set; }
         public virtual User User { get; set; }
+        public virtual VirtualNumberReservation VirtualNumberReservation { get; set; }
     }
 }

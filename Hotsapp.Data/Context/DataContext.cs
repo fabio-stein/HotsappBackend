@@ -26,6 +26,7 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<UserAccount> UserAccount { get; set; }
         public virtual DbSet<VirtualNumber> VirtualNumber { get; set; }
         public virtual DbSet<VirtualNumberData> VirtualNumberData { get; set; }
+        public virtual DbSet<VirtualNumberReservation> VirtualNumberReservation { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -222,6 +223,9 @@ namespace Hotsapp.Data.Model
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_transaction_UserId");
 
+                entity.HasIndex(e => e.VirtualNumberReservationId)
+                    .HasName("FK_transaction_VirtualNumberReservationId");
+
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
                 entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
@@ -234,6 +238,8 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
 
+                entity.Property(e => e.VirtualNumberReservationId).HasColumnType("int(11)");
+
                 entity.HasOne(d => d.Payment)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.PaymentId)
@@ -244,6 +250,11 @@ namespace Hotsapp.Data.Model
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_transaction_UserId");
+
+                entity.HasOne(d => d.VirtualNumberReservation)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.VirtualNumberReservationId)
+                    .HasConstraintName("FK_transaction_VirtualNumberReservationId");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -330,6 +341,36 @@ namespace Hotsapp.Data.Model
                     .WithMany(p => p.VirtualNumberData)
                     .HasForeignKey(d => d.Number)
                     .HasConstraintName("FK_virtual_number_data_Number");
+            });
+
+            modelBuilder.Entity<VirtualNumberReservation>(entity =>
+            {
+                entity.ToTable("virtual_number_reservation");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_virtual_number_reservation_UserId");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.EndDateUtc)
+                    .HasColumnName("EndDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.NumberId)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.StartDateUtc)
+                    .HasColumnName("StartDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.VirtualNumberReservation)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_virtual_number_reservation_UserId");
             });
         }
     }

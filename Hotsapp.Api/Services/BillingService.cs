@@ -50,6 +50,7 @@ namespace Hotsapp.Api.Services
             var list = GetPendingPayments().Result;
             list.ForEach(o =>
             {
+                Console.WriteLine("Executing BillingService for reservation id {0}", o.ReservationId);
                 TryExecuteBilling(o).Wait();
             });
         }

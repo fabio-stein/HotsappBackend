@@ -79,9 +79,15 @@ namespace Hotsapp.ServiceManager.Services
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("Starting");
-            _numberManager.TryAllocateNumber().Wait();
-            if (_numberManager.currentNumber == null)
-                throw new Exception("Cannot allocate any number");
+            updateRunning = false;
+            while (true)
+            {
+                _numberManager.TryAllocateNumber().Wait();
+                if (_numberManager.currentNumber != null)
+                    break;
+                Console.WriteLine("Cannot allocate any number, waiting...");
+                Task.Delay(3000).Wait();
+            }
 
             _numberManager.LoadData();
 
@@ -110,6 +116,17 @@ namespace Hotsapp.ServiceManager.Services
             try
             {
                 _numberManager.PutCheck().Wait();
+                if (_numberManager.ShouldStop().Result)
+                {
+                    StopAsync(new CancellationToken()).Wait();
+                    Task.Run(() =>
+                    {
+                        Task.Delay(3000).Wait();
+                        StartAsync(new CancellationToken());
+                    });
+                    
+                    return;
+                }
                 try
                 {
                     isOnline = _phoneService.IsOnline().Result;
@@ -181,7 +198,13 @@ namespace Hotsapp.ServiceManager.Services
 
             _timer?.Change(Timeout.Infinite, 0);
 
-            _numberManager.ReleaseNumber().Wait();
+            try
+            {
+                _numberManager.ReleaseNumber().Wait();
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
 
             return Task.CompletedTask;
         }

@@ -61,6 +61,15 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
+        public async Task<bool> ShouldStop()
+        {
+            using (var context = DataFactory.GetContext())
+            {
+                var dbnumber = context.VirtualNumber.Where(n => n.Number == currentNumber).SingleOrDefault();
+                return dbnumber.CurrentOwnerId == null;
+            }
+        }
+
         public async Task ReleaseNumber()
         {
             await SaveData();
@@ -70,8 +79,8 @@ namespace Hotsapp.ServiceManager.Services
                 number.LastCheckUtc = null;
                 await context.SaveChangesAsync();
             }
-            currentNumber = null;
             var toDelete = yowsupConfigPath + currentNumber;
+            currentNumber = null;
             Directory.Delete(toDelete, true);
         }
 

@@ -93,7 +93,7 @@ namespace Hotsapp.Api.Controllers
             {
                 SigningCredentials = _signingConfigurations.SigningCredentials,
                 Subject = identity,
-                Expires = DateTime.Now.AddSeconds(10),
+                Expires = DateTime.Now.AddHours(12),
                 NotBefore = DateTime.Now,
             });
             return securityToken;

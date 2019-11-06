@@ -53,15 +53,15 @@ namespace Hotsapp.Api.Services
             {
                 Console.WriteLine("Executing BillingService for reservation id {0}", o.ReservationId);
                 TryExecuteBilling(o).Wait();
-                DisableUnpaidUsers().Wait();
             });
+            DisableUnpaidUsers().Wait();
         }
 
         private async Task DisableUnpaidUsers()
         {
             using(var ctx = DataFactory.GetContext())
             {
-                var users = ctx.User.Where(u => u.UserAccount.Balance < 20).ToList();
+                var users = ctx.User.Where(u => u.UserAccount.Balance < -20).ToList();
                 users.ForEach(u => DisableUser(u.Id).Wait());
             }
         }

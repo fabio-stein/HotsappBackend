@@ -61,7 +61,9 @@ namespace Hotsapp.Api.Services
                 using (var ctx = DataFactory.GetContext())
                 {
                     var res = ctx.VirtualNumberReservation.SingleOrDefault(r => r.Id == o.ReservationId);
-                    _balanceService.TryTakeCredits(res.UserId, 1, new BalanceService.TransactionOptions { virtualNumberReservationId = res.Id }).Wait();
+                    var dayPrice = 1;
+                    var amountToTake = o.TotalDays * dayPrice;
+                    _balanceService.TryTakeCredits(res.UserId, amountToTake, new BalanceService.TransactionOptions { virtualNumberReservationId = res.Id }).Wait();
                 }
             }catch(Exception e)
             {

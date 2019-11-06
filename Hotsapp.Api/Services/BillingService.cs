@@ -65,6 +65,7 @@ namespace Hotsapp.Api.Services
                     var dayPrice = 1;
                     var amountToTake = o.TotalDays * dayPrice;
                     await _balanceService.TryTakeCredits(res.UserId, amountToTake, new BalanceService.TransactionOptions { virtualNumberReservationId = res.Id, forceBilling = true });
+                    Console.WriteLine("Billing succes for reservation id {0}", res.Id);
                 }
             }catch(Exception e)
             {

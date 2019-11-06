@@ -22,7 +22,7 @@ namespace Hotsapp.Api.Services
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("Starting DbTasksService");
+            Console.WriteLine("Starting BillingService");
 
             _timer = new Timer(Run, null, TimeSpan.Zero,
                 TimeSpan.FromDays(1));
@@ -32,7 +32,7 @@ namespace Hotsapp.Api.Services
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("Stopping DbTasksService");
+            Console.WriteLine("Stopping BillingService");
 
             _timer?.Change(Timeout.Infinite, 0);
 

@@ -49,7 +49,7 @@ namespace Hotsapp.Payment
                     VirtualNumberReservationId = (options!= null)?options.virtualNumberReservationId:null
                 });
                 account.Balance += amount;
-                if (account.Balance < 0)
+                if ((options == null || !options.forceBilling) && account.Balance < 0)
                     throw new Exception("Not enough credits");
                 await context.SaveChangesAsync();
                 //TODO - CONCURRENT TRANSACTIONS
@@ -66,6 +66,7 @@ namespace Hotsapp.Payment
         {
             public int? paymentId { get; set; }
             public int? virtualNumberReservationId { get; set; }
+            public bool forceBilling = false;
         }
     }
 }

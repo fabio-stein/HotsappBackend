@@ -64,10 +64,11 @@ namespace Hotsapp.Api.Services
                     var res = ctx.VirtualNumberReservation.SingleOrDefault(r => r.Id == o.ReservationId);
                     var dayPrice = 1;
                     var amountToTake = o.TotalDays * dayPrice;
-                    _balanceService.TryTakeCredits(res.UserId, amountToTake, new BalanceService.TransactionOptions { virtualNumberReservationId = res.Id }).Wait();
+                    await _balanceService.TryTakeCredits(res.UserId, amountToTake, new BalanceService.TransactionOptions { virtualNumberReservationId = res.Id, forceBilling = true })
                 }
             }catch(Exception e)
             {
+                Console.WriteLine("Billing failed");
                 Console.WriteLine(e.ToString());
             }
         }

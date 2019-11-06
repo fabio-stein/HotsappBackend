@@ -9,6 +9,7 @@ namespace Hotsapp.Data.Model
         {
             NumberPeriod = new HashSet<NumberPeriod>();
             VirtualNumberData = new HashSet<VirtualNumberData>();
+            VirtualNumberReservation = new HashSet<VirtualNumberReservation>();
         }
 
         public string Number { get; set; }
@@ -18,5 +19,6 @@ namespace Hotsapp.Data.Model
         public virtual User CurrentOwner { get; set; }
         public virtual ICollection<NumberPeriod> NumberPeriod { get; set; }
         public virtual ICollection<VirtualNumberData> VirtualNumberData { get; set; }
+        public virtual ICollection<VirtualNumberReservation> VirtualNumberReservation { get; set; }
     }
 }

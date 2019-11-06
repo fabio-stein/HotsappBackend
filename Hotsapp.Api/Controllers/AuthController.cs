@@ -63,6 +63,9 @@ namespace Hotsapp.Api.Controllers
                 }
             }
 
+            if (user.Disabled)
+                return BadRequest("User disabled");
+
             ClaimsIdentity identity = CreateIdentity(user);
             SecurityToken securityToken = CreateToken(identity);
             String token = new JwtSecurityTokenHandler().WriteToken(securityToken);

@@ -22,6 +22,7 @@ namespace Hotsapp.Data.Model
         public string Email { get; set; }
         public string Name { get; set; }
         public string FirebaseUid { get; set; }
+        public bool Disabled { get; set; }
 
         public virtual UserAccount UserAccount { get; set; }
         public virtual ICollection<Message> Message { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Hotsapp.Data.Util;
 using Hotsapp.Payment;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,17 @@ namespace Hotsapp.Api.Services
             {
                 Console.WriteLine("Executing BillingService for reservation id {0}", o.ReservationId);
                 TryExecuteBilling(o).Wait();
+                DisableUnpaidUsers().Wait();
             });
+        }
+
+        private async Task DisableUnpaidUsers()
+        {
+            using(var ctx = DataFactory.GetContext())
+            {
+                var users = ctx.User.Where(u => u.UserAccount.Balance < 20).ToList();
+                users.ForEach(u => DisableUser(u.Id).Wait());
+            }
         }
 
         private async Task TryExecuteBilling(PendingPayment o)
@@ -99,6 +110,33 @@ SELECT Id AS ReservationId, (bi.BillEnd-bi.BillStart) AS TotalDays FROM bill_inf
         {
             public int ReservationId { get; set; }
             public int TotalDays { get; set; }
+        }
+
+        public async Task DisableUser(int userId)
+        {
+            try
+            {
+                Console.WriteLine("Disabling user {0}, pending unpaid services.", userId);
+                using (var ctx = DataFactory.GetContext())
+                {
+                    var user = ctx.User
+                        .Include(u => u.VirtualNumberReservation)
+                        .Include(u => u.VirtualNumber)
+                        .Include(u => u.NumberPeriod)
+                        .SingleOrDefault(u => u.Id == userId);
+                    user.Disabled = true;
+                    user.VirtualNumberReservation.ToList().ForEach(r => r.EndDateUtc = DateTime.UtcNow);
+                    user.VirtualNumber.ToList().ForEach(n => n.CurrentOwnerId = null);
+                    user.NumberPeriod.ToList().ForEach(np => np.EndDateUtc = DateTime.UtcNow);
+                    await ctx.SaveChangesAsync();
+                    Console.WriteLine("Success disabling user {0}", userId);
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error disabling user {0}", userId);
+                Console.WriteLine(e.ToString());
+            }
         }
 
     }

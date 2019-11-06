@@ -16,6 +16,7 @@ namespace Hotsapp.Data.Model
         public DateTime? EndDateUtc { get; set; }
         public string NumberId { get; set; }
 
+        public virtual VirtualNumber Number { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
     }

@@ -263,6 +263,10 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
+                entity.Property(e => e.Disabled)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("'0'");
+
                 entity.Property(e => e.Email).HasColumnType("varchar(50)");
 
                 entity.Property(e => e.FirebaseUid)
@@ -347,6 +351,9 @@ namespace Hotsapp.Data.Model
             {
                 entity.ToTable("virtual_number_reservation");
 
+                entity.HasIndex(e => e.NumberId)
+                    .HasName("FK_virtual_number_reservation_NumberId");
+
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_virtual_number_reservation_UserId");
 
@@ -365,6 +372,12 @@ namespace Hotsapp.Data.Model
                     .HasColumnType("datetime");
 
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.Number)
+                    .WithMany(p => p.VirtualNumberReservation)
+                    .HasForeignKey(d => d.NumberId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_virtual_number_reservation_NumberId");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.VirtualNumberReservation)

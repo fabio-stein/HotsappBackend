@@ -121,13 +121,9 @@ SELECT Id AS ReservationId, (bi.BillEnd-bi.BillStart) AS TotalDays FROM bill_inf
                 {
                     var user = ctx.User
                         .Include(u => u.VirtualNumberReservation)
-                        .Include(u => u.VirtualNumber)
                         .Include(u => u.NumberPeriod)
                         .SingleOrDefault(u => u.Id == userId);
                     user.Disabled = true;
-                    user.VirtualNumberReservation.ToList().ForEach(r => r.EndDateUtc = DateTime.UtcNow);
-                    user.VirtualNumber.ToList().ForEach(n => n.CurrentOwnerId = null);
-                    user.NumberPeriod.ToList().ForEach(np => np.EndDateUtc = DateTime.UtcNow);
                     await ctx.SaveChangesAsync();
                     Console.WriteLine("Success disabling user {0}", userId);
                 }

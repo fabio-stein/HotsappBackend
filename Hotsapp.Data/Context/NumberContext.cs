@@ -15,7 +15,7 @@ BEGIN;
 SET @phone = null;
 SELECT @phone := Number FROM virtual_number
   WHERE (LastCheckUTC IS NULL OR LastCheckUTC < @timeLimit)
-  AND CurrentOwnerId IS NOT NULL
+  AND OwnerId IS NOT NULL
   LIMIT 1 FOR UPDATE;
 UPDATE virtual_number
   SET LastCheckUTC = @newDate

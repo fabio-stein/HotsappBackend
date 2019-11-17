@@ -15,6 +15,7 @@ namespace Hotsapp.Data.Model
         {
         }
 
+        public virtual DbSet<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<NumberPeriod> NumberPeriod { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
@@ -39,6 +40,42 @@ namespace Hotsapp.Data.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ConnectionFlow>(entity =>
+            {
+                entity.ToTable("connection_flow");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_connection_flow_UserId");
+
+                entity.Property(e => e.Id).HasColumnType("char(36)");
+
+                entity.Property(e => e.ConfirmCode).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.CountryCode).HasColumnType("int(11)");
+
+                entity.Property(e => e.CreateDateUtc)
+                    .HasColumnName("CreateDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.ErrorMessage).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.IsActive).HasColumnType("tinyint(1)");
+
+                entity.Property(e => e.IsSuccess).HasColumnType("tinyint(1)");
+
+                entity.Property(e => e.PhoneNumber)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.ConnectionFlow)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_connection_flow_UserId");
+            });
+
             modelBuilder.Entity<Message>(entity =>
             {
                 entity.ToTable("message");
@@ -309,21 +346,21 @@ namespace Hotsapp.Data.Model
 
                 entity.ToTable("virtual_number");
 
-                entity.HasIndex(e => e.CurrentOwnerId)
-                    .HasName("FK_virtual_number_CurrentOwner");
+                entity.HasIndex(e => e.OwnerId)
+                    .HasName("FK_virtual_number_OwnerId");
 
                 entity.Property(e => e.Number).HasColumnType("varchar(255)");
-
-                entity.Property(e => e.CurrentOwnerId).HasColumnType("int(11)");
 
                 entity.Property(e => e.LastCheckUtc)
                     .HasColumnName("LastCheckUTC")
                     .HasColumnType("datetime");
 
-                entity.HasOne(d => d.CurrentOwner)
+                entity.Property(e => e.OwnerId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.Owner)
                     .WithMany(p => p.VirtualNumber)
-                    .HasForeignKey(d => d.CurrentOwnerId)
-                    .HasConstraintName("FK_virtual_number_CurrentOwner");
+                    .HasForeignKey(d => d.OwnerId)
+                    .HasConstraintName("FK_virtual_number_OwnerId");
             });
 
             modelBuilder.Entity<VirtualNumberData>(entity =>

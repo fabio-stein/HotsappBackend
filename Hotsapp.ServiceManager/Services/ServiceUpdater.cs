@@ -69,7 +69,7 @@ namespace Hotsapp.ServiceManager.Services
                     InternalNumber = _numberManager.currentNumber,
                     DateTimeUtc = DateTime.UtcNow,
                     IsInternal = false,
-                    UserId = number.CurrentOwnerId
+                    UserId = number.OwnerId
                 };
                 context.Message.Add(message);
                 context.SaveChanges();

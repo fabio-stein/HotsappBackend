@@ -25,7 +25,7 @@ namespace Hotsapp.Api.Controllers
         {
             using(var ctx = DataFactory.GetContext())
             {
-                var numbers = ctx.VirtualNumber.Where(n => n.CurrentOwnerId == UserId).ToList();
+                var numbers = ctx.VirtualNumber.Where(n => n.OwnerId == UserId).ToList();
                 var list = numbers.Select(n => new { NumberId = n.Number });
                 return Ok(list);
             }
@@ -36,10 +36,10 @@ namespace Hotsapp.Api.Controllers
         {
             using (var ctx = DataFactory.GetContext())
             {
-                var number = ctx.VirtualNumber.Where(n => n.CurrentOwnerId == UserId && n.Number == numberId).SingleOrDefault();
+                var number = ctx.VirtualNumber.Where(n => n.OwnerId == UserId && n.Number == numberId).SingleOrDefault();
                 if (number == null)
                     return NotFound();
-                number.CurrentOwnerId = null;
+                number.OwnerId = null;
                 var periods = ctx.NumberPeriod.Where(n => n.UserId == UserId && n.VirtualNumberId == numberId && (n.EndDateUtc == null || n.EndDateUtc >= DateTime.UtcNow)).ToList();
                 foreach (var period in periods)
                 {
@@ -66,7 +66,7 @@ namespace Hotsapp.Api.Controllers
         {
             using (var ctx = DataFactory.GetContext())
             {
-                var newNumber = ctx.VirtualNumber.Where(n => n.CurrentOwnerId == null).FirstOrDefault();
+                var newNumber = ctx.VirtualNumber.Where(n => n.OwnerId == null).FirstOrDefault();
                 if (newNumber == null)
                     return BadRequest("No available numbers");
 
@@ -77,7 +77,7 @@ namespace Hotsapp.Api.Controllers
                     UserId = (int)UserId,
                     VirtualNumberId = newNumber.Number
                 };
-                newNumber.CurrentOwnerId = UserId;
+                newNumber.OwnerId = UserId;
                 await ctx.NumberPeriod.AddAsync(reserve);
                 await _balanceService.TryTakeCredits((int)UserId, 20, null);
                 await ctx.VirtualNumberReservation.AddAsync(new VirtualNumberReservation()

@@ -8,55 +8,40 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Hotsapp.ServiceManager.Services
+namespace Hotsapp.Connector.Services
 {
     public class NumberManager
     {
-        public string currentNumber = null;
+        public string currentFlowId = null;
+        public ConnectionFlow currentFlow = null;
         private string yowsupConfigPath;
         public NumberManager(IConfiguration config)
         {
             yowsupConfigPath = config["YowsupExtractPath"];
             Directory.CreateDirectory(yowsupConfigPath);//Create if not exists
         }
-        public async Task<string> TryAllocateNumber()
+        public async Task<string> TryGetFlow()
         {
-            using(var context = DataFactory.GetNumberContext())
+            using(var context = DataFactory.GetConnectionFlowContext())
             {
-                var number = await context.TryAllocateNumber();
-                currentNumber = number;
-                return number;
+                var flowId = await context.TryGetFlow();
+                currentFlowId = flowId;
+                return flowId;
             }
-        }
-
-        public void LoadData()
-        {
-            var data = GetNumberData();
-            ExtractData(currentNumber, data);
         }
 
         public async Task SaveData()
         {
-            var data = GetCompressedData(currentNumber);
+            var data = GetCompressedData(currentFlow.PhoneNumber);
             using (var context = DataFactory.GetContext())
             {
                 var numberData = new VirtualNumberData()
                 {
                     InsertDateUtc = DateTime.UtcNow,
-                    Number = currentNumber,
+                    Number = currentFlow.PhoneNumber,
                     Data = data
                 };
                 context.VirtualNumberData.Add(numberData);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task PutCheck()
-        {
-            using (var context = DataFactory.GetContext())
-            {
-                var dbnumber = context.VirtualNumber.Where(n => n.Number == currentNumber).SingleOrDefault();
-                dbnumber.LastCheckUtc = DateTime.UtcNow;
                 await context.SaveChangesAsync();
             }
         }
@@ -65,32 +50,23 @@ namespace Hotsapp.ServiceManager.Services
         {
             using (var context = DataFactory.GetContext())
             {
-                var dbnumber = context.VirtualNumber.Where(n => n.Number == currentNumber).SingleOrDefault();
-                return dbnumber.OwnerId == null;
+                if (currentFlow.IsActive != null && currentFlow.IsActive == false)
+                    return true;
+                return false;
             }
         }
 
-        public async Task ReleaseNumber()
+        public async Task SaveNumber()
         {
             await SaveData();
             using (var context = DataFactory.GetContext())
             {
-                var number = context.VirtualNumber.Where(n => n.Number == currentNumber).SingleOrDefault();
+                var number = context.VirtualNumber.Where(n => n.Number == currentFlow.PhoneNumber).SingleOrDefault();
                 number.LastCheckUtc = null;
                 await context.SaveChangesAsync();
             }
-            var toDelete = yowsupConfigPath + currentNumber;
-            currentNumber = null;
+            var toDelete = yowsupConfigPath + currentFlow.PhoneNumber;
             Directory.Delete(toDelete, true);
-        }
-
-        private byte[] GetNumberData()
-        {
-            using (var context = DataFactory.GetContext())
-            {
-                var data = context.VirtualNumberData.Where(n => n.Number == currentNumber).OrderByDescending(n => n.InsertDateUtc).FirstOrDefault();
-                return (data == null) ? null : data.Data;
-            }
         }
 
         private void ExtractData(string number, byte[] data)

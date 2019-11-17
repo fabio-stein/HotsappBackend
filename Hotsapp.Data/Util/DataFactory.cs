@@ -35,5 +35,12 @@ namespace Hotsapp.Data.Util
             builder.UseMySql(_connectionString);
             return new NumberContext(builder.Options);
         }
+
+        public static ConnectionFlowContext GetConnectionFlowContext()
+        {
+            var builder = new DbContextOptionsBuilder<DataContext>();
+            builder.UseMySql(_connectionString);
+            return new ConnectionFlowContext(builder.Options);
+        }
     }
 }

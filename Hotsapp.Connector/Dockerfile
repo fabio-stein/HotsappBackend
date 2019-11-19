@@ -9,7 +9,6 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["Hotsapp.Connector/Hotsapp.Connector.csproj", "Hotsapp.Connector/"]
 COPY ["Hotsapp.Data/Hotsapp.Data.csproj", "Hotsapp.Data/"]
-COPY ["Hotsapp.Connector/Assets", "Assets"]
 RUN dotnet restore "Hotsapp.Connector/Hotsapp.Connector.csproj"
 COPY . .
 WORKDIR "/src/Hotsapp.Connector"

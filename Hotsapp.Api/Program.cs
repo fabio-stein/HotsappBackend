@@ -18,10 +18,6 @@ namespace Hotsapp.Api
                 .UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Any, 80);
-                    options.Listen(IPAddress.Any, 443, listenOptions =>
-                    {
-                        listenOptions.UseHttps("certificate.key", "Windows81");
-                    });
                 })
                 .UseStartup<Startup>()
                 .Build();

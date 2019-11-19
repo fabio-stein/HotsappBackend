@@ -36,9 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="certificate.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="certificate.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

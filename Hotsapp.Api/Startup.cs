@@ -14,10 +14,6 @@ using Hotsapp.Api.Util;
 using Hotsapp.Data.Model;
 using Hotsapp.Payment;
 using Hotsapp.Data.Util;
-using Newtonsoft.Json.Converters;
-using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Hotsapp.Api
 {
@@ -69,6 +65,8 @@ namespace Hotsapp.Api
             }
             app.UseAuthentication();
             app.UseHsts();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMvc();
         }
 

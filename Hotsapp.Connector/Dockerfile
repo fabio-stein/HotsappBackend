@@ -1,4 +1,4 @@
-FROM fabiolux/yowsup AS dev
+FROM gcr.io/hotsapp/yowsup AS dev
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 COPY --from=dev / /

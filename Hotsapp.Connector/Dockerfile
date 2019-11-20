@@ -20,7 +20,6 @@ RUN dotnet publish "Hotsapp.Connector.csproj" -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-COPY --from=build /src/Assets /app/Assets
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

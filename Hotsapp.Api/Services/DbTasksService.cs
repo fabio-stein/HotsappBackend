@@ -63,8 +63,7 @@ namespace Hotsapp.Api.Services
             {
                 conn.Query(@"DELETE vd.* FROM hotsapp.virtual_number_data vd
   LEFT JOIN (SELECT vd.Number, MAX(vd.Id) AS LastId FROM hotsapp.virtual_number_data vd
-  GROUP BY vd.Number
-  ORDER BY vd.InsertDateUTC DESC) tk ON tk.LastId = vd.Id
+  GROUP BY vd.Number) tk ON tk.LastId = vd.Id
   WHERE tk.LastId IS NULL");
             }
         }

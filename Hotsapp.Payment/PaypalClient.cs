@@ -1,6 +1,8 @@
 ﻿using BraintreeHttp;
-using PayPalCheckoutSdk.Core;
-using PayPalCheckoutSdk.Orders;
+using PayPal.Core;
+using PayPal.v1.Orders;
+using PayPal.v1.Subscriptions;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Hotsapp.Payment
@@ -8,7 +10,7 @@ namespace Hotsapp.Payment
     public class PaypalClient
     {
         private PayPalEnvironment _environment;
-        private HttpClient _client;
+        private PayPalHttpClient _client;
         public PaypalClient(string clientId, string clientSecret, bool isSandbox)
         {
             if (isSandbox)
@@ -19,22 +21,19 @@ namespace Hotsapp.Payment
             _client = new PayPalHttpClient(_environment);
         }
 
-        public async Task<Order> GetOrder(string orderId)
+        public async Task<Subscription> GetSubscription(string subscriptionId)
         {
-            OrdersGetRequest request = new OrdersGetRequest(orderId);
+            var request = new SubscriptionGetRequest(subscriptionId);
             var response = await _client.Execute(request);
-            var result = response.Result<Order>();
+            var result = response.Result<Subscription>();
             return result;
         }
 
-        public async Task<Order> CaptureOrder(string OrderId)
+        public async Task CancelSubscription(string subscriptionId, string reason)
         {
-            var request = new OrdersCaptureRequest(OrderId);
-            request.Prefer("return=representation");
-            request.RequestBody(new OrderActionRequest());
-            var response = await _client.Execute(request);
-            var result = response.Result<Order>();
-            return result;
+            var request = new SubscriptionCancelRequest(subscriptionId);
+            request.RequestBody(reason);
+            await _client.Execute(request);
         }
     }
 }

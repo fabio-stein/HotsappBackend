@@ -28,6 +28,7 @@ namespace Hotsapp.Payment
 
         public async Task CaptureOrder(string orderId, int userId)
         {
+            /*DISABLED
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var order = await _paypalClient.CaptureOrder(orderId);
@@ -51,7 +52,7 @@ namespace Hotsapp.Payment
                 await _dataContext.SaveChangesAsync();
                 await _balanceService.AddCredits(userId, value, new BalanceService.TransactionOptions { paymentId = payment.Id });
                 scope.Complete();
-            }
+            }*/
         }
     }
 }

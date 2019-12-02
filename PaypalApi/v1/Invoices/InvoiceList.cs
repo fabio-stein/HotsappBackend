@@ -1,0 +1,43 @@
+// This class was generated on Tue, 30 Jan 2018 11:02:40 PST by version 0.1.0-dev+6beb51-dirty of Braintree SDK Generator
+// InvoiceList.cs
+// @version 0.1.0-dev+6beb51-dirty
+// @type object
+// @data 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
+// DO NOT EDIT
+using System.Runtime.Serialization;
+using System.Collections.Generic;
+
+
+namespace PayPal.v1.Invoices
+{
+    /// <summary>
+    /// List of merchant invoices. Can include the total invoices count and HATEOAS links for navigation.
+    /// </summary>
+    [DataContract]
+    public class InvoiceList
+    {
+        /// <summary>
+	    /// Required default constructor
+		/// </summary>
+        public InvoiceList() {}
+
+        /// <summary>
+        /// An array of invoices as search result.
+        /// </summary>
+        [DataMember(Name="invoices", EmitDefaultValue = false)]
+        public List<Invoice> Invoices;
+
+        /// <summary>
+        /// The HATEOAS links for `next` and `previous` navigation in the result set.
+        /// </summary>
+        [DataMember(Name="links", EmitDefaultValue = false)]
+        public List<LinkDescriptionObject> Links;
+
+        /// <summary>
+        /// The total number of invoices that match the search criteria.
+        /// </summary>
+        [DataMember(Name="total_count", EmitDefaultValue = false)]
+        public int? TotalCount;
+    }
+}
+

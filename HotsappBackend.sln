@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.ServiceManager", "H
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Connector", "Hotsapp.Connector\Hotsapp.Connector.csproj", "{3F3F28F7-211D-44A3-998D-562DA657009B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaypalApi", "PaypalApi\PaypalApi.csproj", "{F385292A-39AB-4BCA-8B24-DC011ED853FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{3F3F28F7-211D-44A3-998D-562DA657009B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F3F28F7-211D-44A3-998D-562DA657009B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F3F28F7-211D-44A3-998D-562DA657009B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

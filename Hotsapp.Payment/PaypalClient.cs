@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Hotsapp.Payment
 {
-    public class PaypalClient
+    public class PayPalClient
     {
         private PayPalEnvironment _environment;
         private PayPalHttpClient _client;
-        public PaypalClient(string clientId, string clientSecret, bool isSandbox)
+        public PayPalClient(string clientId, string clientSecret, bool isSandbox)
         {
             if (isSandbox)
                 _environment = new SandboxEnvironment(clientId, clientSecret);
@@ -34,6 +34,15 @@ namespace Hotsapp.Payment
             var request = new SubscriptionCancelRequest(subscriptionId);
             request.RequestBody(reason);
             await _client.Execute(request);
+        }
+
+        public async Task<Subscription> CreateSubscription(string planId)
+        {
+            var request = new SubscriptionCreateRequest();
+            request.RequestBody(planId);
+            var response = await _client.Execute(request);
+            var result = response.Result<Subscription>();
+            return result;
         }
     }
 }

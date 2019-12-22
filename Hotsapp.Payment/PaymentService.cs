@@ -12,7 +12,7 @@ namespace Hotsapp.Payment
 {
     public class PaymentService
     {
-        private PaypalClient _paypalClient;
+        private PayPalClient _paypalClient;
         private BalanceService _balanceService;
         private DataContext _dataContext;
         public PaymentService(IConfiguration configuration, BalanceService balanceService, DataContext dataContext)
@@ -23,7 +23,7 @@ namespace Hotsapp.Payment
             var clientId = configuration.GetSection("Payment")["PaypalClientId"];
             var clientSecret = configuration.GetSection("Payment")["PaypalClientSecret"];
             var isLive = configuration.GetSection("Payment")["Mode"] == "Live";
-            _paypalClient = new PaypalClient(clientId, clientSecret, !isLive);
+            _paypalClient = new PayPalClient(clientId, clientSecret, !isLive);
         }
 
         public async Task CaptureOrder(string orderId, int userId)

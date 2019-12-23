@@ -15,9 +15,11 @@ namespace Hotsapp.Payment
     {
         private PayPalClient _paypalClient;
         private BalanceService _balanceService;
+        private IConfiguration _configuration;
         public PaymentService(IConfiguration configuration, BalanceService balanceService)
         {
             _balanceService = balanceService;
+            _configuration = configuration;
 
             var clientId = configuration.GetSection("Payment")["PaypalClientId"];
             var clientSecret = configuration.GetSection("Payment")["PaypalClientSecret"];
@@ -27,7 +29,8 @@ namespace Hotsapp.Payment
 
         public async Task<PayPal.v1.Subscriptions.Subscription> CreateSubscription()
         {
-            var s = await _paypalClient.CreateSubscription("P-4DB99075G2808273ULXRS7RI");
+            var planId = _configuration.GetSection("Payment")["PlanId"];
+            var s = await _paypalClient.CreateSubscription(planId);
             return s;
         }
 

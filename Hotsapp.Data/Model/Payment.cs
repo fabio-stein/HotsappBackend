@@ -15,6 +15,7 @@ namespace Hotsapp.Data.Model
         public string PaypalOrderId { get; set; }
         public DateTime DateTimeUtc { get; set; }
         public int UserId { get; set; }
+        public int? SubscriptionId { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }

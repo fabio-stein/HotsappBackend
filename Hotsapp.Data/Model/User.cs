@@ -13,6 +13,7 @@ namespace Hotsapp.Data.Model
             Payment = new HashSet<Payment>();
             RefreshToken = new HashSet<RefreshToken>();
             SingleMessage = new HashSet<SingleMessage>();
+            Subscription = new HashSet<Subscription>();
             Transaction = new HashSet<Transaction>();
             VirtualNumber = new HashSet<VirtualNumber>();
             VirtualNumberReservation = new HashSet<VirtualNumberReservation>();
@@ -32,6 +33,7 @@ namespace Hotsapp.Data.Model
         public virtual ICollection<Payment> Payment { get; set; }
         public virtual ICollection<RefreshToken> RefreshToken { get; set; }
         public virtual ICollection<SingleMessage> SingleMessage { get; set; }
+        public virtual ICollection<Subscription> Subscription { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
         public virtual ICollection<VirtualNumber> VirtualNumber { get; set; }
         public virtual ICollection<VirtualNumberReservation> VirtualNumberReservation { get; set; }

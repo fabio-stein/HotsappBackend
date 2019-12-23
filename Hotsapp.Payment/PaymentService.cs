@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Hotsapp.Data;
 using Hotsapp.Data.Model;
+using PayPal.v1.Subscriptions;
 
 namespace Hotsapp.Payment
 {
@@ -14,16 +15,31 @@ namespace Hotsapp.Payment
     {
         private PayPalClient _paypalClient;
         private BalanceService _balanceService;
-        private DataContext _dataContext;
-        public PaymentService(IConfiguration configuration, BalanceService balanceService, DataContext dataContext)
+        public PaymentService(IConfiguration configuration, BalanceService balanceService)
         {
             _balanceService = balanceService;
-            _dataContext = dataContext;
 
             var clientId = configuration.GetSection("Payment")["PaypalClientId"];
             var clientSecret = configuration.GetSection("Payment")["PaypalClientSecret"];
             var isLive = configuration.GetSection("Payment")["Mode"] == "Live";
             _paypalClient = new PayPalClient(clientId, clientSecret, !isLive);
+        }
+
+        public async Task<PayPal.v1.Subscriptions.Subscription> CreateSubscription()
+        {
+            var s = await _paypalClient.CreateSubscription("P-4DB99075G2808273ULXRS7RI");
+            return s;
+        }
+
+        public async Task<PayPal.v1.Subscriptions.Subscription> GetSubscription(string subscriptionId)
+        {
+            var s = await _paypalClient.GetSubscription(subscriptionId);
+            return s;
+        }
+
+        public async Task CancelSubscription(string subscriptionId, string reason)
+        {
+            await _paypalClient.CancelSubscription(subscriptionId, reason);
         }
 
         public async Task CaptureOrder(string orderId, int userId)

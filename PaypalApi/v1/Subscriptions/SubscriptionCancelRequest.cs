@@ -19,7 +19,7 @@ namespace PayPal.v1.Subscriptions
     /// </summary>
     public class SubscriptionCancelRequest : HttpRequest
     {
-        public SubscriptionCancelRequest(string SubscriptionId) : base("/v1/billing/subscriptions/{subscription_id}/cancel?", HttpMethod.Post, typeof(Subscription))
+        public SubscriptionCancelRequest(string SubscriptionId) : base("/v1/billing/subscriptions/{subscription_id}/cancel?", HttpMethod.Post, typeof(void))
         {
             try
             {

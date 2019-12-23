@@ -19,7 +19,7 @@ namespace PayPal.v1.Subscriptions
     /// </summary>
     public class SubscriptionGetRequest : HttpRequest
     {
-        public SubscriptionGetRequest(string SubscriptionId) : base("/v1/billing/subscriptions/{subscription_id}?", HttpMethod.Get, typeof(void))
+        public SubscriptionGetRequest(string SubscriptionId) : base("/v1/billing/subscriptions/{subscription_id}?", HttpMethod.Get, typeof(Subscription))
         {
             try
             {

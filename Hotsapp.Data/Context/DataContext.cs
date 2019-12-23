@@ -15,6 +15,7 @@ namespace Hotsapp.Data.Model
         {
         }
 
+        public virtual DbSet<AccountPeriod> AccountPeriod { get; set; }
         public virtual DbSet<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<NumberPeriod> NumberPeriod { get; set; }
@@ -22,6 +23,7 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<SingleMessage> SingleMessage { get; set; }
+        public virtual DbSet<Subscription> Subscription { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
@@ -40,6 +42,27 @@ namespace Hotsapp.Data.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AccountPeriod>(entity =>
+            {
+                entity.ToTable("account_period");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.EndDateUtc)
+                    .HasColumnName("EndDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.StartDateUtc)
+                    .HasColumnName("StartDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+            });
+
             modelBuilder.Entity<ConnectionFlow>(entity =>
             {
                 entity.ToTable("connection_flow");
@@ -166,6 +189,8 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.PaypalOrderId).HasColumnType("varchar(255)");
 
+                entity.Property(e => e.SubscriptionId).HasColumnType("int(11)");
+
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
 
                 entity.HasOne(d => d.User)
@@ -248,6 +273,38 @@ namespace Hotsapp.Data.Model
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_single_message_UserId");
+            });
+
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.ToTable("subscription");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("FK_subscription_UserId2");
+
+                entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.EndDateUtc)
+                    .HasColumnName("EndDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.PaypalRefId).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.CreateDateUTC)
+                    .HasColumnName("CreateDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.StartDateUtc)
+                    .HasColumnName("StartDateUTC")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Subscription)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_subscription_UserId2");
             });
 
             modelBuilder.Entity<Transaction>(entity =>

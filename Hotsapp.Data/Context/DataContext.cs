@@ -15,7 +15,6 @@ namespace Hotsapp.Data.Model
         {
         }
 
-        public virtual DbSet<AccountPeriod> AccountPeriod { get; set; }
         public virtual DbSet<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
@@ -37,27 +36,6 @@ namespace Hotsapp.Data.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AccountPeriod>(entity =>
-            {
-                entity.ToTable("account_period");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.EndDateUtc)
-                    .HasColumnName("EndDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.StartDateUtc)
-                    .HasColumnName("StartDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Type)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-            });
-
             modelBuilder.Entity<ConnectionFlow>(entity =>
             {
                 entity.ToTable("connection_flow");

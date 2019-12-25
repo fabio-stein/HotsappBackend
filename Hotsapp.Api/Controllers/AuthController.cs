@@ -19,16 +19,14 @@ namespace Hotsapp.Api.Controllers
     public class AuthController: Controller
     {
         private readonly SigningConfigurations _signingConfigurations;
-        private BalanceService _balanceService;
         private UsernameGeneratorService _usernameGenerator;
         private FirebaseService _firebaseService;
         private DataContext _dataContext;
         private RefreshTokenService _refreshTokenService;
 
-        public AuthController(SigningConfigurations signingConfigurations, BalanceService balanceService, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService)
+        public AuthController(SigningConfigurations signingConfigurations, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService)
         {
             _signingConfigurations = signingConfigurations;
-            _balanceService = balanceService;
             _usernameGenerator = usernameGenerator;
             _firebaseService = firebaseService;
             _dataContext = dataContext;
@@ -125,7 +123,6 @@ namespace Hotsapp.Api.Controllers
                 Username = username
             };
             await _dataContext.User.AddAsync(user);
-            await _balanceService.CreateBalance(user.Id);
             return user;
         }
 

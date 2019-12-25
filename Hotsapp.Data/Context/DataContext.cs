@@ -18,18 +18,13 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<AccountPeriod> AccountPeriod { get; set; }
         public virtual DbSet<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual DbSet<Message> Message { get; set; }
-        public virtual DbSet<NumberPeriod> NumberPeriod { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
-        public virtual DbSet<SingleMessage> SingleMessage { get; set; }
         public virtual DbSet<Subscription> Subscription { get; set; }
-        public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<User> User { get; set; }
-        public virtual DbSet<UserAccount> UserAccount { get; set; }
         public virtual DbSet<VirtualNumber> VirtualNumber { get; set; }
         public virtual DbSet<VirtualNumberData> VirtualNumberData { get; set; }
-        public virtual DbSet<VirtualNumberReservation> VirtualNumberReservation { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -136,42 +131,6 @@ namespace Hotsapp.Data.Model
                     .HasConstraintName("FK_message_UserId");
             });
 
-            modelBuilder.Entity<NumberPeriod>(entity =>
-            {
-                entity.ToTable("number_period");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("FK_number_period_UserId");
-
-                entity.HasIndex(e => e.VirtualNumberId)
-                    .HasName("FK_number_period_VirtualNumberId");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.EndDateUtc)
-                    .HasColumnName("EndDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.StartDateUtc)
-                    .HasColumnName("StartDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-
-                entity.Property(e => e.VirtualNumberId).HasColumnType("varchar(255)");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.NumberPeriod)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_number_period_UserId");
-
-                entity.HasOne(d => d.VirtualNumber)
-                    .WithMany(p => p.NumberPeriod)
-                    .HasForeignKey(d => d.VirtualNumberId)
-                    .HasConstraintName("FK_number_period_VirtualNumberId");
-            });
-
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.ToTable("payment");
@@ -241,40 +200,6 @@ namespace Hotsapp.Data.Model
                     .HasConstraintName("FK_RefreshToken_UserId");
             });
 
-            modelBuilder.Entity<SingleMessage>(entity =>
-            {
-                entity.ToTable("single_message");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("FK_single_message_UserId");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.Content)
-                    .IsRequired()
-                    .HasColumnType("text");
-
-                entity.Property(e => e.CreateDateUtc)
-                    .HasColumnName("CreateDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Processed)
-                    .HasColumnType("tinyint(1)")
-                    .HasDefaultValueSql("'0'");
-
-                entity.Property(e => e.ToNumber)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.SingleMessage)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_single_message_UserId");
-            });
-
             modelBuilder.Entity<Subscription>(entity =>
             {
                 entity.ToTable("subscription");
@@ -313,40 +238,6 @@ namespace Hotsapp.Data.Model
                     .HasConstraintName("FK_subscription_UserId2");
             });
 
-            modelBuilder.Entity<Transaction>(entity =>
-            {
-                entity.ToTable("transaction");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("FK_transaction_UserId");
-
-                entity.HasIndex(e => e.VirtualNumberReservationId)
-                    .HasName("FK_transaction_VirtualNumberReservationId");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
-
-                entity.Property(e => e.DateTimeUtc)
-                    .HasColumnName("DateTimeUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-
-                entity.Property(e => e.VirtualNumberReservationId).HasColumnType("int(11)");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_transaction_UserId");
-
-                entity.HasOne(d => d.VirtualNumberReservation)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.VirtualNumberReservationId)
-                    .HasConstraintName("FK_transaction_VirtualNumberReservationId");
-            });
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("user");
@@ -370,26 +261,6 @@ namespace Hotsapp.Data.Model
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasColumnType("varchar(20)");
-            });
-
-            modelBuilder.Entity<UserAccount>(entity =>
-            {
-                entity.HasKey(e => e.UserId)
-                    .HasName("PRIMARY");
-
-                entity.ToTable("user_account");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-
-                entity.Property(e => e.Balance)
-                    .HasColumnType("decimal(8,2)")
-                    .HasDefaultValueSql("'0.00'");
-
-                entity.HasOne(d => d.User)
-                    .WithOne(p => p.UserAccount)
-                    .HasForeignKey<UserAccount>(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_user_account_UserId");
             });
 
             modelBuilder.Entity<VirtualNumber>(entity =>
@@ -435,45 +306,6 @@ namespace Hotsapp.Data.Model
                     .WithMany(p => p.VirtualNumberData)
                     .HasForeignKey(d => d.Number)
                     .HasConstraintName("FK_virtual_number_data_Number");
-            });
-
-            modelBuilder.Entity<VirtualNumberReservation>(entity =>
-            {
-                entity.ToTable("virtual_number_reservation");
-
-                entity.HasIndex(e => e.NumberId)
-                    .HasName("FK_virtual_number_reservation_NumberId");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("FK_virtual_number_reservation_UserId");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.EndDateUtc)
-                    .HasColumnName("EndDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.NumberId)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.StartDateUtc)
-                    .HasColumnName("StartDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.UserId).HasColumnType("int(11)");
-
-                entity.HasOne(d => d.Number)
-                    .WithMany(p => p.VirtualNumberReservation)
-                    .HasForeignKey(d => d.NumberId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_virtual_number_reservation_NumberId");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.VirtualNumberReservation)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_virtual_number_reservation_UserId");
             });
         }
     }

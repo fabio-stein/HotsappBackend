@@ -14,11 +14,9 @@ namespace Hotsapp.Payment
     public class PaymentService
     {
         private PayPalClient _paypalClient;
-        private BalanceService _balanceService;
         private IConfiguration _configuration;
-        public PaymentService(IConfiguration configuration, BalanceService balanceService)
+        public PaymentService(IConfiguration configuration)
         {
-            _balanceService = balanceService;
             _configuration = configuration;
 
             var clientId = configuration.GetSection("Payment")["PaypalClientId"];
@@ -43,35 +41,6 @@ namespace Hotsapp.Payment
         public async Task CancelSubscription(string subscriptionId, string reason)
         {
             await _paypalClient.CancelSubscription(subscriptionId, reason);
-        }
-
-        public async Task CaptureOrder(string orderId, int userId)
-        {
-            /*DISABLED
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                var order = await _paypalClient.CaptureOrder(orderId);
-
-                if (order.Status != "COMPLETED")
-                    throw new Exception("Order not completed");
-
-                var amount = order.PurchaseUnits[0].AmountWithBreakdown;
-                var value = decimal.Parse(amount.Value, CultureInfo.InvariantCulture);
-                if (amount.CurrencyCode != "BRL" || value < 5)
-                    throw new Exception("Invalid Operation");
-
-                var payment = new Data.Model.Payment()
-                {
-                    Amount = value,
-                    DateTimeUtc = DateTime.UtcNow,
-                    PaypalOrderId = order.Id,
-                    UserId = userId
-                };
-                await _dataContext.Payment.AddAsync(payment);
-                await _dataContext.SaveChangesAsync();
-                await _balanceService.AddCredits(userId, value, new BalanceService.TransactionOptions { paymentId = payment.Id });
-                scope.Complete();
-            }*/
         }
     }
 }

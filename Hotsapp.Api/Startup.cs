@@ -47,12 +47,10 @@ namespace Hotsapp.Api
 
             services.AddSingleton<FirebaseService>();
 
-            services.AddTransient<BalanceService>();
             services.AddTransient<UsernameGeneratorService>();
             services.AddTransient<PaymentService>();
             services.AddTransient<RefreshTokenService>();
             services.AddHostedService<DbTasksService>();
-            services.AddHostedService<BillingService>();
             services.AddSingleton<SubscriptionService>();
         }
 

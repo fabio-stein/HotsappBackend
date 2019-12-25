@@ -49,12 +49,7 @@ namespace Hotsapp.Api.Services
 
         private void RunTasks(object state)
         {
-            using(var conn = DataFactory.OpenConnection())
-            {
-                conn.Query(@"UPDATE virtual_number vn
-  LEFT JOIN number_period np ON (np.VirtualNumberId = vn.Number AND np.StartDateUTC <= UTC_TIMESTAMP() AND (np.EndDateUTC IS NULL OR np.EndDateUTC >= UTC_TIMESTAMP()))
-  SET vn.OwnerId = np.UserId");
-            }
+
         }
 
         private void CleanOldBackups(object state)

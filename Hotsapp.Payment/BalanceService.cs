@@ -45,7 +45,6 @@ namespace Hotsapp.Payment
                     Amount = amount,
                     UserId = userId,
                     DateTimeUtc = DateTime.UtcNow,
-                    PaymentId = (options!=null)?options.paymentId:null,
                     VirtualNumberReservationId = (options!= null)?options.virtualNumberReservationId:null
                 });
                 account.Balance += amount;

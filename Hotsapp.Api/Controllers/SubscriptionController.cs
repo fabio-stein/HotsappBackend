@@ -25,7 +25,7 @@ namespace Hotsapp.Api.Controllers
         {
             using (var conn = DataFactory.GetContext())
             {
-                var lastSubscription = conn.Subscription.OrderByDescending(sub => sub.CreateDateUTC).FirstOrDefault();
+                var lastSubscription = conn.Subscription.OrderByDescending(sub => sub.CreateDateUtc).FirstOrDefault();
                 if (lastSubscription != null)
                     return Ok(new
                     {
@@ -69,7 +69,7 @@ namespace Hotsapp.Api.Controllers
 
                 conn.Subscription.Add(new Data.Model.Subscription()
                 {
-                    CreateDateUTC = DateTime.UtcNow,
+                    CreateDateUtc = DateTime.UtcNow,
                     Status = "Pending",
                     UserId = (int)UserId,
                     PaypalRefId = newSubscription.id

@@ -83,6 +83,20 @@ namespace Hotsapp.Api.Controllers.model
         public string plan_id { get; set; }
         public string status { get; set; }
         public DateTime status_update_time { get; set; }
+        public string billing_agreement_id { get; set; }
+        public Amount amount { get; set; }
+    }
+
+    public class Amount
+    {
+        public string total { get; set; }
+        public string currency { get; set; }
+        public Details details { get; set; }
+    }
+
+    public class Details
+    {
+        public string subtotal { get; set; }
     }
 
     public class Link2

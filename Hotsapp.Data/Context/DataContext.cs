@@ -179,7 +179,7 @@ namespace Hotsapp.Data.Model
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_payment_UserId");
 
-                entity.Property(e => e.Id).HasColumnType("int(11)");
+                entity.Property(e => e.Id).HasColumnType("char(36)");
 
                 entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
 
@@ -284,19 +284,25 @@ namespace Hotsapp.Data.Model
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
+                entity.Property(e => e.CreateDateUtc)
+                    .HasColumnName("CreateDateUTC")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'utc_timestamp()'");
+
                 entity.Property(e => e.EndDateUtc)
                     .HasColumnName("EndDateUTC")
                     .HasColumnType("datetime");
 
                 entity.Property(e => e.PaypalRefId).HasColumnType("varchar(255)");
 
-                entity.Property(e => e.CreateDateUTC)
-                    .HasColumnName("CreateDateUTC")
-                    .HasColumnType("datetime");
-
                 entity.Property(e => e.StartDateUtc)
                     .HasColumnName("StartDateUTC")
                     .HasColumnType("datetime");
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)")
+                    .HasDefaultValueSql("'Pending'");
 
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
 
@@ -310,9 +316,6 @@ namespace Hotsapp.Data.Model
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.ToTable("transaction");
-
-                entity.HasIndex(e => e.PaymentId)
-                    .HasName("FK_transaction_PaymentId");
 
                 entity.HasIndex(e => e.UserId)
                     .HasName("FK_transaction_UserId");
@@ -328,16 +331,9 @@ namespace Hotsapp.Data.Model
                     .HasColumnName("DateTimeUTC")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.PaymentId).HasColumnType("int(11)");
-
                 entity.Property(e => e.UserId).HasColumnType("int(11)");
 
                 entity.Property(e => e.VirtualNumberReservationId).HasColumnType("int(11)");
-
-                entity.HasOne(d => d.Payment)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.PaymentId)
-                    .HasConstraintName("FK_transaction_PaymentId");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Transaction)

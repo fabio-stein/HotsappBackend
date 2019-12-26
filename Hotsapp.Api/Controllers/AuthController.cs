@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Hotsapp.Data.Model;
 using Hotsapp.Payment;
 using Hotsapp.Api.Services;
+using Hotsapp.Data.Util;
 
 namespace Hotsapp.Api.Controllers
 {
@@ -114,7 +115,6 @@ namespace Hotsapp.Api.Controllers
         private async Task<User> CreateUser(FirebaseApi.models.User info)
         {
             var username = _usernameGenerator.GenerateNew();
-
             User user = new User()
             {
                 Email = info.email,
@@ -122,7 +122,11 @@ namespace Hotsapp.Api.Controllers
                 Name = info.displayName,
                 Username = username
             };
-            await _dataContext.User.AddAsync(user);
+            using (var ctx = DataFactory.GetContext())
+            {
+                await ctx.User.AddAsync(user);
+                await ctx.SaveChangesAsync();
+            }
             return user;
         }
 

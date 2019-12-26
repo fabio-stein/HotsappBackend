@@ -32,7 +32,10 @@ namespace Hotsapp.Api.Controllers
                         Status = lastSubscription.Status
                     });
                 else
-                    return Ok();
+                    return Ok(new
+                    {
+                        Status = (string)null
+                    });
             }
         }
 

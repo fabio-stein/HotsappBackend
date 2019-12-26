@@ -20,9 +20,7 @@ namespace Hotsapp.Api.Controllers
             using(var conn = DataFactory.OpenConnection())
             {
                 var contacts = await conn.QueryAsync<Contact>(@"SELECT m.ExternalNumber AS NumberId, MAX(m.DateTimeUTC) AS ContactDateUTC FROM message m
-  INNER JOIN number_period np ON ((m.DateTimeUTC BETWEEN np.StartDateUTC AND np.EndDateUTC) OR (m.DateTimeUTC >= np.StartDateUTC AND np.EndDateUTC IS NULL)) AND np.VirtualNumberId = m.InternalNumber
-  WHERE np.UserId = @userId
-  AND np.VirtualNumberId = @numberId
+  INNER JOIN virtual_number vn ON vn.Number = @numberId AND vn.OwnerId = @userId
   GROUP BY m.ExternalNumber
   ORDER BY ContactDateUTC DESC", new { userId = UserId, numberId});
                 return Ok(contacts);

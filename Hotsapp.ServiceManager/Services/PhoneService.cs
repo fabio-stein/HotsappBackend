@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Hotsapp.ServiceManager.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Hotsapp.ServiceManager.Services
 {
@@ -19,12 +20,14 @@ namespace Hotsapp.ServiceManager.Services
         private IConfiguration _configuration;
         public bool isDead { get; private set; } = false;
         private bool initialized = false;
-        public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment)
+        private ILogger<PhoneService> _log;
+        public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment, ILogger<PhoneService> log)
         {
             _processManager = processManager;
             _numberManager = numberManager;
             _configuration = config;
             _hostingEnvironment = hostingEnvironment;
+            _log = log;
         }
 
         public async Task Start()
@@ -44,7 +47,7 @@ namespace Hotsapp.ServiceManager.Services
             
             await _processManager.SendCommand("");
             await _processManager.WaitOutput("offline", 10000);
-            Console.WriteLine("READY");
+            _log.LogInformation("Service Ready");
         }
 
         public void Stop()
@@ -56,7 +59,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             await _processManager.SendCommand("/L");
             await _processManager.WaitOutput("Auth: Logged in!");
-            Console.WriteLine("LOGIN SUCCESS");
+            _log.LogInformation("Login Success");
         }
 
         public async Task SetProfilePicture()
@@ -73,7 +76,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             if (e == null)
                 return;
-            Console.WriteLine(e);
+            _log.LogInformation("[Output]: "+e);
 
             if (e.Contains("Exception in thread Thread"))
                 isDead = true;
@@ -84,7 +87,7 @@ namespace Hotsapp.ServiceManager.Services
                 var message = match.Value;
                 message = message.Substring(1, message.Length - 1);
                 var number = Regex.Match(e, "55.+@s.whatsapp").Value.Replace("@s.whatsapp", "");
-                Console.WriteLine($"Message: [{number}] {match.Value}");
+                _log.LogInformation($"Message: [{number}] {match.Value}");
                 var mr = new MessageReceived()
                 {
                     Number = number,

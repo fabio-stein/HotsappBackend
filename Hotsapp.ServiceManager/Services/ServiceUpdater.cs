@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.IO;
 using Serilog.Context;
+using Microsoft.Extensions.Logging;
 
 namespace Hotsapp.ServiceManager.Services
 {
@@ -21,12 +22,14 @@ namespace Hotsapp.ServiceManager.Services
         private bool isOnline = false;
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
+        private ILogger<ServiceUpdater> _log;
 
-        public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment)
+        public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {
             _phoneService = phoneService;
             _numberManager = numberManager;
             _hostingEnvironment = hostingEnvironment;
+            _log = log;
         }
 
         public async Task CheckMessagesToSend()
@@ -38,7 +41,7 @@ namespace Hotsapp.ServiceManager.Services
                     .FirstOrDefault();
                 if(message != null)
                 {
-                    Console.WriteLine("New message to send!");
+                    _log.LogInformation("New message to send!");
                     var success = await _phoneService.SendMessage(message.ExternalNumber, message.Content);
                     message.Processed = true;
                     message.Error = !success;
@@ -79,14 +82,14 @@ namespace Hotsapp.ServiceManager.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Starting");
+            _log.LogInformation("Starting ServiceUpdater");
             updateRunning = false;
             while (true)
             {
                 _numberManager.TryAllocateNumber().Wait();
                 if (_numberManager.currentNumber != null)
                     break;
-                Console.WriteLine("Cannot allocate any number, waiting...");
+                _log.LogInformation("Cannot allocate any number, waiting...");
                 Task.Delay(3000).Wait();
             }
 
@@ -115,7 +118,7 @@ namespace Hotsapp.ServiceManager.Services
             if (updateRunning)
                 return;
             updateRunning = true;
-            Console.WriteLine("UPDATE TASK RUN");
+            _log.LogInformation("Run Update Check");
             try
             {
                 _numberManager.PutCheck().Wait();
@@ -136,7 +139,7 @@ namespace Hotsapp.ServiceManager.Services
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                    _log.LogError(e, "ServiceUpdater IsOnline Check Error");
                     isOnline = false;
                 }
                 string status = status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
@@ -145,8 +148,7 @@ namespace Hotsapp.ServiceManager.Services
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                _log.LogError(e, "ServiceUpdater Error");
                 isOnline = false;
             }
 
@@ -161,8 +163,7 @@ namespace Hotsapp.ServiceManager.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                _log.LogError(e, "ServiceUpdater CheckDisconnection Error");
             }
 
             updateRunning = false;
@@ -176,7 +177,7 @@ namespace Hotsapp.ServiceManager.Services
 
             if (_phoneService.isDead)
             {
-                Console.WriteLine("[Connection Checker] PhoneService IsDead! Reconnecting.");
+                _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
                 _phoneService.Stop();
                 await _phoneService.Start();
                 await _phoneService.Login();
@@ -186,7 +187,7 @@ namespace Hotsapp.ServiceManager.Services
 
             if (offlineCount >= 5)
             {
-                Console.WriteLine("[Connection Checker] PhoneService is offline! Reconnecting.");
+                _log.LogInformation("[Connection Checker] PhoneService is offline! Reconnecting.");
                 await _phoneService.Login();
                 lastLoginAttempt = DateTime.UtcNow;
                 return;
@@ -196,7 +197,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Timed Background Service is stopping.");
+            _log.LogInformation("Timed Background Service is stopping.");
             _phoneService.Stop();
 
             _timer?.Change(Timeout.Infinite, 0);
@@ -206,7 +207,7 @@ namespace Hotsapp.ServiceManager.Services
                 _numberManager.ReleaseNumber().Wait();
             }catch(Exception e)
             {
-                Console.WriteLine(e.ToString());
+                _log.LogError(e, "Error Stopping ServiceUpdater");
             }
 
             LogContext.PushProperty("PhoneNumber", null);

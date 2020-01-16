@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,10 +16,12 @@ namespace Hotsapp.ServiceManager.Services
         public event EventHandler<string> OnOutputReceived;
         IHostingEnvironment _env;
         private event EventHandler OnTerminating;
+        private ILogger<ProcessManager> _log;
 
-        public ProcessManager(IHostingEnvironment env)
+        public ProcessManager(IHostingEnvironment env, ILogger<ProcessManager> log)
         {
             _env = env;
+            _log = log;
         }
 
         public async Task SendCommand(string command)
@@ -28,7 +31,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public void Start()
         {
-            Console.WriteLine("Starting new process");
+            _log.LogInformation("Starting new process");
             process = new Process();
             var startInfo = new ProcessStartInfo();
             
@@ -57,13 +60,13 @@ namespace Hotsapp.ServiceManager.Services
 
         private void ForceKill()
         {
-            Console.WriteLine("Killing Yowsup");
+            _log.LogInformation("Killing Yowsup");
             try
             {
                 process.Kill();
             }catch(Exception e)
             {
-                Console.WriteLine(e);
+                _log.LogError(e, "Error killing Yowsup");
             }
             Start();
             SendCommand("pkill -9 -f yowsup").Wait();
@@ -82,7 +85,7 @@ namespace Hotsapp.ServiceManager.Services
                 }
             }catch(Exception e)
             {
-                Console.WriteLine(e);
+                _log.LogError(e, "Error reading proccess output");
             }
         }
 

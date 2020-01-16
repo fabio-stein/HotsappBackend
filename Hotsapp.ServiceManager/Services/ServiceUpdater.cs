@@ -82,6 +82,12 @@ namespace Hotsapp.ServiceManager.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            Task.Run(Init);
+            return Task.CompletedTask;
+        }
+
+        public async Task Init()
+        {
             _log.LogInformation("Starting ServiceUpdater");
             updateRunning = false;
             while (true)
@@ -104,13 +110,12 @@ namespace Hotsapp.ServiceManager.Services
             _phoneService.Start().Wait();
             _phoneService.Login().Wait();
             lastLoginAttempt = DateTime.UtcNow;
-            if(_hostingEnvironment.IsProduction())
+            if (_hostingEnvironment.IsProduction())
                 _phoneService.SetProfilePicture().Wait();
             _phoneService.SetStatus().Wait();
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
                 TimeSpan.FromMilliseconds(500));
-            return Task.CompletedTask;
         }
 
         private void UpdateTask(object state)

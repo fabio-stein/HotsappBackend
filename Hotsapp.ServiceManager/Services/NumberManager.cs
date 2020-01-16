@@ -1,6 +1,8 @@
 ﻿using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +16,10 @@ namespace Hotsapp.ServiceManager.Services
     {
         public string currentNumber = null;
         private string yowsupConfigPath;
-        public NumberManager(IConfiguration config)
+        private ILogger<NumberManager> _log;
+        public NumberManager(IConfiguration config, ILogger<NumberManager> log)
         {
+            _log = log;
             yowsupConfigPath = config["YowsupExtractPath"];
             Directory.CreateDirectory(yowsupConfigPath);//Create if not exists
         }

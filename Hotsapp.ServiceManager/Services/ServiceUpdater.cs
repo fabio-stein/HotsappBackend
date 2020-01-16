@@ -7,6 +7,7 @@ using Hotsapp.Data.Model;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.IO;
+using Serilog.Context;
 
 namespace Hotsapp.ServiceManager.Services
 {
@@ -88,6 +89,8 @@ namespace Hotsapp.ServiceManager.Services
                 Console.WriteLine("Cannot allocate any number, waiting...");
                 Task.Delay(3000).Wait();
             }
+
+            LogContext.PushProperty("PhoneNumber", _numberManager.currentNumber);
 
             _numberManager.LoadData();
 
@@ -205,6 +208,8 @@ namespace Hotsapp.ServiceManager.Services
             {
                 Console.WriteLine(e.ToString());
             }
+
+            LogContext.PushProperty("PhoneNumber", null);
 
             return Task.CompletedTask;
         }

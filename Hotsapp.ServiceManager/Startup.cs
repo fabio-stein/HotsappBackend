@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Hotsapp.Data.Model;
 using Hotsapp.ServiceManager.Util;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
+using Microsoft.Extensions.Logging;
+using Serilog.Exceptions;
 
 namespace Hotsapp.ServiceManager
 {
@@ -27,6 +28,17 @@ namespace Hotsapp.ServiceManager
             _env = env;
             _config = config;
             _logger = logger;
+
+            var elasticUri = config["ElasticSearchConfiguration:Uri"];
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .Enrich.WithExceptionDetails()
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticUri))
+                {
+                    AutoRegisterTemplate = true,
+                })
+            .CreateLogger();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -44,9 +56,11 @@ namespace Hotsapp.ServiceManager
             services.AddHostedService<GCService>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
             DIConfig.Setup(serviceProvider);
+            loggerFactory.AddSerilog();
+            _logger.LogInformation("Teste msg");
         }
     }
 }

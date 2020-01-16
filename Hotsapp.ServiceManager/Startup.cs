@@ -60,6 +60,7 @@ namespace Hotsapp.ServiceManager
         {
             DIConfig.Setup(serviceProvider);
             loggerFactory.AddSerilog();
+            //Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
             _logger.LogInformation("Teste msg");
         }
     }

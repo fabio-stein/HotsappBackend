@@ -1,11 +1,11 @@
 FROM gcr.io/hotsapp/yowsup AS dev
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 COPY --from=dev / /
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["Hotsapp.ServiceManager/Hotsapp.ServiceManager.csproj", "Hotsapp.ServiceManager/"]
 COPY ["Hotsapp.Data/Hotsapp.Data.csproj", "Hotsapp.Data/"]

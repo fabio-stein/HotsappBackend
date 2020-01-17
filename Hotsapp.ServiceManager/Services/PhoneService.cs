@@ -80,7 +80,7 @@ namespace Hotsapp.ServiceManager.Services
 
             if (e.Contains("Exception in thread Thread"))
                 isDead = true;
-            if (e.Contains("InvalidMessage for"))//Its thrown after a long time online
+            if (e.Contains("InvalidMessage for"))//Its thrown after a long time online 
                 isDead = true;
 
             var match = Regex.Match(e, "(?<=\t).*");

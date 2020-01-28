@@ -180,7 +180,7 @@ namespace Hotsapp.ServiceManager.Services
             if (lastLoginAttempt == null || lastLoginAttempt > minTimeToCheckAgain)
                 return;
 
-            if (_phoneService.isDead)
+            if (_phoneService.isDead || offlineCount > 10)
             {
                 _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
                 _phoneService.Stop();
@@ -190,8 +190,9 @@ namespace Hotsapp.ServiceManager.Services
                 return;
             }
 
-            if (offlineCount >= 5)
+            if (offlineCount >= 5 && offlineCount <= 10)
             {
+                offlineCount = 0;
                 _log.LogInformation("[Connection Checker] PhoneService is offline! Reconnecting.");
                 await _phoneService.Login();
                 lastLoginAttempt = DateTime.UtcNow;

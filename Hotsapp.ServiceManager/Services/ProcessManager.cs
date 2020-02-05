@@ -22,6 +22,7 @@ namespace Hotsapp.ServiceManager.Services
         {
             _env = env;
             _log = log;
+            OnOutputReceived += (a, b) => { }; //Handler needs to have at least 1 listener
         }
 
         public async Task SendCommand(string command)
@@ -101,7 +102,7 @@ namespace Hotsapp.ServiceManager.Services
             //Create handlers
             outputHandler = (o, e) =>
             {
-                if(e.Contains(data))
+                if(e != null && e.Contains(data))
                     outputTcs.SetResult(e);
             };
 

@@ -48,7 +48,7 @@ namespace Hotsapp.Api.Services
         }
 
         bool running = false;
-        var count = new Dictionary<string, int>();
+        Dictionary<string, int> count = new Dictionary<string, int>();
         private void RunTasks(object state)
         {
             if (running)

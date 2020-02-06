@@ -47,9 +47,36 @@ namespace Hotsapp.Api.Services
             _cleanerTimer?.Dispose();
         }
 
+        bool running = false;
+        Dictionary<string, int> count = new Dictionary<string, int>();
         private void RunTasks(object state)
         {
+            if (running)
+                return;
+            running = true;
+            using (var conn = DataFactory.OpenConnection())
+            {
+                var numbers = conn.Query<string>(@"WITH mensagens AS(
+SELECT InternalNumber, MAX(DateTimeUTC) AS data FROM message
+  WHERE IsInternal
+  GROUP BY InternalNumber
+  )
+SELECT DISTINCT(m2.InternalNumber) FROM mensagens m1
+  INNER JOIN message m2 ON m1.data = m2.DateTimeUTC AND m1.InternalNumber = m2.InternalNumber
+  WHERE m2.Processed
+  AND (m2.DateTimeUTC) < (UTC_TIMESTAMP - INTERVAL 1 MINUTE)").ToList();
 
+                numbers.ForEach(n =>
+                {
+                    if (count.ContainsKey(n))
+                        count[n]++;
+                    else
+                        count.Add(n, 1);
+                    var insert = conn.Query($@"INSERT INTO message (DateTimeUTC, Content, InternalNumber, ExternalNumber, IsInternal, UserId) VALUES (UTC_TIMESTAMP, '{count[n]}', '{n}', '555599436679', TRUE, 20)");
+                });
+            }
+
+            running = false;
         }
 
         private void CleanOldBackups(object state)

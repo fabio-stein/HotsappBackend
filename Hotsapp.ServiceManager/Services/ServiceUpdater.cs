@@ -92,11 +92,18 @@ namespace Hotsapp.ServiceManager.Services
             updateRunning = false;
             while (true)
             {
-                _numberManager.TryAllocateNumber().Wait();
-                if (_numberManager.currentNumber != null)
-                    break;
+                await Task.Delay(3000);
+                try
+                {
+                    _log.LogInformation("Trying to allocate number");
+                    _numberManager.TryAllocateNumber().Wait();
+                    if (_numberManager.currentNumber != null)
+                        break;
+                }catch(Exception e)
+                {
+                    _log.LogError(e, "Error allocating number");
+                }
                 _log.LogInformation("Cannot allocate any number, waiting...");
-                Task.Delay(3000).Wait();
             }
 
             LogContext.PushProperty("PhoneNumber", _numberManager.currentNumber);

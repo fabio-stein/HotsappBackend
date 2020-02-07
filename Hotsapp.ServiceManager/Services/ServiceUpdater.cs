@@ -187,6 +187,20 @@ namespace Hotsapp.ServiceManager.Services
             if (lastLoginAttempt == null || lastLoginAttempt > minTimeToCheckAgain)
                 return;
 
+            if (offlineCount > 20)
+            {
+                _log.LogInformation("OfflineCount exceeded limit, stopping service");
+                try
+                {
+                    _phoneService.Stop();
+                }catch(Exception e)
+                {
+                    _log.LogError(e);
+                }
+                Environment.Exit(-1);
+            }
+
+            /*
             if (_phoneService.isDead || (offlineCount >= 5 && offlineCount <= 10))
             {
                 _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
@@ -196,7 +210,7 @@ namespace Hotsapp.ServiceManager.Services
                 lastLoginAttempt = DateTime.UtcNow;
                 offlineCount = 0;
                 return;
-            }
+            }*/
 
             /*
             if (offlineCount >= 5 && offlineCount <= 10)

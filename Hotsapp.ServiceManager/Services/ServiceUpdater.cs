@@ -129,10 +129,12 @@ namespace Hotsapp.ServiceManager.Services
                 _numberManager.PutCheck().Wait();
                 if (_numberManager.ShouldStop().Result)
                 {
+                    _log.LogInformation("Automatically stopping ServiceUpdater");
                     StopAsync(new CancellationToken()).Wait();
                     Task.Run(() =>
                     {
                         Task.Delay(3000).Wait();
+                        _log.LogInformation("Automatically starting ServiceUpdater");
                         StartAsync(new CancellationToken());
                     });
                     
@@ -141,6 +143,7 @@ namespace Hotsapp.ServiceManager.Services
                 try
                 {
                     isOnline = _phoneService.IsOnline().Result;
+                    _log.LogInformation("Number is online: {0}", isOnline);
                 }
                 catch (Exception e)
                 {
@@ -149,7 +152,8 @@ namespace Hotsapp.ServiceManager.Services
                 }
                 string status = status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
                 SendUpdate(status);
-                CheckMessagesToSend().Wait();
+                if(isOnline)
+                    CheckMessagesToSend().Wait();
             }
             catch(Exception e)
             {

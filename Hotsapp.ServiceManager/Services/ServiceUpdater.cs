@@ -130,14 +130,17 @@ namespace Hotsapp.ServiceManager.Services
                 if (_numberManager.ShouldStop().Result)
                 {
                     _log.LogInformation("Automatically stopping ServiceUpdater");
+                    
                     StopAsync(new CancellationToken()).Wait();
+                    Environment.Exit(-1);
+                    /*
                     Task.Run(() =>
                     {
                         Task.Delay(3000).Wait();
                         _log.LogInformation("Automatically starting ServiceUpdater");
                         StartAsync(new CancellationToken());
-                    });
-                    
+                    });*/
+
                     return;
                 }
                 try

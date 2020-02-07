@@ -195,7 +195,7 @@ namespace Hotsapp.ServiceManager.Services
                     _phoneService.Stop();
                 }catch(Exception e)
                 {
-                    _log.LogError(e);
+                    _log.LogError(e, "Error stopping service");
                 }
                 Environment.Exit(-1);
             }

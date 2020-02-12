@@ -54,6 +54,9 @@ namespace Hotsapp.Api.Services
             if (running)
                 return;
             running = true;
+
+
+            /*
             using (var conn = DataFactory.OpenConnection())
             {
                 var numbers = conn.Query<string>(@"WITH mensagens AS(
@@ -74,7 +77,7 @@ SELECT DISTINCT(m2.InternalNumber) FROM mensagens m1
                         count.Add(n, 1);
                     var insert = conn.Query($@"INSERT INTO message (DateTimeUTC, Content, InternalNumber, ExternalNumber, IsInternal, UserId) VALUES (UTC_TIMESTAMP, '{count[n]}', '{n}', '555599436679', TRUE, 20)");
                 });
-            }
+            }*/
 
             running = false;
         }

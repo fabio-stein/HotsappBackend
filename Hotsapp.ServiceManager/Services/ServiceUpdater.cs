@@ -151,7 +151,7 @@ namespace Hotsapp.ServiceManager.Services
             _phoneService.SetStatus().Wait();
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
-                TimeSpan.FromMilliseconds(100));
+                TimeSpan.FromMilliseconds(800));
         }
 
         private void UpdateTask(object state)

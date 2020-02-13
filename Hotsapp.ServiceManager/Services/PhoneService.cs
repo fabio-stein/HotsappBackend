@@ -64,11 +64,13 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SetProfilePicture()
         {
+            _log.LogInformation("Updating profile picture");
             await _processManager.SendCommand("/profile setPicture /app/Assets/profile.jpg");
         }
 
         public async Task SetStatus()
         {
+            _log.LogInformation("Updating custom status message");
             await _processManager.SendCommand($"/profile setStatus \"{_configuration["ProfileStatus"]}\"");
         }
 
@@ -89,7 +91,7 @@ namespace Hotsapp.ServiceManager.Services
                 var message = match.Value;
                 message = message.Substring(1, message.Length - 1);
                 var number = Regex.Match(e, "55.+@s.whatsapp").Value.Replace("@s.whatsapp", "");
-                _log.LogInformation($"Message: [{number}] {match.Value}");
+                _log.LogInformation($"Message Received: [{number}] {match.Value}");
                 var mr = new MessageReceived()
                 {
                     Number = number,

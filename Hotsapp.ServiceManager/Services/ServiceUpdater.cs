@@ -32,22 +32,51 @@ namespace Hotsapp.ServiceManager.Services
             _log = log;
         }
 
+        bool runningMessageSender = false;
         public async Task CheckMessagesToSend()
         {
-            using (var context = DataFactory.GetContext())
+            if (runningMessageSender)
+                return;
+            runningMessageSender = true;
+
+            try
             {
-                var message = context.Message.Where(m => m.IsInternal && !m.Processed && m.InternalNumber == _numberManager.currentNumber)
-                    .OrderBy(m => m.Id)
-                    .FirstOrDefault();
-                if(message != null)
+                using (var context = DataFactory.GetContext())
                 {
-                    _log.LogInformation("New message to send!");
-                    var success = await _phoneService.SendMessage(message.ExternalNumber, message.Content);
-                    message.Processed = true;
-                    message.Error = !success;
-                    await context.SaveChangesAsync();
+                    var message = context.Message.Where(m => m.IsInternal && !m.Processed && m.InternalNumber == _numberManager.currentNumber)
+                        .OrderBy(m => m.Id)
+                        .FirstOrDefault();
+                    if (message != null)
+                    {
+                        int maxAttempts = 5;
+                        var success = false;
+                        for (int i = 1; i <= maxAttempts; i++)
+                        {
+                            try
+                            {
+                                _log.LogInformation("Sending new message! Attempt: {0} of {1}", i, maxAttempts);
+                                success = await _phoneService.SendMessage(message.ExternalNumber, message.Content);
+                                if (!success)
+                                    throw new Exception("Cannot send message");
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                _log.LogError(e, "Failed to send message");
+                                await Task.Delay(3000);
+                            }
+                        }
+                        message.Processed = true;
+                        message.Error = !success;
+                        await context.SaveChangesAsync();
+                    }
                 }
+            }catch(Exception e)
+            {
+                _log.LogError(e, "Error running MessageSender");
             }
+
+            runningMessageSender = false;
         }
 
         public void SendUpdate(string status)

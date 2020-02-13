@@ -27,6 +27,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SendCommand(string command)
         {
+            _log.LogInformation("[Command] {0}", command);
             await process.StandardInput.WriteAsync($"{command}\n");
         }
 
@@ -65,10 +66,12 @@ namespace Hotsapp.ServiceManager.Services
             try
             {
                 process.Kill();
+                _log.LogInformation("Proccess stopped");
             }catch(Exception e)
             {
                 _log.LogError(e, "Error killing Yowsup");
             }
+            _log.LogInformation("Using pkill to stop Yowsup");
             Start();
             SendCommand("pkill -9 -f yowsup").Wait();
             Task.Delay(1000).Wait();
@@ -82,6 +85,7 @@ namespace Hotsapp.ServiceManager.Services
                 while (true)
                 {
                     var line = await sr.ReadLineAsync();
+                    _log.LogInformation("[Client] {0}", line);
                     OnOutputReceived.Invoke(this, line);
                 }
             }catch(Exception e)
@@ -108,11 +112,13 @@ namespace Hotsapp.ServiceManager.Services
 
             timeoutTask = Task.Run(() =>
             {
+                _log.LogInformation("[WaitOutput] Timeout For Result ({0})", data);
                 Task.Delay((int)timeout).Wait();
             });
 
             terminationHandler = (o, e) =>
             {
+                _log.LogInformation("[WaitOutput] terminationHandler - Forcing kill");
                 terminatingTcs.SetResult(null);
             };
 

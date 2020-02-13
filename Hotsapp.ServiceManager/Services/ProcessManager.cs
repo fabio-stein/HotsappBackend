@@ -27,7 +27,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SendCommand(string command)
         {
-            _log.LogInformation("[Command] {0}", command);
+            _log.LogInformation($"[Command] {command}");
             await process.StandardInput.WriteAsync($"{command}\n");
         }
 

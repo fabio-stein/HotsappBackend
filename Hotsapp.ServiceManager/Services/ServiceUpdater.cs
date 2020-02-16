@@ -23,7 +23,7 @@ namespace Hotsapp.ServiceManager.Services
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
         private ILogger<ServiceUpdater> _log;
-        private DateTime lastUpdate = null;
+        private DateTime? lastUpdate = null;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {

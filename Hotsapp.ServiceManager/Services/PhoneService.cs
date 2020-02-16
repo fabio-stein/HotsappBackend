@@ -55,20 +55,37 @@ namespace Hotsapp.ServiceManager.Services
             _processManager.Stop();
         }
 
-        public async Task Login()
+        public async Task<bool> Login()
         {
             await _processManager.SendCommand("/L");
-            await _processManager.WaitOutput("Auth: Logged in!");
-            _log.LogInformation("Login Success");
+            var success = _processManager.WaitOutput("Auth: Logged in!");
+            var error = _processManager.WaitOutput("Authentication Failure");
+            var timeout = Task.Delay(10000);
+            var result = await Task.WhenAny(success, error, timeout);
+            if (result == success)
+            {
+                _log.LogInformation("Login Success");
+                return true;
+            }
+            else
+            {
+                if (result == error)
+                    _log.LogInformation("Login error");
+                if (result == timeout)
+                    _log.LogInformation("Login timeout");
+                return false;
+            }
         }
 
         public async Task SetProfilePicture()
         {
+            _log.LogInformation("Updating profile picture");
             await _processManager.SendCommand("/profile setPicture /app/Assets/profile.jpg");
         }
 
         public async Task SetStatus()
         {
+            _log.LogInformation("Updating custom status message");
             await _processManager.SendCommand($"/profile setStatus \"{_configuration["ProfileStatus"]}\"");
         }
 
@@ -89,7 +106,7 @@ namespace Hotsapp.ServiceManager.Services
                 var message = match.Value;
                 message = message.Substring(1, message.Length - 1);
                 var number = Regex.Match(e, "55.+@s.whatsapp").Value.Replace("@s.whatsapp", "");
-                _log.LogInformation($"Message: [{number}] {match.Value}");
+                _log.LogInformation($"Message Received: [{number}] {match.Value}");
                 var mr = new MessageReceived()
                 {
                     Number = number,
@@ -112,28 +129,19 @@ namespace Hotsapp.ServiceManager.Services
         {
             var offline = _processManager.WaitOutput("offline");
             var online = _processManager.WaitOutput("connected");
-            _processManager.SendCommand("");
-            _processManager.SendCommand("");
-            _processManager.SendCommand("");
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(10);//Wait some time to proccess the response handlers
+                _ = _processManager.SendCommand("");
+                _ = _processManager.SendCommand("");
+                _ = _processManager.SendCommand("");
+            });
             var timeout = Task.Delay(1000);
             var res = await Task.WhenAny(offline, online, timeout);
-            //TryDisposeTasks(new Task[] { offline, online, timeout });
             if (res == online)
                 return true;
             else
                 return false;
-        }
-
-        private static void TryDisposeTasks(Task[] tasks)
-        {
-            var list = new List<Task>(tasks);
-            list.ForEach(task =>
-            {
-                try
-                {
-                    task.Dispose();
-                }catch(Exception e) { }
-            });
         }
     }
 }

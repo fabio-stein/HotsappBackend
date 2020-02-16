@@ -18,7 +18,6 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
-        public virtual DbSet<Phoneservice> Phoneservice { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<Subscription> Subscription { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -135,25 +134,6 @@ namespace Hotsapp.Data.Model
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_payment_UserId");
-            });
-
-            modelBuilder.Entity<Phoneservice>(entity =>
-            {
-                entity.ToTable("phoneservice");
-
-                entity.Property(e => e.Id).HasColumnType("int(11)");
-
-                entity.Property(e => e.CreateDateUtc)
-                    .HasColumnName("CreateDateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.LastUpdateUtc)
-                    .HasColumnName("LastUpdateUTC")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Status)
-                    .IsRequired()
-                    .HasColumnType("varchar(255)");
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>

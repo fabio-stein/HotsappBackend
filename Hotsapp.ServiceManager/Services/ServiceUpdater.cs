@@ -23,7 +23,7 @@ namespace Hotsapp.ServiceManager.Services
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
         private ILogger<ServiceUpdater> _log;
-        private DateTime lastUpdate = DateTime.UtcNow;
+        private DateTime lastUpdate = null;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {
@@ -129,7 +129,6 @@ namespace Hotsapp.ServiceManager.Services
 
             _numberManager.LoadData();
 
-            UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
 
             _phoneService.Start().Wait();
@@ -154,12 +153,11 @@ namespace Hotsapp.ServiceManager.Services
 
         private void CheckDeadService(object state)
         {
-            if (lastUpdate < DateTime.UtcNow.AddMinutes(-1))
+            if (lastUpdate != null && lastUpdate < DateTime.UtcNow.AddMinutes(-1))
             {
                 _log.LogInformation("DeadServiceCherker - Current Service is Dead, Stopping...");
                 StopAsync(new CancellationToken()).Wait();
             }
-                
         }
 
         private void UpdateTask(object state)
@@ -236,28 +234,6 @@ namespace Hotsapp.ServiceManager.Services
                 }
                 Environment.Exit(-1);
             }
-
-            /*
-            if (_phoneService.isDead || (offlineCount >= 5 && offlineCount <= 10))
-            {
-                _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
-                _phoneService.Stop();
-                await _phoneService.Start();
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                offlineCount = 0;
-                return;
-            }*/
-
-            /*
-            if (offlineCount >= 5 && offlineCount <= 10)
-            {
-                _log.LogInformation("[Connection Checker] PhoneService is offline! Reconnecting.");
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                return;
-            }*/
-            
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

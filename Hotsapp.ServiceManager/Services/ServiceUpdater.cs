@@ -260,24 +260,33 @@ namespace Hotsapp.ServiceManager.Services
             
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Timed Background Service is stopping.");
-            try
+            var stopTask = Task.Run(() =>
             {
-                _phoneService.Stop();
-                _timer?.Change(Timeout.Infinite, 0);
-                _numberManager.ReleaseNumber().Wait();
-            }catch(Exception e)
-            {
-                _log.LogError(e, "Error Stopping ServiceUpdater");
-            }
+                try
+                {
+                    _phoneService.Stop();
+                    _timer?.Change(Timeout.Infinite, 0);
+                    _numberManager.ReleaseNumber().Wait();
+                }
+                catch (Exception e)
+                {
+                    _log.LogError(e, "Error Stopping ServiceUpdater");
+                }
+            });
+            var timeout = Task.Delay(10000);
+            var result = await Task.WhenAny(stopTask, timeout);
+
+            if (result == stopTask)
+                _log.LogInformation("Success stopping service");
+            else
+                _log.LogInformation("Failed to stop service");
 
             LogContext.PushProperty("PhoneNumber", null);
 
             Environment.Exit(-1);
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()

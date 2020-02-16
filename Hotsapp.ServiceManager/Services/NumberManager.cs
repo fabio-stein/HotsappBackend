@@ -33,6 +33,16 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
+        public async Task SetNumberError(string errorCode)
+        {
+            using (var context = DataFactory.GetContext())
+            {
+                var number = context.VirtualNumber.Where(n => n.Number == currentNumber).FirstOrDefault();
+                number.Error = errorCode;
+                await context.SaveChangesAsync();
+            }
+        }
+
         public void LoadData()
         {
             var data = GetNumberData();
@@ -70,7 +80,7 @@ namespace Hotsapp.ServiceManager.Services
             using (var context = DataFactory.GetContext())
             {
                 var dbnumber = context.VirtualNumber.Where(n => n.Number == currentNumber).SingleOrDefault();
-                return dbnumber.OwnerId == null;
+                return dbnumber.OwnerId == null || dbnumber.Error != null;
             }
         }
 

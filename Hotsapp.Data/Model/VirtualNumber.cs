@@ -13,6 +13,7 @@ namespace Hotsapp.Data.Model
         public string Number { get; set; }
         public DateTime? LastCheckUtc { get; set; }
         public int? OwnerId { get; set; }
+        public string Error { get; set; }
 
         public virtual User Owner { get; set; }
         public virtual ICollection<VirtualNumberData> VirtualNumberData { get; set; }

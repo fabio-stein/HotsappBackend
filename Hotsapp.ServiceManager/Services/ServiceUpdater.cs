@@ -23,6 +23,7 @@ namespace Hotsapp.ServiceManager.Services
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
         private ILogger<ServiceUpdater> _log;
+        private DateTime lastUpdate = DateTime.UtcNow;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {
@@ -79,17 +80,6 @@ namespace Hotsapp.ServiceManager.Services
             runningMessageSender = false;
         }
 
-        public void SendUpdate(string status)
-        {
-            using (var context = DataFactory.GetContext())
-            {
-                var s = context.Phoneservice.First();
-                s.LastUpdateUtc = DateTime.UtcNow;
-                s.Status = status;
-                context.SaveChanges();
-            }
-        }
-
         public void OnMessageReceived(object sender, Data.MessageReceived mr)
         {
             using (var context = DataFactory.GetContext())
@@ -139,12 +129,17 @@ namespace Hotsapp.ServiceManager.Services
 
             _numberManager.LoadData();
 
-            SendUpdate("STARTING");
             UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
 
             _phoneService.Start().Wait();
-            _phoneService.Login().Wait();
+            var loginSuccess = _phoneService.Login().Result;
+            if (!loginSuccess)
+            {
+                await _numberManager.SetNumberError("login_error");
+                await StopAsync(new CancellationToken());
+            }
+
             lastLoginAttempt = DateTime.UtcNow;
             if (_hostingEnvironment.IsProduction())
                 _phoneService.SetProfilePicture().Wait();
@@ -152,6 +147,19 @@ namespace Hotsapp.ServiceManager.Services
 
             _timer = new Timer(UpdateTask, null, TimeSpan.Zero,
                 TimeSpan.FromMilliseconds(800));
+
+            new Timer(CheckDeadService, null, TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(1000));
+        }
+
+        private void CheckDeadService(object state)
+        {
+            if (lastUpdate < DateTime.UtcNow.AddMinutes(-1))
+            {
+                _log.LogInformation("DeadServiceCherker - Current Service is Dead, Stopping...");
+                StopAsync(new CancellationToken()).Wait();
+            }
+                
         }
 
         private void UpdateTask(object state)
@@ -160,6 +168,19 @@ namespace Hotsapp.ServiceManager.Services
                 return;
             updateRunning = true;
             _log.LogInformation("Run Update Check");
+            lastUpdate = DateTime.UtcNow;
+
+            try
+            {
+                isOnline = _phoneService.IsOnline().Result;
+                _log.LogInformation("Number is online: {0}", isOnline);
+            }
+            catch (Exception e)
+            {
+                _log.LogError(e, "ServiceUpdater IsOnline Check Error");
+                isOnline = false;
+            }
+
             try
             {
                 _numberManager.PutCheck().Wait();
@@ -168,29 +189,9 @@ namespace Hotsapp.ServiceManager.Services
                     _log.LogInformation("Automatically stopping ServiceUpdater");
                     
                     StopAsync(new CancellationToken()).Wait();
-                    Environment.Exit(-1);
-                    /*
-                    Task.Run(() =>
-                    {
-                        Task.Delay(3000).Wait();
-                        _log.LogInformation("Automatically starting ServiceUpdater");
-                        StartAsync(new CancellationToken());
-                    });*/
 
                     return;
                 }
-                try
-                {
-                    isOnline = _phoneService.IsOnline().Result;
-                    _log.LogInformation("Number is online: {0}", isOnline);
-                }
-                catch (Exception e)
-                {
-                    _log.LogError(e, "ServiceUpdater IsOnline Check Error");
-                    isOnline = false;
-                }
-                string status = status = ((bool)isOnline) ? "ONLINE" : "OFFLINE";
-                SendUpdate(status);
                 if(isOnline)
                     CheckMessagesToSend().Wait();
             }
@@ -275,6 +276,8 @@ namespace Hotsapp.ServiceManager.Services
             }
 
             LogContext.PushProperty("PhoneNumber", null);
+
+            Environment.Exit(-1);
 
             return Task.CompletedTask;
         }

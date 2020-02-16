@@ -25,17 +25,6 @@ namespace Hotsapp.Connector.Services
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public void SendUpdate(string status)
-        {
-            using (var context = DataFactory.GetContext())
-            {
-                var s = context.Phoneservice.First();
-                s.LastUpdateUtc = DateTime.UtcNow;
-                s.Status = status;
-                context.SaveChanges();
-            }
-        }
-
         public void OnMessageReceived(object sender, Data.MessageReceived mr)
         {
             using (var context = DataFactory.GetContext())
@@ -90,7 +79,6 @@ namespace Hotsapp.Connector.Services
                 Task.Delay(1000).Wait();
             }
 
-            SendUpdate("STARTING");
             UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
 

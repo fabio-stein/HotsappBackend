@@ -133,7 +133,7 @@ namespace Hotsapp.ServiceManager.Services
             _phoneService.OnMessageReceived += OnMessageReceived;
 
             _phoneService.Start().Wait();
-            var loginSuccess = _phoneService.Login().Result;
+            var loginSuccess = await _phoneService.Login();
             if (!loginSuccess)
             {
                 await _numberManager.SetNumberError("login_error");
@@ -263,12 +263,10 @@ namespace Hotsapp.ServiceManager.Services
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Timed Background Service is stopping.");
-            _phoneService.Stop();
-
-            _timer?.Change(Timeout.Infinite, 0);
-
             try
             {
+                _phoneService.Stop();
+                _timer?.Change(Timeout.Infinite, 0);
                 _numberManager.ReleaseNumber().Wait();
             }catch(Exception e)
             {

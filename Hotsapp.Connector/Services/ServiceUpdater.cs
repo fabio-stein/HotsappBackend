@@ -132,6 +132,7 @@ namespace Hotsapp.Connector.Services
                             vn.Number = flow.PhoneNumber;
                             vn.OwnerId = flow.UserId;
                             vn.OwnerId = flow.UserId;
+                            vn.Error = null;
 
                             if (isNew)
                                 ctx.VirtualNumber.Add(vn);

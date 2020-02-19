@@ -52,28 +52,35 @@ namespace Hotsapp.Connector.Services
             _numberManager.currentFlowId = null;
             while (true)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return Task.CompletedTask;
-                _numberManager.TryGetFlow().Wait();
-
-                if (_numberManager.currentFlowId != null)
+                try
                 {
-                    using(var ctx = DataFactory.GetContext())
+                    if (cancellationToken.IsCancellationRequested)
+                        return Task.CompletedTask;
+                    _numberManager.TryGetFlow().Wait();
+
+                    if (_numberManager.currentFlowId != null)
                     {
-                        var flow = ctx.ConnectionFlow.Where(f => f.Id == Guid.Parse(_numberManager.currentFlowId)).SingleOrDefault();
-                        if((DateTime.UtcNow - flow.CreateDateUtc).TotalMinutes > 5)
+                        using (var ctx = DataFactory.GetContext())
                         {
-                            flow.IsActive = false;
-                            flow.IsSuccess = false;
-                            flow.ErrorMessage = "Tempo Excedido";
-                            _numberManager.currentFlowId = null;
-                            ctx.SaveChanges();
-                        }
-                        else
-                        {
-                            break;
+                            var flow = ctx.ConnectionFlow.Where(f => f.Id == Guid.Parse(_numberManager.currentFlowId)).SingleOrDefault();
+                            if ((DateTime.UtcNow - flow.CreateDateUtc).TotalMinutes > 5)
+                            {
+                                flow.IsActive = false;
+                                flow.IsSuccess = false;
+                                flow.ErrorMessage = "Tempo Excedido";
+                                _numberManager.currentFlowId = null;
+                                ctx.SaveChanges();
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                 }
                 Console.WriteLine("Waiting for new Connection Flow...");
                 Task.Delay(1000).Wait();
@@ -122,23 +129,16 @@ namespace Hotsapp.Connector.Services
                             vn.OwnerId = flow.UserId;
                             vn.Error = null;
 
+                            _phoneService.Stop();
+                            if ((bool)_numberManager.currentFlow.IsSuccess)
+                                _numberManager.SaveNumber().Wait();
+
                             if (isNew)
                                 ctx.VirtualNumber.Add(vn);
                             else
                                 ctx.VirtualNumber.Update(vn);
 
                             ctx.SaveChanges();
-
-                            _phoneService.Stop();
-                            try
-                            {
-                                if ((bool)_numberManager.currentFlow.IsSuccess)
-                                    _numberManager.SaveNumber().Wait();
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.ToString());
-                            }
                         }
                         else
                         {
@@ -148,6 +148,7 @@ namespace Hotsapp.Connector.Services
                             flow.IsSuccess = false;
                             ctx.SaveChanges();
                         }
+                        StopAsync(new CancellationToken()).Wait();
                     }
                 }
 
@@ -165,12 +166,6 @@ namespace Hotsapp.Connector.Services
                 if (_numberManager.ShouldStop().Result)
                 {
                     StopAsync(new CancellationToken()).Wait();
-                    Task.Run(() =>
-                    {
-                        Task.Delay(3000).Wait();
-                        StartAsync(new CancellationToken());
-                    });
-
                     return;
                 }
             }
@@ -178,6 +173,7 @@ namespace Hotsapp.Connector.Services
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+                StopAsync(new CancellationToken()).Wait();
             }
 
             updateRunning = false;
@@ -190,6 +186,8 @@ namespace Hotsapp.Connector.Services
 
 
             _timer?.Change(Timeout.Infinite, 0);
+
+            Environment.Exit(-1);
 
             return Task.CompletedTask;
         }

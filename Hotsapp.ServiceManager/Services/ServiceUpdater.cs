@@ -23,7 +23,7 @@ namespace Hotsapp.ServiceManager.Services
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
         private ILogger<ServiceUpdater> _log;
-        private DateTime lastUpdate = DateTime.UtcNow;
+        private DateTime? lastUpdate = null;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {
@@ -129,11 +129,10 @@ namespace Hotsapp.ServiceManager.Services
 
             _numberManager.LoadData();
 
-            UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
 
             _phoneService.Start().Wait();
-            var loginSuccess = _phoneService.Login().Result;
+            var loginSuccess = await _phoneService.Login();
             if (!loginSuccess)
             {
                 await _numberManager.SetNumberError("login_error");
@@ -154,12 +153,11 @@ namespace Hotsapp.ServiceManager.Services
 
         private void CheckDeadService(object state)
         {
-            if (lastUpdate < DateTime.UtcNow.AddMinutes(-1))
+            if (lastUpdate != null && lastUpdate < DateTime.UtcNow.AddMinutes(-1))
             {
                 _log.LogInformation("DeadServiceCherker - Current Service is Dead, Stopping...");
                 StopAsync(new CancellationToken()).Wait();
             }
-                
         }
 
         private void UpdateTask(object state)
@@ -236,50 +234,35 @@ namespace Hotsapp.ServiceManager.Services
                 }
                 Environment.Exit(-1);
             }
-
-            /*
-            if (_phoneService.isDead || (offlineCount >= 5 && offlineCount <= 10))
-            {
-                _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
-                _phoneService.Stop();
-                await _phoneService.Start();
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                offlineCount = 0;
-                return;
-            }*/
-
-            /*
-            if (offlineCount >= 5 && offlineCount <= 10)
-            {
-                _log.LogInformation("[Connection Checker] PhoneService is offline! Reconnecting.");
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                return;
-            }*/
-            
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Timed Background Service is stopping.");
-            _phoneService.Stop();
-
-            _timer?.Change(Timeout.Infinite, 0);
-
-            try
+            var stopTask = Task.Run(() =>
             {
-                _numberManager.ReleaseNumber().Wait();
-            }catch(Exception e)
-            {
-                _log.LogError(e, "Error Stopping ServiceUpdater");
-            }
+                try
+                {
+                    _phoneService.Stop();
+                    _timer?.Change(Timeout.Infinite, 0);
+                    _numberManager.ReleaseNumber().Wait();
+                }
+                catch (Exception e)
+                {
+                    _log.LogError(e, "Error Stopping ServiceUpdater");
+                }
+            });
+            var timeout = Task.Delay(10000);
+            var result = await Task.WhenAny(stopTask, timeout);
+
+            if (result == stopTask)
+                _log.LogInformation("Success stopping service");
+            else
+                _log.LogInformation("Failed to stop service");
 
             LogContext.PushProperty("PhoneNumber", null);
 
             Environment.Exit(-1);
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()

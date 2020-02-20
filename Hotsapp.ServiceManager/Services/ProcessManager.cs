@@ -71,11 +71,6 @@ namespace Hotsapp.ServiceManager.Services
             {
                 _log.LogError(e, "Error killing Yowsup");
             }
-            _log.LogInformation("Using pkill to stop Yowsup");
-            Start();
-            SendCommand("pkill -9 -f yowsup").Wait();
-            Task.Delay(1000).Wait();
-            process.Kill();
         }
 
         private async Task ReadOutput(StreamReader sr)

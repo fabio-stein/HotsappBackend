@@ -58,9 +58,9 @@ namespace Hotsapp.ServiceManager.Services
         public async Task<bool> Login()
         {
             await _processManager.SendCommand("/L");
-            var success = _processManager.WaitOutput("Auth: Logged in!", 11000);
-            var error = _processManager.WaitOutput("Authentication Failure", 11000);
-            var timeout = Task.Delay(10000);
+            var success = _processManager.WaitOutput("Auth: Logged in!", 25000);
+            var error = _processManager.WaitOutput("Authentication Failure", 25000);
+            var timeout = Task.Delay(24000);
             var result = await Task.WhenAny(success, error, timeout);
             if (result == success)
             {

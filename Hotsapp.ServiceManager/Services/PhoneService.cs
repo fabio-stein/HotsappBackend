@@ -32,6 +32,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task Start()
         {
+            _log.LogInformation("Starting PhoneService");
             isDead = false;
             if (!initialized)
             {
@@ -45,7 +46,13 @@ namespace Hotsapp.ServiceManager.Services
 
             await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
             
-            await _processManager.SendCommand("");
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);//Wait some time to proccess the response handlers
+                _ = _processManager.SendCommand("");
+                _ = _processManager.SendCommand("");
+                _ = _processManager.SendCommand("");
+            });
             await _processManager.WaitOutput("offline", 10000);
             _log.LogInformation("Service Ready");
         }

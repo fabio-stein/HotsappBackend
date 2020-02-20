@@ -107,14 +107,14 @@ namespace Hotsapp.ServiceManager.Services
 
             timeoutTask = Task.Run(() =>
             {
-                _log.LogInformation("[WaitOutput] Timeout For Result ({0})", data);
                 Task.Delay((int)timeout).Wait();
+                _log.LogInformation("[WaitOutput] Timeout For Result ({0})", data);
             });
 
             terminationHandler = (o, e) =>
             {
-                _log.LogInformation("[WaitOutput] terminationHandler - Forcing kill");
                 terminatingTcs.SetResult(null);
+                _log.LogInformation("[WaitOutput] terminationHandler - Forcing kill");
             };
 
             //Start handlers

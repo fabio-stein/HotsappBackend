@@ -131,7 +131,15 @@ namespace Hotsapp.ServiceManager.Services
 
             _phoneService.OnMessageReceived += OnMessageReceived;
 
-            _phoneService.Start().Wait();
+            try
+            {
+                _phoneService.Start().Wait();
+            }catch(Exception e)
+            {
+                _log.LogError(e, "Cannot start PhoneService");
+                await _numberManager.SetNumberError("startup_error");
+                await StopAsync(new CancellationToken());
+            }
             var loginSuccess = await _phoneService.Login();
             if (!loginSuccess)
             {
@@ -157,6 +165,7 @@ namespace Hotsapp.ServiceManager.Services
             {
                 _log.LogInformation("DeadServiceCherker - Current Service is Dead, Stopping...");
                 StopAsync(new CancellationToken()).Wait();
+                return;
             }
         }
 
@@ -236,8 +245,13 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
+        bool stopping = false;
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            if (stopping)
+                await Task.Delay(10000000); //Just to handle all calls and avoid post processing when the app is shutting down
+            stopping = true;
+
             _log.LogInformation("Timed Background Service is stopping.");
             var stopTask = Task.Run(() =>
             {

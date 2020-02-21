@@ -46,8 +46,12 @@ namespace Hotsapp.ServiceManager.Services
 
             await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
 
+            var count = 0;
+            var limit = 10;
             while (true)
             {
+                if (count >= limit)
+                    throw new Exception("Failed to start");
                 try
                 {
                     _log.LogInformation("Waiting to process start");
@@ -58,6 +62,7 @@ namespace Hotsapp.ServiceManager.Services
                 {
                     _log.LogInformation(e, "Process not ready yet");
                 }
+                count++;
             }
             _log.LogInformation("Service Ready");
         }

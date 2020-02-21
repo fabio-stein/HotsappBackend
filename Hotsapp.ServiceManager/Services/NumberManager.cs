@@ -51,7 +51,14 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SaveData()
         {
+            _log.LogInformation("Saving data");
             var data = GetCompressedData(currentNumber);
+            if (data.Length < 100)
+            {
+                _log.LogWarning("Data with size < 100 bytes - Ignoring save");
+                return;
+            }
+            _log.LogInformation("Data compressed");
             using (var context = DataFactory.GetContext())
             {
                 var numberData = new VirtualNumberData()
@@ -63,6 +70,7 @@ namespace Hotsapp.ServiceManager.Services
                 context.VirtualNumberData.Add(numberData);
                 await context.SaveChangesAsync();
             }
+            _log.LogInformation("Data saved!");
         }
 
         public async Task PutCheck()

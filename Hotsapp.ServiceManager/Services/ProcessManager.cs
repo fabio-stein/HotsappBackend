@@ -27,12 +27,8 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SendCommand(string command)
         {
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(50);//Wait some time to proccess the response handlers
-                _log.LogInformation($"[Command] {command}");
-                await process.StandardInput.WriteAsync($"{command}\n");
-            });
+            _log.LogInformation($"[Command] {command}");
+            await process.StandardInput.WriteAsync($"{command}\n");
         }
 
         public void Start()

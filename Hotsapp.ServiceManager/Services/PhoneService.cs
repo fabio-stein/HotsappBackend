@@ -72,7 +72,7 @@ namespace Hotsapp.ServiceManager.Services
             _processManager.Stop();
         }
 
-        public async Task<bool> Login()
+        public async Task<string> Login()
         {
             await _processManager.SendCommand("/L");
             var success = _processManager.WaitOutput("Auth: Logged in!", 25000);
@@ -82,15 +82,18 @@ namespace Hotsapp.ServiceManager.Services
             if (result == success)
             {
                 _log.LogInformation("Login Success");
-                return true;
+                return "success";
             }
             else
             {
-                if (result == error)
+                if (result == error){
                     _log.LogInformation("Login error");
-                if (result == timeout)
+                    return "login_error"
+                }
+                if (result == timeout){
                     _log.LogInformation("Login timeout");
-                return false;
+                    return "timeout";
+                }
             }
         }
 

@@ -45,15 +45,20 @@ namespace Hotsapp.ServiceManager.Services
             Directory.CreateDirectory(configPath);//Create if not exists
 
             await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
-            
-            _ = Task.Run(async () =>
+
+            while (true)
             {
-                await Task.Delay(100);//Wait some time to proccess the response handlers
-                _ = _processManager.SendCommand("");
-                _ = _processManager.SendCommand("");
-                _ = _processManager.SendCommand("");
-            });
-            await _processManager.WaitOutput("offline", 10000);
+                try
+                {
+                    _log.LogInformation("Waiting to process start");
+                    _ = _processManager.SendCommand("");
+                    var result = await _processManager.WaitOutput("offline", 5000);
+                    break;
+                }catch(Exception e)
+                {
+                    _log.LogInformation(e, "Process not ready yet");
+                }
+            }
             _log.LogInformation("Service Ready");
         }
 
@@ -100,7 +105,6 @@ namespace Hotsapp.ServiceManager.Services
         {
             if (e == null)
                 return;
-            _log.LogInformation("[Output]: "+e);
 
             if (e.Contains("Exception in thread Thread"))
                 isDead = true;

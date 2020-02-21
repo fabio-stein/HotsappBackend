@@ -88,7 +88,7 @@ namespace Hotsapp.ServiceManager.Services
             {
                 if (result == error){
                     _log.LogInformation("Login error");
-                    return "login_error"
+                    return "login_error";
                 }
                 if (result == timeout){
                     _log.LogInformation("Login timeout");

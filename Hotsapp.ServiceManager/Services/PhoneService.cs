@@ -95,6 +95,7 @@ namespace Hotsapp.ServiceManager.Services
                     return "timeout";
                 }
             }
+            return "unknown";
         }
 
         public async Task SetProfilePicture()

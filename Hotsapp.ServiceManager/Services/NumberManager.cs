@@ -35,10 +35,24 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task SetNumberError(string errorCode)
         {
+            _log.LogInformation("Saving error in number status");
             using (var context = DataFactory.GetContext())
             {
                 var number = context.VirtualNumber.Where(n => n.Number == currentNumber).FirstOrDefault();
                 number.Error = errorCode;
+                number.RetryCount++;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task ClearNumberError()
+        {
+            _log.LogInformation("Clearing current error in number status");
+            using (var context = DataFactory.GetContext())
+            {
+                var number = context.VirtualNumber.Where(n => n.Number == currentNumber).FirstOrDefault();
+                number.Error = null;
+                number.RetryCount = 0;
                 await context.SaveChangesAsync();
             }
         }

@@ -147,6 +147,8 @@ namespace Hotsapp.ServiceManager.Services
                 await StopAsync(new CancellationToken());
             }
 
+            await _numberManager.ClearNumberError();
+
             lastLoginAttempt = DateTime.UtcNow;
             if (_hostingEnvironment.IsProduction())
                 _phoneService.SetProfilePicture().Wait();

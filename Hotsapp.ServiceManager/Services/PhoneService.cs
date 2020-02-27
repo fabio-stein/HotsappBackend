@@ -32,6 +32,7 @@ namespace Hotsapp.ServiceManager.Services
 
         public async Task Start()
         {
+            _log.LogInformation("Starting PhoneService");
             isDead = false;
             if (!initialized)
             {
@@ -44,9 +45,25 @@ namespace Hotsapp.ServiceManager.Services
             Directory.CreateDirectory(configPath);//Create if not exists
 
             await _processManager.SendCommand($"script -q -c \"yowsup-cli demos --yowsup -c \"{configPath}\" --config-pushname Hotsapp \" /dev/null");
-            
-            await _processManager.SendCommand("");
-            await _processManager.WaitOutput("offline", 10000);
+
+            var count = 0;
+            var limit = 10;
+            while (true)
+            {
+                if (count >= limit)
+                    throw new Exception("Failed to start");
+                try
+                {
+                    _log.LogInformation("Waiting to process start");
+                    _ = _processManager.SendCommand("");
+                    var result = await _processManager.WaitOutput("offline", 5000);
+                    break;
+                }catch(Exception e)
+                {
+                    _log.LogInformation(e, "Process not ready yet");
+                }
+                count++;
+            }
             _log.LogInformation("Service Ready");
         }
 
@@ -55,26 +72,30 @@ namespace Hotsapp.ServiceManager.Services
             _processManager.Stop();
         }
 
-        public async Task<bool> Login()
+        public async Task<string> Login()
         {
             await _processManager.SendCommand("/L");
-            var success = _processManager.WaitOutput("Auth: Logged in!");
-            var error = _processManager.WaitOutput("Authentication Failure");
-            var timeout = Task.Delay(10000);
+            var success = _processManager.WaitOutput("Auth: Logged in!", 25000);
+            var error = _processManager.WaitOutput("Authentication Failure", 25000);
+            var timeout = Task.Delay(24000);
             var result = await Task.WhenAny(success, error, timeout);
             if (result == success)
             {
                 _log.LogInformation("Login Success");
-                return true;
+                return "success";
             }
             else
             {
-                if (result == error)
+                if (result == error){
                     _log.LogInformation("Login error");
-                if (result == timeout)
+                    return "login_error";
+                }
+                if (result == timeout){
                     _log.LogInformation("Login timeout");
-                return false;
+                    return "timeout";
+                }
             }
+            return "unknown";
         }
 
         public async Task SetProfilePicture()
@@ -93,7 +114,6 @@ namespace Hotsapp.ServiceManager.Services
         {
             if (e == null)
                 return;
-            _log.LogInformation("[Output]: "+e);
 
             if (e.Contains("Exception in thread Thread"))
                 isDead = true;

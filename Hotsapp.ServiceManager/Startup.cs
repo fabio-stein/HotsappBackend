@@ -13,6 +13,7 @@ using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using Microsoft.Extensions.Logging;
 using Serilog.Exceptions;
+using Serilog.Context;
 
 namespace Hotsapp.ServiceManager
 {
@@ -39,6 +40,7 @@ namespace Hotsapp.ServiceManager
                     AutoRegisterTemplate = true,
                 })
             .CreateLogger();
+            LogContext.PushProperty("MachineName", Environment.MachineName);
         }
 
         public void ConfigureServices(IServiceCollection services)

@@ -38,7 +38,7 @@ namespace Hotsapp.ServiceManager.Services
             var startInfo = new ProcessStartInfo();
             
             if(_env.IsDevelopment())
-                startInfo.FileName = "wsl";
+                startInfo.FileName = "bash";
             else
                 startInfo.FileName = "/bin/bash";
             startInfo.CreateNoWindow = true;
@@ -62,20 +62,15 @@ namespace Hotsapp.ServiceManager.Services
 
         private void ForceKill()
         {
-            _log.LogInformation("Killing Yowsup");
+            _log.LogInformation("Killing process");
             try
             {
                 process.Kill();
-                _log.LogInformation("Proccess stopped");
+                _log.LogInformation("Process stopped");
             }catch(Exception e)
             {
                 _log.LogError(e, "Error killing Yowsup");
             }
-            _log.LogInformation("Using pkill to stop Yowsup");
-            Start();
-            SendCommand("pkill -9 -f yowsup").Wait();
-            Task.Delay(1000).Wait();
-            process.Kill();
         }
 
         private async Task ReadOutput(StreamReader sr)
@@ -90,48 +85,41 @@ namespace Hotsapp.ServiceManager.Services
                 }
             }catch(Exception e)
             {
-                _log.LogError(e, "Error reading proccess output");
+                _log.LogError(e, "Error reading process output");
             }
         }
 
         public async Task<string> WaitOutput(string data, int? timeout = 5000)
         {
+            var complete = false;
             //Define handlers
             TaskCompletionSource<string> outputTcs = new TaskCompletionSource<string>();
-            TaskCompletionSource<string> terminatingTcs = new TaskCompletionSource<string>();
             EventHandler<string> outputHandler = null;
-            EventHandler terminationHandler = null;
             Task timeoutTask = null;
 
             //Create handlers
             outputHandler = (o, e) =>
             {
-                if(e != null && e.Contains(data))
+                if(!complete && e != null && e.Contains(data))
                     outputTcs.SetResult(e);
             };
 
             timeoutTask = Task.Run(() =>
             {
-                _log.LogInformation("[WaitOutput] Timeout For Result ({0})", data);
                 Task.Delay((int)timeout).Wait();
+                if(!complete)
+                    _log.LogInformation("[WaitOutput] Timeout For Result ({0})", data);
             });
-
-            terminationHandler = (o, e) =>
-            {
-                _log.LogInformation("[WaitOutput] terminationHandler - Forcing kill");
-                terminatingTcs.SetResult(null);
-            };
 
             //Start handlers
             OnOutputReceived += outputHandler;
-            OnTerminating += terminationHandler;
 
-            var result = await Task.WhenAny(outputTcs.Task, timeoutTask, terminatingTcs.Task);
-            TryDisposeAll(new IDisposable[]{ outputTcs.Task, terminatingTcs.Task });
+            var result = await Task.WhenAny(outputTcs.Task, timeoutTask);
+            complete = true;
+            TryDisposeAll(new IDisposable[]{ outputTcs.Task });
             try
             {
                 OnOutputReceived -= outputHandler;
-                OnTerminating -= terminationHandler;
             }catch(Exception e)
             {
 

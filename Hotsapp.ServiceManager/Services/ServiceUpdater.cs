@@ -23,7 +23,7 @@ namespace Hotsapp.ServiceManager.Services
         private int offlineCount = 0;
         private IHostingEnvironment _hostingEnvironment;
         private ILogger<ServiceUpdater> _log;
-        private DateTime lastUpdate = DateTime.UtcNow;
+        private DateTime? lastUpdate = null;
 
         public ServiceUpdater(PhoneService phoneService, NumberManager numberManager, IHostingEnvironment hostingEnvironment, ILogger<ServiceUpdater> log)
         {
@@ -129,16 +129,26 @@ namespace Hotsapp.ServiceManager.Services
 
             _numberManager.LoadData();
 
-            UpdateTask(null);
             _phoneService.OnMessageReceived += OnMessageReceived;
 
-            _phoneService.Start().Wait();
-            var loginSuccess = _phoneService.Login().Result;
-            if (!loginSuccess)
+            try
             {
-                await _numberManager.SetNumberError("login_error");
+                _phoneService.Start().Wait();
+            }catch(Exception e)
+            {
+                _log.LogError(e, "Cannot start PhoneService");
+                await _numberManager.SetNumberError("startup_error");
                 await StopAsync(new CancellationToken());
             }
+            var loginResult = await _phoneService.Login();
+            if (loginResult != "success")
+            {
+                if(loginResult != "timeout")
+                    await _numberManager.SetNumberError(loginResult);
+                await StopAsync(new CancellationToken());
+            }
+
+            await _numberManager.ClearNumberError();
 
             lastLoginAttempt = DateTime.UtcNow;
             if (_hostingEnvironment.IsProduction())
@@ -154,12 +164,12 @@ namespace Hotsapp.ServiceManager.Services
 
         private void CheckDeadService(object state)
         {
-            if (lastUpdate < DateTime.UtcNow.AddMinutes(-1))
+            if (lastUpdate != null && lastUpdate < DateTime.UtcNow.AddMinutes(-1))
             {
                 _log.LogInformation("DeadServiceCherker - Current Service is Dead, Stopping...");
                 StopAsync(new CancellationToken()).Wait();
+                return;
             }
-                
         }
 
         private void UpdateTask(object state)
@@ -236,50 +246,40 @@ namespace Hotsapp.ServiceManager.Services
                 }
                 Environment.Exit(-1);
             }
-
-            /*
-            if (_phoneService.isDead || (offlineCount >= 5 && offlineCount <= 10))
-            {
-                _log.LogInformation("[Connection Checker] PhoneService IsDead! Reconnecting.");
-                _phoneService.Stop();
-                await _phoneService.Start();
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                offlineCount = 0;
-                return;
-            }*/
-
-            /*
-            if (offlineCount >= 5 && offlineCount <= 10)
-            {
-                _log.LogInformation("[Connection Checker] PhoneService is offline! Reconnecting.");
-                await _phoneService.Login();
-                lastLoginAttempt = DateTime.UtcNow;
-                return;
-            }*/
-            
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        bool stopping = false;
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
+            if (stopping)
+                await Task.Delay(10000000); //Just to handle all calls and avoid post processing when the app is shutting down
+            stopping = true;
+
             _log.LogInformation("Timed Background Service is stopping.");
-            _phoneService.Stop();
-
-            _timer?.Change(Timeout.Infinite, 0);
-
-            try
+            var stopTask = Task.Run(() =>
             {
-                _numberManager.ReleaseNumber().Wait();
-            }catch(Exception e)
-            {
-                _log.LogError(e, "Error Stopping ServiceUpdater");
-            }
+                try
+                {
+                    _phoneService.Stop();
+                    _timer?.Change(Timeout.Infinite, 0);
+                    _numberManager.ReleaseNumber().Wait();
+                }
+                catch (Exception e)
+                {
+                    _log.LogError(e, "Error Stopping ServiceUpdater");
+                }
+            });
+            var timeout = Task.Delay(10000);
+            var result = await Task.WhenAny(stopTask, timeout);
+
+            if (result == stopTask)
+                _log.LogInformation("Success stopping service");
+            else
+                _log.LogInformation("Failed to stop service");
 
             LogContext.PushProperty("PhoneNumber", null);
 
             Environment.Exit(-1);
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()

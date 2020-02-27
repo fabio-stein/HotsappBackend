@@ -140,10 +140,11 @@ namespace Hotsapp.ServiceManager.Services
                 await _numberManager.SetNumberError("startup_error");
                 await StopAsync(new CancellationToken());
             }
-            var loginSuccess = await _phoneService.Login();
-            if (!loginSuccess)
+            var loginResult = await _phoneService.Login();
+            if (loginResult != "success")
             {
-                await _numberManager.SetNumberError("login_error");
+                if(loginResult != "timeout")
+                    await _numberManager.SetNumberError(loginResult);
                 await StopAsync(new CancellationToken());
             }
 

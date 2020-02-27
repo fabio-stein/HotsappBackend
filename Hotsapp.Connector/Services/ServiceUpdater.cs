@@ -128,6 +128,7 @@ namespace Hotsapp.Connector.Services
                             vn.OwnerId = flow.UserId;
                             vn.OwnerId = flow.UserId;
                             vn.Error = null;
+                            vn.RetryCount = 0;
 
                             _phoneService.Stop();
                             if ((bool)_numberManager.currentFlow.IsSuccess)

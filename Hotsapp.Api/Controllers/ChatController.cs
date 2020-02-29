@@ -46,7 +46,7 @@ namespace Hotsapp.Api.Controllers
   AND (@includeInternal OR !m.IsInternal)
   {lastUpdateCondition}
   ORDER BY m.DateTimeUTC ASC
-  LIMIT 1000", new
+  LIMIT 300", new
                 {
                     lastUpdate = data.LastUpdate,
                     externalNumber = data.ContactNumber,

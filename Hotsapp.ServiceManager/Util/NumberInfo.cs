@@ -24,7 +24,7 @@ namespace Hotsapp.ServiceManager.Util
             data.IsNineDigits = number.Length == 13;
             data.CountryCode = number.Substring(0, 2);
             data.AreaCode = number.Substring(2, 2);
-            data.Number = number.Substring(2, data.IsNineDigits ? 9 : 8);
+            data.Number = number.Substring(4, data.IsNineDigits ? 9 : 8);
             return data;
         }
 

@@ -32,7 +32,7 @@ namespace Hotsapp.Api.Controllers
 
             using(var ctx = DataFactory.GetContext())
             {
-                var text = @"Olá, obrigado por utilizar o teste grátis da Hotsapp. 🥳🎉🎊\n\nJá que você se interessou, temos um presentinho para você:\nUtilize o cupom GOSTEI e garanta 10% de desconto no seu pagamento. 🤑\n\nFaça seu cadastro no site e comece a enviar WhatsApp agora mesmo. ✅\n\nCaso ainda tenha alguma dúvida, entre em contato pelo chat online. 🙂👍";
+                var text = @"Olá, obrigado por utilizar o teste grátis da Hotsapp. 🥳🎉🎊\n\nJá que se interessou, temos um presentinho para você:\nUtilize o cupom GOSTEI e garanta 10% de desconto no seu pagamento. 🤑\n\nFaça seu cadastro no site e comece a enviar WhatsApp agora mesmo. ✅\n\nCaso ainda tenha alguma dúvida, entre em contato pelo chat online. 🙂👍";
                 var lastMessage = await ctx.Message.OrderByDescending(m => m.DateTimeUtc).Where(m => m.Processed && m.Error == false).FirstOrDefaultAsync();
                 var newMessage = new Message()
                 {

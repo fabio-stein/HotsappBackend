@@ -21,6 +21,12 @@ namespace Hotsapp.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> FreeAction([FromForm] string phoneNumber, [FromForm(Name = "g-recaptcha-response")] string captcha)
         {
+            phoneNumber = phoneNumber.Trim();
+            if (!CheckValidNumber(phoneNumber))
+                return BadRequest("Número inválido");
+
+            phoneNumber = "55" + phoneNumber;
+
             if (!await CheckCaptcha(captcha))
                 return BadRequest("Captcha inválido");
 
@@ -34,7 +40,7 @@ namespace Hotsapp.Api.Controllers
                     DateTimeUtc = DateTime.UtcNow,
                     IsInternal = true,
                     InternalNumber = lastMessage.InternalNumber,
-                    ExternalNumber = "555599436679",
+                    ExternalNumber = phoneNumber,
                     UserId = 20 // Fabio
                 };
                 ctx.Add(newMessage);
@@ -65,6 +71,18 @@ namespace Hotsapp.Api.Controllers
         class CaptchaVerifyResponse
         {
             public bool success { get; set; }
+        }
+
+        private bool CheckValidNumber(string number)
+        {
+            if (String.IsNullOrEmpty(number))
+                return false;
+            long res = 0;
+            if (!long.TryParse(number, out res))
+                return false;
+            if (number.Length < 10 || number.Length > 11)
+                return false;
+            return true;
         }
     }
 }

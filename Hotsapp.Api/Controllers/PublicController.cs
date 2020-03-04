@@ -23,12 +23,12 @@ namespace Hotsapp.Api.Controllers
         {
             phoneNumber = phoneNumber.Trim().Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ","");
             if (!CheckValidNumber(phoneNumber))
-                return BadRequest("Número inválido");
+                return BadRequest(new { message = "Número inválido" });
 
             phoneNumber = "55" + phoneNumber;
 
             if (!await CheckCaptcha(captcha))
-                return BadRequest("Captcha inválido");
+                return BadRequest(new { message = "Captcha inválido" });
 
             using(var ctx = DataFactory.GetContext())
             {
@@ -46,7 +46,7 @@ namespace Hotsapp.Api.Controllers
                 ctx.Add(newMessage);
                 await ctx.SaveChangesAsync();
             }
-            return Ok("Mensagem enviada com sucesso!");
+            return Ok(new { message = "Mensagem enviada com sucesso!" });
         }
 
         private async Task<bool> CheckCaptcha(string captchaReponse)

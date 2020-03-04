@@ -21,7 +21,7 @@ namespace Hotsapp.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> FreeAction([FromForm] string phoneNumber, [FromForm(Name = "g-recaptcha-response")] string captcha)
         {
-            phoneNumber = phoneNumber.Trim();
+            phoneNumber = phoneNumber.Trim().Replace("(", "").Replace(")", "").Replace("-", "");
             if (!CheckValidNumber(phoneNumber))
                 return BadRequest("Número inválido");
 

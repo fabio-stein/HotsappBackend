@@ -82,7 +82,7 @@ namespace Hotsapp.Api
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
-                        .WithOrigins(_config["AppHost"].Split(','));
+                        .WithOrigins(_config["AppHost"].Replace(" ", "").Split(','));
                     });
             });
         }

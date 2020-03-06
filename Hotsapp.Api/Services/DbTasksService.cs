@@ -13,14 +13,18 @@ namespace Hotsapp.Api.Services
     {
         private Timer _timer;
         private Timer _cleanerTimer;
+        private IHostingEnvironment _env;
 
-        public DbTasksService()
+        public DbTasksService(IHostingEnvironment env)
         {
-
+            _env = env;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
+            if (_env.IsDevelopment())
+                return Task.CompletedTask;
+
             Console.WriteLine("Starting DbTasksService");
 
             _timer = new Timer(RunTasks, null, TimeSpan.Zero,

@@ -44,11 +44,16 @@ namespace Hotsapp.Data.Model
                 entity.HasIndex(e => e.OwnerId)
                     .HasName("FK_table1_OwnerId");
 
-                entity.Property(e => e.Id).HasColumnType("int(11)");
+                entity.Property(e => e.Id).HasColumnType("char(36)");
 
                 entity.Property(e => e.CreateDateUtc)
                     .HasColumnName("CreateDateUTC")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'utc_timestamp()'");
+
+                entity.Property(e => e.IsCanceled)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.IsComplete)
                     .HasColumnType("tinyint(1)")
@@ -77,16 +82,23 @@ namespace Hotsapp.Data.Model
 
             modelBuilder.Entity<CampaignContact>(entity =>
             {
+                entity.HasKey(e => new { e.Id, e.CampaignId })
+                    .HasName("PRIMARY");
+
                 entity.ToTable("campaign_contact");
 
                 entity.HasIndex(e => e.CampaignId)
                     .HasName("FK_campaign_contact_CampaignId");
 
-                entity.Property(e => e.Id).HasColumnType("int(11)");
+                entity.Property(e => e.Id)
+                    .HasColumnType("int(11)")
+                    .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.CampaignId).HasColumnType("int(11)");
+                entity.Property(e => e.CampaignId).HasColumnType("char(36)");
 
-                entity.Property(e => e.IsSuccess).HasColumnType("tinyint(1)");
+                entity.Property(e => e.IsSuccess)
+                    .HasColumnType("tinyint(1)")
+                    .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.PhoneNumber)
                     .IsRequired()

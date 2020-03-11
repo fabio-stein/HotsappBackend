@@ -61,40 +61,46 @@ namespace Hotsapp.Api.Controllers
 
                 await ctx.SaveChangesAsync();
 
-                return Ok();
+                return Ok(campaign.Id);
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{campaignId}")]
         public async Task<IActionResult> Start(Guid campaignId)
         {
             using (var ctx = DataFactory.GetContext())
             {
                 var campaign = await ctx.Campaign.SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
+                if (campaign.IsComplete)
+                    return BadRequest("Campanha finalizada");
                 campaign.IsPaused = false;
                 await ctx.SaveChangesAsync();
                 return Ok();
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{campaignId}")]
         public async Task<IActionResult> Stop(Guid campaignId)
         {
             using (var ctx = DataFactory.GetContext())
             {
                 var campaign = await ctx.Campaign.SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
+                if (campaign.IsComplete)
+                    return BadRequest("Campanha finalizada");
                 campaign.IsPaused = true;
                 await ctx.SaveChangesAsync();
                 return Ok();
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{campaignId}")]
         public async Task<IActionResult> Cancel(Guid campaignId)
         {
             using (var ctx = DataFactory.GetContext())
             {
                 var campaign = await ctx.Campaign.SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
+                if (campaign.IsComplete)
+                    return BadRequest("Campanha finalizada");
                 campaign.IsCanceled = true;
                 await ctx.SaveChangesAsync();
                 return Ok();
@@ -106,34 +112,34 @@ namespace Hotsapp.Api.Controllers
         {
             using (var ctx = DataFactory.GetContext())
             {
-                bool runningOnly = status == "running";
-                var list = ctx.Campaign.Where(c => c.OwnerId == (int)UserId).ToList();
+                bool activeOnly = status == "active";
+                var list = ctx.Campaign.Where(c => c.OwnerId == (int)UserId && ((!activeOnly) || (activeOnly && !c.IsCanceled && !c.IsComplete))).OrderByDescending(c => c.CreateDateUtc).ToList();
                 return Ok(list);
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{campaignId}")]
         public async Task<IActionResult> Status(string campaignId)
         {
             using(var conn = DataFactory.OpenConnection())
             {
-                var info = await conn.QueryAsync(@"WITH infos AS(
+                var info = await conn.QueryFirstOrDefaultAsync<StatusModel>(@"WITH infos AS(
 SELECT COUNT(*) AS total, SUM(IF(Processed, 1, 0)) AS processed, SUM(IF(IsSuccess, 1, 0)) AS success
   FROM campaign_contact
   WHERE CampaignId = @campaignId
 )
 SELECT c.Title AS title,
-  IF(c.IsComplete, 'finished', IF(c.IsPaused, 'paused', 'running')) AS status,
+  IF(c.IsComplete, 'finished', IF(c.IsCanceled, 'canceled', IF(c.IsPaused, 'paused', 'running'))) AS status,
   i.total,
   i.success AS sent,
   (i.processed - i.success) AS failed,
   (i.total - i.processed) AS remaining,
-  ROUND((i.processed / i.total) * 100) as percentage_complete
+  ROUND((i.processed / i.total) * 100) as percentageComplete
   FROM infos i
   INNER JOIN campaign c ON c.Id = @campaignId
   WHERE c.OwnerId = @ownerId", new
                 {
-                    userId = (int) UserId,
+                    ownerId = (int)UserId,
                     campaignId
                 });
                 return Ok(info);

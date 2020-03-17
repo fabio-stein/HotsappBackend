@@ -37,7 +37,7 @@ namespace Hotsapp.Payment
             }
         }
 
-        public async Task CreditsTransaction(int userId, decimal amount, TransactionOptions options)
+        public async Task CreditsTransaction(int userId, decimal amount, TransactionOptions options = null)
         {
             using (var context = DataFactory.GetContext())
             {

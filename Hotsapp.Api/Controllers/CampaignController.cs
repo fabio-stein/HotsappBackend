@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
+using Hotsapp.Payment;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,13 @@ namespace Hotsapp.Api.Controllers
     [ApiController]
     public class CampaignController : BaseController
     {
+        private BalanceService _balanceService;
+
+        public CampaignController(BalanceService balanceService)
+        {
+            _balanceService = balanceService;
+        }
+
         public class CampaignModel { 
             public string title { get; set; }
             public string contactList { get; set; }
@@ -70,16 +78,27 @@ namespace Hotsapp.Api.Controllers
         {
             using (var ctx = DataFactory.GetContext())
             {
-                var campaign = await ctx.Campaign.SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
+                var campaign = await ctx.Campaign.Include(c => c.CampaignContact)
+                    .SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
                 if (campaign.IsComplete)
                     return BadRequest("Campanha finalizada");
+
+                var credits = _balanceService.GetWallet((int)UserId);
+                var pricePerUnit = 0.15;
+                var contacts = campaign.CampaignContact.Count();
+                var totalPrice = contacts * pricePerUnit;
+                if ((double)credits.Amount < totalPrice)
+                    return BadRequest("Créditos insuficientes");
+
+                await _balanceService.CreditsTransaction((int)UserId, (decimal)totalPrice);
+
                 campaign.IsPaused = false;
                 await ctx.SaveChangesAsync();
                 return Ok();
             }
         }
 
-        [HttpPut("{campaignId}")]
+/*        [HttpPut("{campaignId}")]
         public async Task<IActionResult> Stop(Guid campaignId)
         {
             using (var ctx = DataFactory.GetContext())
@@ -91,7 +110,7 @@ namespace Hotsapp.Api.Controllers
                 await ctx.SaveChangesAsync();
                 return Ok();
             }
-        }
+        }*/
 
         [HttpPut("{campaignId}")]
         public async Task<IActionResult> Cancel(Guid campaignId)
@@ -99,8 +118,8 @@ namespace Hotsapp.Api.Controllers
             using (var ctx = DataFactory.GetContext())
             {
                 var campaign = await ctx.Campaign.SingleOrDefaultAsync(c => c.Id == campaignId && c.OwnerId == (int)UserId);
-                if (campaign.IsComplete)
-                    return BadRequest("Campanha finalizada");
+                if (campaign.IsComplete || !campaign.IsPaused)
+                    return BadRequest("Não é possível cancelar");
                 campaign.IsCanceled = true;
                 await ctx.SaveChangesAsync();
                 return Ok();

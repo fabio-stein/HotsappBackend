@@ -166,6 +166,7 @@ namespace Hotsapp.ServiceManager.Services
                     if (isAlternativeNumber)
                     {
                         _log.LogInformation("Message sent after trying with alternative number");
+                        _cache.Set(rawNumber, number.GetFullNumber());
                     }
                     return true;
                 }
@@ -179,7 +180,6 @@ namespace Hotsapp.ServiceManager.Services
                         isAlternativeNumber = true;
                         _log.LogInformation("Trying alternative number");
                         number = number.GetAlternativeNumber();
-                        _cache.Set(rawNumber, number.GetFullNumber());
                         continue;
                     }
                     else
@@ -195,9 +195,10 @@ namespace Hotsapp.ServiceManager.Services
         private async Task<string> SendMessageInternal(string number, string message)
         {
             await _processManager.SendCommand($"/message send {number} \"{message}\"");
-            var waitSucess = _processManager.WaitOutput("Sent:", 10000);
-            var waitInvalidNumber = _processManager.WaitOutput("is that a valid user", 10000);
-            var result = await Task.WhenAny(waitSucess, waitInvalidNumber);
+            var waitSucess = _processManager.WaitOutput("Sent:", 6000);
+            var waitInvalidNumber = _processManager.WaitOutput("is that a valid user", 6000);
+            var waitTimeout = Task.Delay(5000);
+            var result = await Task.WhenAny(waitSucess, waitInvalidNumber, waitTimeout);
             if (result == waitSucess)
                 return "success";
             else if (result == waitInvalidNumber)

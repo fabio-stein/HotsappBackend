@@ -22,5 +22,12 @@ namespace PayPal.v1.Orders
 
             this.ContentType = "application/json";
         }
+
+        
+        public OrdersCaptureRequest RequestBody()
+        {
+            this.Body = new Order() { Id = "" };
+            return this;
+        }
     }
 }

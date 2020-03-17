@@ -50,6 +50,7 @@ namespace Hotsapp.Payment
         public async Task<PayPal.v1.Orders.Order> CaptureOrder(string OrderId)
         {
             var request = new OrdersCaptureRequest(OrderId);
+            request.RequestBody();
             var response = await _client.Execute(request);
             var result = response.Result<PayPal.v1.Orders.Order>();
             return result;

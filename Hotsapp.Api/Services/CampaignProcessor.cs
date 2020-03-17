@@ -107,14 +107,14 @@ namespace Hotsapp.Api.Services
                 else
                 {
                     var contactToSend = ctx.CampaignContact.FirstOrDefault(c => c.CampaignId == campaign.Id && !c.Processed && c.MessageId == null);
-                    if(contactToSend != null)
+                    if (contactToSend != null)
                     {
                         Console.WriteLine("Preparing new message");
                         var lastSystemMessage = await ctx.Message.OrderByDescending(m => m.DateTimeUtc).Where(m => m.Processed && m.Error == false).FirstOrDefaultAsync();
-                        var text = campaign.MessageToSend.Replace("\n", @"\n");
+                        var text = campaign.MessageToSend.Replace("\n", "\\n");
                         var newMessage = new Message()
                         {
-                            Content = campaign.MessageToSend,
+                            Content = text,
                             DateTimeUtc = DateTime.UtcNow,
                             IsInternal = true,
                             InternalNumber = lastSystemMessage.InternalNumber,

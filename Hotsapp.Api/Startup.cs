@@ -52,6 +52,8 @@ namespace Hotsapp.Api
             services.AddTransient<RefreshTokenService>();
             services.AddHostedService<DbTasksService>();
             services.AddSingleton<SubscriptionService>();
+            services.AddSingleton<BalanceService>();
+            services.AddHostedService<CampaignProcessor>();
         }
 
         public void Configure(IApplicationBuilder app,
@@ -82,7 +84,7 @@ namespace Hotsapp.Api
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
-                        .WithOrigins(_config["AppHost"]);
+                        .WithOrigins(_config["AppHost"].Replace(" ", "").Split(','));
                     });
             });
         }

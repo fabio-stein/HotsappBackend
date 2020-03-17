@@ -7,6 +7,7 @@ namespace Hotsapp.Data.Model
     {
         public User()
         {
+            Campaign = new HashSet<Campaign>();
             ConnectionFlow = new HashSet<ConnectionFlow>();
             Message = new HashSet<Message>();
             Payment = new HashSet<Payment>();
@@ -22,6 +23,7 @@ namespace Hotsapp.Data.Model
         public string FirebaseUid { get; set; }
         public bool Disabled { get; set; }
 
+        public virtual ICollection<Campaign> Campaign { get; set; }
         public virtual ICollection<ConnectionFlow> ConnectionFlow { get; set; }
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<Payment> Payment { get; set; }

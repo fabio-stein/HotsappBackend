@@ -17,5 +17,6 @@ namespace Hotsapp.Data.Model
         public string ErrorCode { get; set; }
 
         public virtual User User { get; set; }
+        public virtual ICollection<CampaignContact> CampaignContact { get; set; }
     }
 }

@@ -39,6 +39,7 @@ namespace Hotsapp.Payment
 
         public async Task CreditsTransaction(int userId, decimal amount, TransactionOptions options = null)
         {
+            amount = Math.Round(amount, 2);
             using (var context = DataFactory.GetContext())
             {
                 var account = context.Wallet.Where(a => a.UserId == userId).Single();
@@ -47,7 +48,7 @@ namespace Hotsapp.Payment
                     Amount = amount,
                     WalletId = userId,
                     DateTimeUtc = DateTime.UtcNow,
-                    PaymentId = options.paymentId,
+                    PaymentId = options?.paymentId,
                 });
                 account.Amount += amount;
                 if ((options == null || !options.forceBilling) && account.Amount < 0)

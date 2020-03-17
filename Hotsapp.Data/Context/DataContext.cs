@@ -92,6 +92,9 @@ namespace Hotsapp.Data.Model
                 entity.HasIndex(e => e.CampaignId)
                     .HasName("FK_campaign_contact_CampaignId");
 
+                entity.HasIndex(e => e.MessageId)
+                    .HasName("FK_campaign_contact_MessageId");
+
                 entity.Property(e => e.Id)
                     .HasColumnType("int(11)")
                     .ValueGeneratedOnAdd();
@@ -101,6 +104,8 @@ namespace Hotsapp.Data.Model
                 entity.Property(e => e.IsSuccess)
                     .HasColumnType("tinyint(1)")
                     .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.MessageId).HasColumnType("int(11)");
 
                 entity.Property(e => e.PhoneNumber)
                     .IsRequired()
@@ -114,6 +119,11 @@ namespace Hotsapp.Data.Model
                     .WithMany(p => p.CampaignContact)
                     .HasForeignKey(d => d.CampaignId)
                     .HasConstraintName("FK_campaign_contact_CampaignId");
+
+                entity.HasOne(d => d.Message)
+                    .WithMany(p => p.CampaignContact)
+                    .HasForeignKey(d => d.MessageId)
+                    .HasConstraintName("FK_campaign_contact_MessageId");
             });
 
             modelBuilder.Entity<ConnectionFlow>(entity =>

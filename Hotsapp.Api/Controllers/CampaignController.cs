@@ -62,7 +62,7 @@ namespace Hotsapp.Api.Controllers
                 var campaignContacts = contacts.Select(c => new CampaignContact()
                 {
                     CampaignId = campaign.Id,
-                    PhoneNumber = c
+                    PhoneNumber = "55"+c
                 });
 
                 await ctx.CampaignContact.AddRangeAsync(campaignContacts);
@@ -90,7 +90,7 @@ namespace Hotsapp.Api.Controllers
                 if ((double)credits.Amount < totalPrice)
                     return BadRequest("Créditos insuficientes");
 
-                await _balanceService.CreditsTransaction((int)UserId, (decimal)totalPrice);
+                await _balanceService.CreditsTransaction((int)UserId, (decimal)totalPrice * -1);
 
                 campaign.IsPaused = false;
                 await ctx.SaveChangesAsync();

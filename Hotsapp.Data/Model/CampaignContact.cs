@@ -10,7 +10,9 @@ namespace Hotsapp.Data.Model
         public string PhoneNumber { get; set; }
         public bool Processed { get; set; }
         public bool IsSuccess { get; set; }
+        public int? MessageId { get; set; }
 
         public virtual Campaign Campaign { get; set; }
+        public virtual Message Message { get; set; }
     }
 }

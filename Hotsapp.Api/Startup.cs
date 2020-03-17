@@ -52,6 +52,7 @@ namespace Hotsapp.Api
             services.AddTransient<RefreshTokenService>();
             services.AddHostedService<DbTasksService>();
             services.AddSingleton<SubscriptionService>();
+            services.AddSingleton<BalanceService>();
         }
 
         public void Configure(IApplicationBuilder app,

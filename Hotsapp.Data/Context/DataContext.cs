@@ -25,6 +25,8 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<VirtualNumber> VirtualNumber { get; set; }
         public virtual DbSet<VirtualNumberData> VirtualNumberData { get; set; }
+        public virtual DbSet<Wallet> Wallet { get; set; }
+        public virtual DbSet<WalletTransaction> WalletTransaction { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -357,6 +359,38 @@ namespace Hotsapp.Data.Model
                     .WithMany(p => p.VirtualNumberData)
                     .HasForeignKey(d => d.Number)
                     .HasConstraintName("FK_virtual_number_data_Number");
+            });
+
+            modelBuilder.Entity<Wallet>(entity =>
+            {
+                entity.HasKey(e => e.UserId)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("wallet");
+
+                entity.Property(e => e.UserId).HasColumnType("int(11)");
+
+                entity.Property(e => e.Amount)
+                    .HasColumnType("decimal(8,2)")
+                    .HasDefaultValueSql("'0.00'");
+            });
+
+            modelBuilder.Entity<WalletTransaction>(entity =>
+            {
+                entity.ToTable("wallet_transaction");
+
+                entity.Property(e => e.Id).HasColumnType("char(36)");
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(8,2)");
+
+                entity.Property(e => e.DateTimeUtc)
+                    .HasColumnName("DateTimeUTC")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'utc_timestamp()'");
+
+                entity.Property(e => e.PaymentId).HasColumnType("char(36)");
+
+                entity.Property(e => e.WalletId).HasColumnType("int(11)");
             });
         }
     }

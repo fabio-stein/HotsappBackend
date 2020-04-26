@@ -5,7 +5,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Hotsapp.ServiceManager.Data;
+using Hotsapp.ServiceManager.Util;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -21,13 +23,16 @@ namespace Hotsapp.ServiceManager.Services
         public bool isDead { get; private set; } = false;
         private bool initialized = false;
         private ILogger<PhoneService> _log;
-        public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment, ILogger<PhoneService> log)
+        private IMemoryCache _cache;
+        public PhoneService(ProcessManager processManager, NumberManager numberManager, IConfiguration config, IHostingEnvironment hostingEnvironment,
+            ILogger<PhoneService> log, IMemoryCache cache)
         {
             _processManager = processManager;
             _numberManager = numberManager;
             _configuration = config;
             _hostingEnvironment = hostingEnvironment;
             _log = log;
+            _cache = cache;
         }
 
         public async Task Start()
@@ -136,13 +141,70 @@ namespace Hotsapp.ServiceManager.Services
             }
         }
 
-        public async Task<bool> SendMessage(string number, string message)
+        public async Task<bool> SendMessage(string rawNumber, string message)
+        {
+            var isAlternativeNumber = false;
+            var number = NumberInfo.ParseNumber(rawNumber);
+            if(number == null)
+            {
+                _log.LogInformation("Invalid number " + rawNumber);
+                return false;
+            }
+
+            var alternativeNumberCache = CheckAlternativeNumber(rawNumber);
+            if(alternativeNumberCache != null)
+            {
+                number = NumberInfo.ParseNumber(alternativeNumberCache);
+                _log.LogInformation("Using alternative number in cache");
+            }
+
+            while (true)
+            {
+                var result = await SendMessageInternal(number.GetFullNumber(), message);
+                if (result == "success")
+                {
+                    if (isAlternativeNumber)
+                    {
+                        _log.LogInformation("Message sent after trying with alternative number");
+                        _cache.Set(rawNumber, number.GetFullNumber());
+                    }
+                    return true;
+                }
+                else if (result == "error")
+                    return false;
+
+                if(result == "invalid_number")
+                {
+                    if (!isAlternativeNumber)
+                    {
+                        isAlternativeNumber = true;
+                        _log.LogInformation("Trying alternative number");
+                        number = number.GetAlternativeNumber();
+                        continue;
+                    }
+                    else
+                    {
+                        _log.LogInformation("Failed to send message using alternative number");
+                    }
+                }
+                break;
+            }
+            return false;
+        }
+
+        private async Task<string> SendMessageInternal(string number, string message)
         {
             await _processManager.SendCommand($"/message send {number} \"{message}\"");
-            var waitSucess = _processManager.WaitOutput("Sent:", 10000);
-            var waitInvalidNumber = _processManager.WaitOutput("is that a valid user", 10000);
-            var result = await Task.WhenAny(waitSucess, waitInvalidNumber);
-            return result == waitSucess;
+            var waitSucess = _processManager.WaitOutput("Sent:", 6000);
+            var waitInvalidNumber = _processManager.WaitOutput("is that a valid user", 6000);
+            var waitTimeout = Task.Delay(5000);
+            var result = await Task.WhenAny(waitSucess, waitInvalidNumber, waitTimeout);
+            if (result == waitSucess)
+                return "success";
+            else if (result == waitInvalidNumber)
+                return "invalid_number";
+            else
+                return "error";
         }
 
         public async Task<bool> IsOnline()
@@ -162,6 +224,13 @@ namespace Hotsapp.ServiceManager.Services
                 return true;
             else
                 return false;
+        }
+
+        private string CheckAlternativeNumber(string origin)
+        {
+            string dest = null;
+            _cache.TryGetValue(origin, out dest);
+            return dest;
         }
     }
 }

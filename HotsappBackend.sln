@@ -12,13 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Firebase", "Firebas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Data", "Hotsapp.Data\Hotsapp.Data.csproj", "{59744821-9FD9-44BB-B7F3-E814D342E44F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Payment", "Hotsapp.Payment\Hotsapp.Payment.csproj", "{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.ServiceManager", "Hotsapp.ServiceManager\Hotsapp.ServiceManager.csproj", "{EA7CFD68-B8CB-4A21-BD4E-2D7F50F6857B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Connector", "Hotsapp.Connector\Hotsapp.Connector.csproj", "{3F3F28F7-211D-44A3-998D-562DA657009B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaypalApi", "PaypalApi\PaypalApi.csproj", "{F385292A-39AB-4BCA-8B24-DC011ED853FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,22 +32,10 @@ Global
 		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59744821-9FD9-44BB-B7F3-E814D342E44F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7BA9E4F4-8847-49A5-B62E-2E52C5B4F0CC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EA7CFD68-B8CB-4A21-BD4E-2D7F50F6857B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EA7CFD68-B8CB-4A21-BD4E-2D7F50F6857B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA7CFD68-B8CB-4A21-BD4E-2D7F50F6857B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA7CFD68-B8CB-4A21-BD4E-2D7F50F6857B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F3F28F7-211D-44A3-998D-562DA657009B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F3F28F7-211D-44A3-998D-562DA657009B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F3F28F7-211D-44A3-998D-562DA657009B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F3F28F7-211D-44A3-998D-562DA657009B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F385292A-39AB-4BCA-8B24-DC011ED853FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

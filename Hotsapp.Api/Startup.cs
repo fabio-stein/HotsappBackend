@@ -12,7 +12,6 @@ using Hotsapp.Api.Configuration;
 using Hotsapp.Api.Services;
 using Hotsapp.Api.Util;
 using Hotsapp.Data.Model;
-using Hotsapp.Payment;
 using Hotsapp.Data.Util;
 
 namespace Hotsapp.Api
@@ -40,20 +39,17 @@ namespace Hotsapp.Api
 
             ConfigureAuth(services);
             ConfigureCors(services);
-            
-            var connectionString = _config.GetConnectionString("MySqlConnectionString");
+
+            var connectionString = _config.GetConnectionString("MySql");
             services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
             new DataFactory(connectionString);
 
             services.AddSingleton<FirebaseService>();
 
             services.AddTransient<UsernameGeneratorService>();
-            services.AddTransient<PaymentService>();
             services.AddTransient<RefreshTokenService>();
+
             services.AddHostedService<DbTasksService>();
-            services.AddSingleton<SubscriptionService>();
-            services.AddSingleton<BalanceService>();
-            //services.AddHostedService<CampaignProcessor>();
         }
 
         public void Configure(IApplicationBuilder app,

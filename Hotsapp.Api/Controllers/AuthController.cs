@@ -10,7 +10,6 @@ using System.Security.Principal;
 using Hotsapp.Api.Util;
 using System.Threading.Tasks;
 using Hotsapp.Data.Model;
-using Hotsapp.Payment;
 using Hotsapp.Api.Services;
 using Hotsapp.Data.Util;
 
@@ -24,17 +23,14 @@ namespace Hotsapp.Api.Controllers
         private FirebaseService _firebaseService;
         private DataContext _dataContext;
         private RefreshTokenService _refreshTokenService;
-        private BalanceService _balanceService;
 
-        public AuthController(SigningConfigurations signingConfigurations, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService,
-            BalanceService balanceService)
+        public AuthController(SigningConfigurations signingConfigurations, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService)
         {
             _signingConfigurations = signingConfigurations;
             _usernameGenerator = usernameGenerator;
             _firebaseService = firebaseService;
             _dataContext = dataContext;
             _refreshTokenService = refreshTokenService;
-            _balanceService = balanceService;
         }
 
         [HttpPost]
@@ -130,7 +126,6 @@ namespace Hotsapp.Api.Controllers
                 await ctx.User.AddAsync(user);
                 await ctx.SaveChangesAsync();
             }
-            await _balanceService.CreateWallet(user.Id);
             return user;
         }
 

@@ -1,6 +1,5 @@
 ﻿using FirebaseApi.models;
 using Flurl.Http;
-using Microsoft.Extensions.Configuration;
 using System;
 
 namespace FirebaseApi
@@ -8,9 +7,9 @@ namespace FirebaseApi
     public class FirebaseService
     {
         private string FIREBASE_KEY;
-        public FirebaseService(IConfiguration config)
+        public FirebaseService(string firebaseKey)
         {
-            FIREBASE_KEY = config["FirebaseApiKey"];
+            FIREBASE_KEY = firebaseKey;
         }
 
         private T FirebasePostRequest<T,K>(string ApiMethod, K Data)

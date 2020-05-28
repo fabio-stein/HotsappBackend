@@ -121,11 +121,8 @@ namespace Hotsapp.Api.Controllers
                 Name = info.displayName,
                 Username = username
             };
-            using (var ctx = DataFactory.GetContext())
-            {
-                await ctx.User.AddAsync(user);
-                await ctx.SaveChangesAsync();
-            }
+                await _dataContext.User.AddAsync(user);
+                await _dataContext.SaveChangesAsync();
             return user;
         }
 

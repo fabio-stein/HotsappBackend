@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotsapp.Data.Model
 {
+    [Table("refresh_token")]
     public partial class RefreshToken
     {
         public string Id { get; set; }

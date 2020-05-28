@@ -12,6 +12,8 @@ namespace Hotsapp.Data.Util
         public static void AddDataFactory(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
+            var sp = services.BuildServiceProvider();
+            services.AddSingleton(new DataFactory(sp, connectionString));
         }
     }
 }

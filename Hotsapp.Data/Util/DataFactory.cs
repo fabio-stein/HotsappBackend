@@ -1,46 +1,28 @@
-﻿using Hotsapp.Data.Context;
-using Hotsapp.Data.Model;
-using Microsoft.EntityFrameworkCore;
+﻿using Hotsapp.Data.Model;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 using System.Data.Common;
 
 namespace Hotsapp.Data.Util
 {
     public class DataFactory
     {
-        private static string _connectionString;
-        public DataFactory(string connectionString)
+        private string _connectionString;
+        private ServiceProvider _serviceProvider;
+        public DataFactory(ServiceProvider serviceProvider, string connectionString)
         {
             _connectionString = connectionString;
+            _serviceProvider = serviceProvider;
         }
 
-        public static DataContext GetContext()
+        public DbConnection OpenConnection()
         {
-            var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySql(_connectionString);
-            return new DataContext(builder.Options);
-            //return DIConfig.GetSetvice<DataContext>();
+            return new MySqlConnection(_connectionString);
         }
 
-        public static DbConnection OpenConnection()
+        public DataContext GetDataContext()
         {
-            var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySql(_connectionString);
-            var ctx = new DataContext(builder.Options);
-            return ctx.Database.GetDbConnection();
-        }
-
-        public static NumberContext GetNumberContext()
-        {
-            var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySql(_connectionString);
-            return new NumberContext(builder.Options);
-        }
-
-        public static ConnectionFlowContext GetConnectionFlowContext()
-        {
-            var builder = new DbContextOptionsBuilder<DataContext>();
-            builder.UseMySql(_connectionString);
-            return new ConnectionFlowContext(builder.Options);
+            return _serviceProvider.GetRequiredService<DataContext>();
         }
     }
 }

@@ -46,8 +46,6 @@ namespace Hotsapp.WebApi
 
             services.AddTransient<UsernameGeneratorService>();
             services.AddTransient<RefreshTokenService>();
-
-            services.AddHostedService<DbTasksService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

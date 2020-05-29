@@ -1,5 +1,4 @@
 ﻿using Flurl.Http;
-using System;
 
 namespace FirebaseApi
 {
@@ -11,7 +10,7 @@ namespace FirebaseApi
             FIREBASE_KEY = firebaseKey;
         }
 
-        private T FirebasePostRequest<T,K>(string ApiMethod, K Data)
+        private T FirebasePostRequest<T, K>(string ApiMethod, K Data)
         {
             var response = $"https://www.googleapis.com/identitytoolkit/v3/relyingparty/{ApiMethod}?key={FIREBASE_KEY}"
                 .PostUrlEncodedAsync(Data)
@@ -20,7 +19,7 @@ namespace FirebaseApi
         }
         public AccountInfo getAccountInfo(string idToken)
         {
-            return FirebasePostRequest<AccountInfo, dynamic>("getAccountInfo",new { idToken });
+            return FirebasePostRequest<AccountInfo, dynamic>("getAccountInfo", new { idToken });
         }
     }
 }

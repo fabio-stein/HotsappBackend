@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hotsapp.Data.Model;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Hotsapp.Data.Model;
 
 namespace Hotsapp.WebApi.Services
 {

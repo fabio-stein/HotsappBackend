@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hotsapp.Data;
 
 namespace Hotsapp.WebApi.Util
 {
@@ -27,8 +26,8 @@ namespace Hotsapp.WebApi.Util
 
         private bool CheckExists(String username)
         {
-                var user = _dataContext.User.Where(u => u.Username == username).SingleOrDefault();
-                return user != null;
+            var user = _dataContext.User.Where(u => u.Username == username).SingleOrDefault();
+            return user != null;
         }
 
         private String Generate()

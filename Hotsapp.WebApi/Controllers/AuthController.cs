@@ -1,22 +1,21 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using FirebaseApi;
+﻿using FirebaseApi;
+using Hotsapp.Data.Model;
+using Hotsapp.WebApi.Configuration;
+using Hotsapp.WebApi.Services;
+using Hotsapp.WebApi.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Hotsapp.Data.Model;
-using Hotsapp.Data.Util;
-using Hotsapp.WebApi.Configuration;
-using Hotsapp.WebApi.Util;
-using Hotsapp.WebApi.Services;
 
 namespace Hotsapp.Api.Controllers
 {
     [Route("api/auth/[action]")]
-    public class AuthController: Controller
+    public class AuthController : Controller
     {
         private readonly SigningConfigurations _signingConfigurations;
         private UsernameGeneratorService _usernameGenerator;
@@ -121,8 +120,8 @@ namespace Hotsapp.Api.Controllers
                 Name = info.displayName,
                 Username = username
             };
-                await _dataContext.User.AddAsync(user);
-                await _dataContext.SaveChangesAsync();
+            await _dataContext.User.AddAsync(user);
+            await _dataContext.SaveChangesAsync();
             return user;
         }
 

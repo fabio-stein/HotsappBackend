@@ -11,9 +11,17 @@ namespace Hotsapp.Data.Util
     {
         public static void AddDataFactory(this IServiceCollection services, string connectionString)
         {
-            services.AddDbContext<DataContext>(options => options.UseMySql(connectionString));
+            services.AddDbContext<DataContext>(options => options.UseMySql(connectionString,
+                mySqlOptions =>
+                {
+                    mySqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 10,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null);
+                }));
             var sp = services.BuildServiceProvider();
-            services.AddSingleton(new DataFactory(sp, connectionString));
+            services.AddSingleton(new DataFactory());
+            DataFactory.Initialize(sp, connectionString);
         }
     }
 }

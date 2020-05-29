@@ -7,8 +7,8 @@ namespace Hotsapp.Data.Util
 {
     public class DataFactory
     {
-        private string _connectionString;
-        private ServiceProvider _serviceProvider;
+        private readonly string _connectionString;
+        private readonly ServiceProvider _serviceProvider;
         public DataFactory(ServiceProvider serviceProvider, string connectionString)
         {
             _connectionString = connectionString;

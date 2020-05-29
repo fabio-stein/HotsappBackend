@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FirebaseApi.models
+namespace FirebaseApi
 {
     public class ProviderUserInfo
     {

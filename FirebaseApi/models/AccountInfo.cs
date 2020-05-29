@@ -7,6 +7,6 @@ namespace FirebaseApi
     public class AccountInfo
     {
         public string kind { get; set; }
-        public List<User> users { get; set; }
+        public List<FirebaseUser> users { get; set; }
     }
 }

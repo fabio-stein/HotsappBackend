@@ -1,5 +1,4 @@
-﻿using FirebaseApi.models;
-using Flurl.Http;
+﻿using Flurl.Http;
 using System;
 
 namespace FirebaseApi

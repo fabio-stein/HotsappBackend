@@ -111,7 +111,7 @@ namespace Hotsapp.Api.Controllers
             return identity;
         }
 
-        private async Task<User> CreateUser(FirebaseApi.models.User info)
+        private async Task<User> CreateUser(FirebaseUser info)
         {
             var username = _usernameGenerator.GenerateNew();
             User user = new User()

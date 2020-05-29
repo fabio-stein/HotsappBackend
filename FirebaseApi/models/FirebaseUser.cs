@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FirebaseApi
 {
-    public class User
+    public class FirebaseUser
     {
         public string localId { get; set; }
         public string email { get; set; }

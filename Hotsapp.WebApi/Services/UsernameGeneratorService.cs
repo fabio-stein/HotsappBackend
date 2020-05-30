@@ -1,36 +1,38 @@
 ﻿using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Hotsapp.WebApi.Util
 {
     public class UsernameGeneratorService
     {
-        private DataContext _dataContext;
-        public UsernameGeneratorService(DataContext dataContext)
+        public static async Task<string> GenerateNew()
         {
-            _dataContext = dataContext;
-        }
-        public String GenerateNew()
-        {
-            String username;
-            while (true)
+            string username;
+            for (int i = 0; i < 10; i++)
             {
                 username = Generate();
-                if (!CheckExists(username))
-                    break;
+                if (!await UserAlreadyExists(username))
+                    return username;
             }
-            return username;
+            throw new Exception("Can't create a non existing username");
+
         }
 
-        private bool CheckExists(String username)
+        private static async Task<bool> UserAlreadyExists(string username)
         {
-            var user = _dataContext.User.Where(u => u.Username == username).SingleOrDefault();
-            return user != null;
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var user = await ctx.User.Where(u => u.Username == username).FirstOrDefaultAsync();
+                return user != null;
+            }
         }
 
-        private String Generate()
+        private static string Generate()
         {
             int r = new Random().Next(nameList.Count);
             var f = nameList[r];
@@ -39,7 +41,7 @@ namespace Hotsapp.WebApi.Util
             return f;
         }
 
-        private readonly List<String> nameList = new List<string> {
+        private static readonly List<string> nameList = new List<string> {
             //Fruits
             "apple",
             "apricot",

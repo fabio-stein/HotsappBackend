@@ -1,8 +1,10 @@
 ﻿using FirebaseApi;
 using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Configuration;
 using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -12,49 +14,44 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
-namespace Hotsapp.Api.Controllers
+namespace Hotsapp.WebApi.Controllers
 {
     [Route("api/auth/[action]")]
     public class AuthController : Controller
     {
         private readonly SigningConfigurations _signingConfigurations;
-        private UsernameGeneratorService _usernameGenerator;
         private FirebaseService _firebaseService;
         private DataContext _dataContext;
-        private RefreshTokenService _refreshTokenService;
 
-        public AuthController(SigningConfigurations signingConfigurations, UsernameGeneratorService usernameGenerator, FirebaseService firebaseService, DataContext dataContext, RefreshTokenService refreshTokenService)
+        public AuthController(SigningConfigurations signingConfigurations, FirebaseService firebaseService, DataContext dataContext)
         {
             _signingConfigurations = signingConfigurations;
-            _usernameGenerator = usernameGenerator;
             _firebaseService = firebaseService;
             _dataContext = dataContext;
-            _refreshTokenService = refreshTokenService;
         }
 
         [HttpPost]
         public async Task<ActionResult> SignIn([FromBody] SignInModel Info)
         {
-            User user = null;
+            User user;
 
             if (Info.refreshToken != null)
             {
                 Info.idToken = Info.refreshToken;
-                RefreshToken refresh = _refreshTokenService.GetToken(Info.refreshToken);
+                RefreshToken refresh = await RefreshTokenService.GetToken(Info.refreshToken);
                 if (refresh.IsRevoked)
                     return Unauthorized();
                 else
                     user = refresh.User;
-
             }
             else
             {
-                var info = _firebaseService.getAccountInfo(Info.idToken).users[0];
+                var info = (await _firebaseService.getAccountInfo(Info.idToken)).users.First();
                 user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
                 if (user == null)
                 {
                     if (!info.emailVerified)
-                        return null;
+                        return BadRequest("Email not verified");
                     Console.WriteLine("NOT REGISTERED");
                     user = await CreateUser(info);
                 }
@@ -65,19 +62,19 @@ namespace Hotsapp.Api.Controllers
 
             ClaimsIdentity identity = CreateIdentity(user);
             SecurityToken securityToken = CreateToken(identity);
-            String token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
 
             AuthResponse ret = new AuthResponse()
             {
                 authenticated = true,
                 //email = info.email,
-                expiration = DateTime.Now.AddSeconds(10),
+                expiration = DateTime.Now.AddHours(20),
                 accessToken = token,
                 message = "OK"
             };
             if (Info.refreshToken == null)
             {
-                ret.refreshToken = _refreshTokenService.CreateRefreshToken(user.Id).Id;
+                ret.refreshToken = (await RefreshTokenService.CreateRefreshToken(user.Id)).Id;
             }
             return Ok(ret);
 
@@ -112,7 +109,7 @@ namespace Hotsapp.Api.Controllers
 
         private async Task<User> CreateUser(FirebaseUser info)
         {
-            var username = _usernameGenerator.GenerateNew();
+            var username = await UsernameGeneratorService.GenerateNew();
             User user = new User()
             {
                 Email = info.email,
@@ -125,27 +122,22 @@ namespace Hotsapp.Api.Controllers
             return user;
         }
 
-        /*
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout([FromBody] ActionLogout data)
         {
             if (data.token == null || data.token == "")
-                return Ok();
-
-            var identity = User.Identity as ClaimsIdentity;
-            Claim identityClaim = identity.Claims.FirstOrDefault(c => c.Type == "UserId");
-            int user = int.Parse(identityClaim.Value);
-            using(var context = DataFactory.CreateNew())
-            {
-                var item = context.RefreshToken.Where(t => t.UserId == user && t.Id == data.token).SingleOrDefault();
-                item.IsRevoked = true;
-                context.RefreshToken.Update(item);
-                context.SaveChanges();
-            }
+                return NoContent();
+            await RefreshTokenService.RevokeToken(data.token);
             return Ok();
-        }*/
+        }
 
+    }
+
+    public class ActionLogout
+    {
+        public string token { get; set; }
     }
 
     public class AuthResponse

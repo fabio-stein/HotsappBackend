@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Hotsapp.Api.Controllers
+namespace Hotsapp.WebApi.Controllers
 {
     [Route("")]
     [ApiController]

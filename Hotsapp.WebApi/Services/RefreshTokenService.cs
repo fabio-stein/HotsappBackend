@@ -1,46 +1,52 @@
 ﻿using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Hotsapp.WebApi.Services
 {
     public class RefreshTokenService
     {
-        private DataContext _dataContext;
-        public RefreshTokenService(DataContext dataContext)
+        public static async Task<RefreshToken> CreateRefreshToken(int User)
         {
-            _dataContext = dataContext;
-        }
-
-        public RefreshToken CreateRefreshToken(int User)
-        {
-            String token = Guid.NewGuid().ToString().Replace("-", String.Empty);
-            RefreshToken refresh = new RefreshToken()
+            using (var ctx = DataFactory.GetDataContext())
             {
-                Id = token,
-                UserId = User,
-                IsRevoked = false
-            };
-            _dataContext.RefreshToken.Add(refresh);
-            _dataContext.SaveChanges();
-            return refresh;
+                var token = Guid.NewGuid().ToString().Replace("-", string.Empty);
+                var refresh = new RefreshToken()
+                {
+                    Id = token,
+                    UserId = User,
+                    IsRevoked = false,
+                    CreateDateUTC = DateTime.UtcNow
+                };
+                await ctx.RefreshToken.AddAsync(refresh);
+                await ctx.SaveChangesAsync();
+                return refresh;
+            }
         }
 
-        public RefreshToken GetToken(String token)
+        public static async Task<RefreshToken> GetToken(string token)
         {
-            var item = _dataContext.RefreshToken.Where(t => t.Id == token)
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var item = await ctx.RefreshToken.Where(t => t.Id == token)
                 .Include(t => t.User)
-                .FirstOrDefault();
-            return item;
+                .FirstOrDefaultAsync();
+                return item;
+            }
         }
 
-        public void RevokeToken(String token)
+        public static async Task RevokeToken(string token)
         {
-            var item = _dataContext.RefreshToken.Where(t => t.Id == token && !t.IsRevoked).FirstOrDefault();
-            item.IsRevoked = true;
-            _dataContext.RefreshToken.Update(item);
-            _dataContext.SaveChanges();
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var item = await ctx.RefreshToken.Where(t => t.Id == token && !t.IsRevoked).FirstOrDefaultAsync();
+                item.IsRevoked = true;
+                ctx.RefreshToken.Update(item);
+                ctx.SaveChanges();
+            }
         }
     }
 }

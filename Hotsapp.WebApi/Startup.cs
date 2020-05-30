@@ -37,9 +37,6 @@ namespace Hotsapp.WebApi
             services.AddDataFactory(Configuration.GetConnectionString("MySql"));
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
-
-            services.AddTransient<UsernameGeneratorService>();
-            services.AddTransient<RefreshTokenService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,6 +6,7 @@ using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,12 +23,14 @@ namespace Hotsapp.WebApi.Controllers
         private readonly SigningConfigurations _signingConfigurations;
         private FirebaseService _firebaseService;
         private DataContext _dataContext;
+        private ILogger<AuthController> _log;
 
-        public AuthController(SigningConfigurations signingConfigurations, FirebaseService firebaseService, DataContext dataContext)
+        public AuthController(SigningConfigurations signingConfigurations, FirebaseService firebaseService, DataContext dataContext, ILogger<AuthController> log)
         {
             _signingConfigurations = signingConfigurations;
             _firebaseService = firebaseService;
             _dataContext = dataContext;
+            _log = log;
         }
 
         [HttpPost]
@@ -37,28 +40,42 @@ namespace Hotsapp.WebApi.Controllers
 
             if (Info.refreshToken != null)
             {
+                _log.LogInformation("New login request through refreshToken");
                 Info.idToken = Info.refreshToken;
-                RefreshToken refresh = await RefreshTokenService.GetToken(Info.refreshToken);
-                if (refresh.IsRevoked)
+                var refreshToken = await RefreshTokenService.GetToken(Info.refreshToken);
+                if (refreshToken == null || refreshToken.IsRevoked)
+                {
+                    _log.LogInformation("Invalid refresh token {0}", Info.refreshToken);
                     return Unauthorized();
+                }
                 else
-                    user = refresh.User;
+                {
+                    user = refreshToken.User;
+                    _log.LogInformation("Accepted refresh token {0}, authenticating user: {1}", Info.refreshToken, user.Id);
+                }
             }
             else
             {
+                _log.LogInformation("New login request through Firebase");
                 var info = (await _firebaseService.getAccountInfo(Info.idToken)).users.First();
                 user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
+                _log.LogInformation("Firebase user found");
                 if (user == null)
                 {
                     if (!info.emailVerified)
+                    {
+                        _log.LogInformation("User with email not verified");
                         return BadRequest("Email not verified");
-                    Console.WriteLine("NOT REGISTERED");
+                    }
                     user = await CreateUser(info);
                 }
             }
 
             if (user.Disabled)
+            {
+                _log.LogInformation("User disabled");
                 return BadRequest("User disabled");
+            }
 
             ClaimsIdentity identity = CreateIdentity(user);
             SecurityToken securityToken = CreateToken(identity);
@@ -76,6 +93,7 @@ namespace Hotsapp.WebApi.Controllers
             {
                 ret.refreshToken = (await RefreshTokenService.CreateRefreshToken(user.Id)).Id;
             }
+            _log.LogInformation("Successfully created session for user {0}", user.Id);
             return Ok(ret);
 
         }
@@ -109,7 +127,9 @@ namespace Hotsapp.WebApi.Controllers
 
         private async Task<User> CreateUser(FirebaseUser info)
         {
+            _log.LogInformation("Creating new user");
             var username = await UsernameGeneratorService.GenerateNew();
+            _log.LogInformation("Generated username: {0}", username);
             User user = new User()
             {
                 Email = info.email,
@@ -119,6 +139,7 @@ namespace Hotsapp.WebApi.Controllers
             };
             await _dataContext.User.AddAsync(user);
             await _dataContext.SaveChangesAsync();
+            _log.LogInformation("New user saved");
             return user;
         }
 

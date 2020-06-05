@@ -21,7 +21,8 @@ namespace TestApp
             {
                 try
                 {
-                    conn.Query("SELECT NOW()", new { id = 1 });
+                    var t = conn.Query("SELECT NOW()", new { id = 1 });
+                    var b = 1;
                 }
                 catch (Exception e)
                 {

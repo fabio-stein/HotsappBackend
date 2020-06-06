@@ -16,6 +16,7 @@ namespace PlaylistWorker
         private readonly string connectionString;
         private ConnectionFactory factory;
         private IConnection connection;
+        private IModel channel;
 
         public MessagingService(ILogger<MessagingService> log, IConfiguration config)
         {
@@ -26,17 +27,20 @@ namespace PlaylistWorker
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Messaging service starting");
-            factory = new ConnectionFactory() {
+            factory = new ConnectionFactory()
+            {
                 Uri = new Uri(connectionString),
                 AutomaticRecoveryEnabled = true
             };
             connection = factory.CreateConnection();
+            channel = connection.CreateModel();
             _log.LogInformation("Messaging service connected: {0}", connection.IsOpen);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _log.LogInformation("Messaging service stopping");
+            channel?.Close();
             connection?.Close();
         }
 
@@ -44,13 +48,11 @@ namespace PlaylistWorker
         {
             var body = Encoding.UTF8.GetBytes(data);
 
-            using (var channel = connection.CreateModel())
-            {
-                channel.BasicPublish(exchange: tag,
-                                     routingKey: "",
-                                     basicProperties: null,
-                                     body: body);
-            }
+            channel.ExchangeDeclare(tag, ExchangeType.Fanout);
+            channel.BasicPublish(exchange: tag,
+                                 routingKey: "",
+                                 basicProperties: null,
+                                 body: body);
         }
     }
 }

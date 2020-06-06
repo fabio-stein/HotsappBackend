@@ -1,5 +1,3 @@
-﻿@ECHO OFF
-cd ../
-docker build -t hotsapp/playlist-worker -f PlayWorker/Dockerfile .
+docker build -t hotsapp/playlist-worker -f Dockerfile ../
 docker push hotsapp/playlist-worker
 PAUSE

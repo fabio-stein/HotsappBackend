@@ -34,6 +34,9 @@ namespace PlaylistWorker
             };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
+
+            channel.ExchangeDeclare("channel-playevent", ExchangeType.Topic);
+
             _log.LogInformation("Messaging service connected: {0}", connection.IsOpen);
         }
 
@@ -44,13 +47,12 @@ namespace PlaylistWorker
             connection?.Close();
         }
 
-        public void PublishForTag(string data, string tag)
+        public void PublishForTag(string data, string routingKey)
         {
             var body = Encoding.UTF8.GetBytes(data);
 
-            channel.ExchangeDeclare(tag, ExchangeType.Fanout);
-            channel.BasicPublish(exchange: tag,
-                                 routingKey: "",
+            channel.BasicPublish(exchange: "channel-playevent",
+                                 routingKey: routingKey,
                                  basicProperties: null,
                                  body: body);
         }

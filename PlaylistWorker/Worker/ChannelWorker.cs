@@ -133,7 +133,7 @@ namespace PlaylistWorker
 
         private async Task PublishPlayEvent()
         {
-            _log.Information("[{0}] Sending MessageEvent)", _channelId);
+            _log.Information("[{0}] Sending MessageEvent", _channelId);
             var data = JsonConvert.SerializeObject(_status);
             _messagingService.PublishForTag(data, "playevent-" + _channelId.ToString());
         }

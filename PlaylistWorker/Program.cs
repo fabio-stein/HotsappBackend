@@ -33,6 +33,11 @@ namespace PlaylistWorker
                     services.AddSingleton<ChannelWorkerFactory>();
                     services.AddHostedService(sprovider => sprovider.GetRequiredService<MessagingService>());
                     services.AddHostedService<Worker>();
+
+                    services.Configure<HostOptions>(option =>
+                    {
+                        option.ShutdownTimeout = System.TimeSpan.FromSeconds(20);
+                    });
                 }).UseSerilog();
     }
 }

@@ -40,6 +40,11 @@ namespace Hotsapp.WebStreamer
             services.AddHostedService(sp => sp.GetRequiredService<StreamerService>());
 
             services.AddDataFactory(Configuration.GetConnectionString("MySql"));
+
+            services.Configure<HostOptions>(option =>
+            {
+                option.ShutdownTimeout = System.TimeSpan.FromSeconds(20);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

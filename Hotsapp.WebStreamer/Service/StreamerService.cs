@@ -43,6 +43,7 @@ namespace Hotsapp.WebStreamer.Service
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _log.Information("Stopping StreamerService");
+            await Task.Delay(6000);
         }
 
         public async Task<bool> RegisterClient(string channelId, HubCallerContext context, IStreamHub client)

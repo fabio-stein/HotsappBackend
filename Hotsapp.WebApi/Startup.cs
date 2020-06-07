@@ -1,8 +1,6 @@
 using FirebaseApi;
 using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Configuration;
-using Hotsapp.WebApi.Services;
-using Hotsapp.WebApi.Util;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

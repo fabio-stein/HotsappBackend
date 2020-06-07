@@ -4,9 +4,6 @@ using Newtonsoft.Json;
 using PlaylistWorker.Service;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -79,7 +76,8 @@ namespace PlaylistWorker
                     }
 
                     _log.Information("Channel [{0}] stopped", channelId);
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     _log.Error(e, "Error in channel worker");
                     await Stop();

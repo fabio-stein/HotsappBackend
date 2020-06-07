@@ -1,5 +1,4 @@
-﻿using Hotsapp.Data.Model;
-using Hotsapp.Data.Util;
+﻿using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

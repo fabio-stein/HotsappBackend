@@ -15,21 +15,19 @@ namespace Hotsapp.WebStreamer.Service
     public class StreamerService : IHostedService
     {
         private readonly ILogger _log = Log.ForContext<StreamerService>();
-        private readonly IHubContext<StreamHub, IStreamHub> _hub;
         private readonly object _workersLock = new object();
         private Dictionary<string, StreamWorker> workers = new Dictionary<string, StreamWorker>();
         private readonly StreamWorkerFactory _streamWorkerFactory;
 
-        public StreamerService(IHubContext<StreamHub, IStreamHub> hub, StreamWorkerFactory streamWorkerFactory)
+        public StreamerService(StreamWorkerFactory streamWorkerFactory)
         {
-            _hub = hub;
             _streamWorkerFactory = streamWorkerFactory;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _log.Information("Starting StreamerService");
-            using(var ctx = DataFactory.GetDataContext())
+            using (var ctx = DataFactory.GetDataContext())
             {
                 ctx.Streamer.Add(new Streamer()
                 {
@@ -44,7 +42,7 @@ namespace Hotsapp.WebStreamer.Service
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _log.Information("Starting StreamerService");
+            _log.Information("Stopping StreamerService");
         }
 
         public async Task<bool> RegisterClient(string channelId, HubCallerContext context, IStreamHub client)
@@ -73,7 +71,7 @@ namespace Hotsapp.WebStreamer.Service
         public async Task UnRegisterClient(string connectionId)
         {
             var result = FindClientWorker(connectionId);
-            if(result != null)
+            if (result != null)
             {
                 await result.RemoveClient(connectionId);
             }
@@ -94,41 +92,6 @@ namespace Hotsapp.WebStreamer.Service
                 }
                 return false;
             }).Value;
-        }
-
-        public async Task LoopStart()
-        {
-            while (true)
-            {
-                await PlayVideo();
-                await Task.Delay(5000);
-            }
-        }
-
-
-        private async Task PlayVideo()
-        {
-            _log.Information("Sending PlayVideoEvent");
-            await _hub.Clients.All.PlayEvent(new
-            {
-                videoId = GetVideo()
-            });
-        }
-
-
-        private string GetVideo()
-        {
-            var dev = new string[]
-            {
-                "Gp-lWgUDcKk",
-"Tx9zMFodNtA",
-"GAly0cOLMc8",
-"Zy4KtD98S2c",
-"8ATu1BiOPZA",
-"WsWmlhiHe-Q"
-            };
-            var index = new Random().Next(0, dev.Length);
-            return dev[index];
         }
     }
 }

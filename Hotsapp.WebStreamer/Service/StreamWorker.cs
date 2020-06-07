@@ -7,7 +7,6 @@ using RabbitMQ.Client.Events;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -90,7 +89,7 @@ namespace Hotsapp.WebStreamer.Service
 
         private async Task LoadStatus()
         {
-            using(var conn = DataFactory.OpenConnection())
+            using (var conn = DataFactory.OpenConnection())
             {
                 _status = await conn.QueryFirstOrDefaultAsync<PlayModel>(@"SELECT ph.ChannelId, ph.MediaId, ph.StartDateUTC, ph.Duration FROM play_history ph
 WHERE ph.ChannelId = @channelId

@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using PlaylistWorker.Service;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PlaylistWorker
 {
@@ -36,13 +35,14 @@ namespace PlaylistWorker
             await StartRunningChannels();
             while (!stoppingToken.IsCancellationRequested)
             {
-/*                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await _messagingService.PublishForTag(DateTime.UtcNow.ToString(), "dev");
-                await _playlistService.PlayNext(new Guid("1e602dbd-a6cc-11ea-87a6-02dd375f4dba"));*/
+                /*                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                                await _messagingService.PublishForTag(DateTime.UtcNow.ToString(), "dev");
+                                await _playlistService.PlayNext(new Guid("1e602dbd-a6cc-11ea-87a6-02dd375f4dba"));*/
                 try
                 {
                     await Task.Delay(5000, stoppingToken);
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     _log.Information("Worker delay cancelled");
                 }
@@ -57,7 +57,7 @@ namespace PlaylistWorker
         private async Task StartRunningChannels()
         {
             _log.Information("Starting already running channels");
-            using(var ctx = DataFactory.GetDataContext())
+            using (var ctx = DataFactory.GetDataContext())
             {
                 channels = await ctx.Channel.Where(c => c.Status == "RUNNING").Select(c => c.Id).ToListAsync();
             }

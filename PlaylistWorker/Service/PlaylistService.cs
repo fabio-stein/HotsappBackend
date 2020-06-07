@@ -3,7 +3,6 @@ using Hotsapp.Data.Util;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PlaylistWorker.Service
@@ -19,7 +18,7 @@ namespace PlaylistWorker.Service
 
         public async Task<PlayModel> PlayNext(Guid channelId)
         {
-            using(var conn = DataFactory.OpenConnection())
+            using (var conn = DataFactory.OpenConnection())
             {
                 var sql = @"BEGIN;
 INSERT INTO play_history (ChannelId, MediaId, StartDateUTC, Duration) VALUES (@channelId, 
@@ -56,7 +55,7 @@ SELECT ph.* FROM info i
 INNER JOIN play_history ph ON ph.ChannelId = i.Id AND i.lastItem = ph.StartDateUTC
 WHERE (StartDateUTC + INTERVAL Duration SECOND) > UTC_TIMESTAMP()";
 
-            using(var conn = DataFactory.OpenConnection())
+            using (var conn = DataFactory.OpenConnection())
             {
                 return await conn.QueryAsync<PlayModel>(sql, new { channels });
             }

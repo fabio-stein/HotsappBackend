@@ -94,7 +94,7 @@ namespace Hotsapp.WebStreamer.Service
             {
                 _status = await conn.QueryFirstOrDefaultAsync<PlayModel>(@"SELECT ph.ChannelId, ph.MediaId, ph.StartDateUTC, ph.Duration FROM play_history ph
 WHERE ph.ChannelId = @channelId
-ORDER BY ph.StartDateUTC
+ORDER BY ph.StartDateUTC DESC
 LIMIT 1", new { channelId });
             }
         }

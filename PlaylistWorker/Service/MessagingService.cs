@@ -29,8 +29,7 @@ namespace PlaylistWorker
             _log.LogInformation("Messaging service starting");
             factory = new ConnectionFactory()
             {
-                Uri = new Uri(connectionString),
-                AutomaticRecoveryEnabled = true
+                Uri = new Uri(connectionString)
             };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();

@@ -135,7 +135,7 @@ namespace PlaylistWorker
         {
             _log.Information("[{0}] Sending MessageEvent", _channelId);
             var data = JsonConvert.SerializeObject(_status);
-            _messagingService.PublishForTag(data, "playevent-" + _channelId.ToString());
+            _messagingService.PublishForTag(data, _channelId.ToString());
         }
 
         public async Task Stop()

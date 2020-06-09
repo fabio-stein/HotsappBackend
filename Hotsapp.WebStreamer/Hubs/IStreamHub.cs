@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using Hotsapp.WebStreamer.Model;
+using System.Threading.Tasks;
 
 namespace Hotsapp.WebStreamer.Hubs
 {
     public interface IStreamHub
     {
-        Task PlayEvent(object data);
+        Task PlayEvent(PlayModel data);
     }
 }

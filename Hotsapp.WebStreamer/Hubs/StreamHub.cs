@@ -19,8 +19,14 @@ namespace Hotsapp.WebStreamer.Hubs
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
-            //TODO
-            var channelId = "9fc680b0-a6cd-11ea-87a6-02dd375f4dba";
+            var channelId = Context.GetHttpContext().Request.Query["channelId"];
+
+            if (!Guid.TryParse(channelId, out _))
+            {
+                _log.Information("Invalid ChannelId on client connection: [{0}]", channelId);
+                Context.Abort();
+            }
+
             var registerSuccess = await _streamerService.RegisterClient(channelId, Context, Clients.Caller);
             if (!registerSuccess)
                 Context.Abort();

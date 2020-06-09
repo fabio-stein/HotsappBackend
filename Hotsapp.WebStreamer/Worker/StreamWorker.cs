@@ -1,12 +1,14 @@
 ﻿using Dapper;
 using Hotsapp.Data.Util;
 using Hotsapp.WebStreamer.Hubs;
+using Hotsapp.WebStreamer.Model;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +25,7 @@ namespace Hotsapp.WebStreamer.Service
         private Dictionary<string, ClientInfo> clients = new Dictionary<string, ClientInfo>();
         private readonly IHubContext<StreamHub, IStreamHub> _hub;
         private PlayModel _status;
+        public int ClientsCount { get { return clients.Count; } }
 
         public StreamWorker(MessagingService messagingService, IHubContext<StreamHub, IStreamHub> hub)
         {
@@ -78,8 +81,18 @@ namespace Hotsapp.WebStreamer.Service
 
         public async Task RemoveClient(string connectionId)
         {
+            _log.Information("[{0}] Disconnecting client [{1}]", channelId, connectionId);
             await _hub.Groups.RemoveFromGroupAsync(connectionId, channelId);
-            //TODO
+            lock (_clientsLock)
+            {
+                if (!clients.ContainsKey(connectionId))
+                {
+                    _log.Information("[{0}] Failed to remove client, not found [{1}]", channelId, connectionId);
+                    return;
+                }
+                clients[connectionId].Context.Abort();
+                clients.Remove(connectionId);
+            }
         }
 
         public bool ClientExists(string connectionId)
@@ -100,41 +113,39 @@ LIMIT 1", new { channelId });
 
         private async Task SendPlayEvent(string connectionId = null)
         {
-            var eventData = new
-            {
-                videoId = _status.MediaId
-            };
-
             if (connectionId == null)
             {
                 _log.Information("[{0}] Sending PlayEvent to connected clients", channelId);
-                await _hub.Clients.Group(channelId).PlayEvent(eventData);
+                await _hub.Clients.Group(channelId).PlayEvent(_status);
             }
             else
             {
                 _log.Information("[{0}] Sending PlayEvent to single client [{1}]", channelId, connectionId);
-                await _hub.Clients.Client(connectionId).PlayEvent(eventData);
+                await _hub.Clients.Client(connectionId).PlayEvent(_status);
             }
         }
 
         public async Task StopStream()
         {
-            //TODO DISCONNECT ALL CLIENTS
-            //TODO STOP SERVICES
+            _log.Information("[{0}] Stopping Stream", channelId);
+            streamRunning = false;
+
+            _log.Information("[{0}] Stopping MessagingService for channel", channelId);
+            channelConnection.Stop();
+
+            var list = clients.ToList();
+            list.ForEach(async c =>
+            {
+                await RemoveClient(c.Value.Context.ConnectionId);
+                _log.Information("[{0}] Disconnected client [{1}] on Stream Stop, {2} remaining", channelId, c.Value.Context.ConnectionId, clients.Count);
+            });
+            _log.Information("[{0}] All clients disconnected", channelId);
         }
 
         private class ClientInfo
         {
             public HubCallerContext Context { get; set; }
             public IStreamHub Client { get; set; }
-        }
-
-        private class PlayModel
-        {
-            public Guid ChannelId { get; set; }
-            public string MediaId { get; set; }
-            public DateTime StartDateUTC { get; set; }
-            public int Duration { get; set; }
         }
     }
 }

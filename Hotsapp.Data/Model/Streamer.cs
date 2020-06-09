@@ -12,5 +12,6 @@ namespace Hotsapp.Data.Model
         public int ActiveClients { get; set; }
         public int ActiveStreams { get; set; }
         public bool IsActive { get; set; }
+        public string StreamsStatus { get; set; }
     }
 }

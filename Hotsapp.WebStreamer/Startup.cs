@@ -26,8 +26,14 @@ namespace Hotsapp.WebStreamer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddSignalR();
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }));
+            services.AddSignalR()
+                .AddNewtonsoftJsonProtocol(options =>
+                {
+                    options.PayloadSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" });
+                });
 
             services.AddTransient<StreamWorker>();
             services.AddSingleton<StreamWorkerFactory>();

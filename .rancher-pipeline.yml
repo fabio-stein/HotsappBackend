@@ -1,0 +1,10 @@
+stages:
+- name: compile
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./PlaylistWorker/Dockerfile
+      buildContext: .
+      tag: playlist-worker
+      registry: 127.0.0.1:34308
+timeout: 60
+notification: {}

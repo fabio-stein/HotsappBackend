@@ -6,6 +6,6 @@ stages:
       buildContext: .
       tag: playlist-worker
       pushRemote: true
-      registry: hotsapp
+      registry: index.docker.io
 timeout: 60
 notification: {}

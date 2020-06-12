@@ -4,7 +4,7 @@ stages:
   - publishImageConfig:
       dockerfilePath: ./PlaylistWorker/Dockerfile
       buildContext: .
-      tag: playlist-worker
+      tag: hotsapp/playlist-worker
       pushRemote: true
       registry: index.docker.io
 timeout: 60

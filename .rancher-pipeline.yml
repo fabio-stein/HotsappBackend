@@ -1,0 +1,11 @@
+stages:
+- name: compile
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Hotsapp.WebStreamer/Dockerfile
+      buildContext: .
+      tag: hotsapp/streamer
+      pushRemote: true
+      registry: index.docker.io
+timeout: 60
+notification: {}

@@ -2,9 +2,9 @@ stages:
 - name: compile
   steps:
   - publishImageConfig:
-      dockerfilePath: ./PlaylistWorker/Dockerfile
+      dockerfilePath: ./Hotsapp.WebApi/Dockerfile
       buildContext: .
-      tag: hotsapp/playlist-worker
+      tag: hotsapp/webapi
       pushRemote: true
       registry: index.docker.io
 timeout: 60

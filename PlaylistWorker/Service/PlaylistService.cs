@@ -20,6 +20,15 @@ namespace PlaylistWorker.Service
         {
             using (var conn = DataFactory.OpenConnection())
             {
+                var sqlIsEmpty = @"SELECT JSON_VALUE(Playlist, '$[0].Id') FROM channel_playlist
+WHERE ChannelId = @channelId LIMIT 1";
+
+                var resIsEmpty = await conn.QueryFirstOrDefaultAsync<string>(sqlIsEmpty, new { channelId });
+                if (string.IsNullOrEmpty(resIsEmpty))
+                    return null;
+
+
+
                 var sql = @"BEGIN;
 INSERT INTO play_history (ChannelId, MediaId, StartDateUTC, Duration) VALUES (@channelId, 
 (SELECT JSON_VALUE(Playlist, '$[0].Id') FROM channel_playlist

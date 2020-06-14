@@ -68,19 +68,20 @@ namespace PlaylistWorker
                         }
                         catch (OperationCanceledException e)
                         {
-                            _log.Information("ChannelWorker delay cancelled");
+                            _log.Information("[{0}] ChannelWorker delay cancelled", _channelId);
                         }
                         if (_ct.IsCancellationRequested)
                             break;
-                        await PlayNext();
+                        if (!await PlayNext())
+                            _log.Information("[{0}] Stopped due to false return on PlayNext()", _channelId);
                     }
 
-                    _log.Information("Channel [{0}] stopped", channelId);
+                    _log.Information("[{0}] Task Finished", channelId);
                 }
                 catch (Exception e)
                 {
                     _log.Error(e, "Error in channel worker");
-                    _ = Stop();
+                    StopInternal();
                 }
             });
         }
@@ -102,11 +103,23 @@ namespace PlaylistWorker
         private async Task<bool> PlayNext()
         {
             _log.Information("[{0}] Executing next item in playlist", _channelId);
-            var result = await _playlistService.PlayNext(_channelId);
+            PlayModel result = null;
+            try
+            {
+                result = await _playlistService.PlayNext(_channelId);
+            }
+            catch (Exception e)
+            {
+                _log.Information(e, "[{0}] Failed to load next playlist item, trying to restart channel", _channelId);
+                StopInternal();
+                return false;
+            }
+
             _status = result;
+
             if (result == null)
             {
-                _log.Information("[{0}] No more items in playlist, stopping channel", _channelId);
+                _log.Information("[{0}] Channel playlist is empty", _channelId);
                 await StopEmptyChannel();
                 return false;
             }
@@ -126,7 +139,7 @@ namespace PlaylistWorker
                 channel.Status = "STOPPED";
                 await ctx.SaveChangesAsync();
             }
-            await Stop();
+            StopInternal();
         }
 
         private async Task PublishPlayEvent()
@@ -136,9 +149,17 @@ namespace PlaylistWorker
             _messagingService.PublishForTag(data, _channelId.ToString());
         }
 
+        //We should not wait Stop() inside worker, waiting here may cause infinite loop
+        private void StopInternal()
+        {
+            _log.Information("[{0}] StopInternal()", _channelId);
+            _ = Stop();
+        }
+
+        //Should only be called from other classes
         public async Task Stop()
         {
-            _log.Information("Stopping channel [{0}]", _channelId);
+            _log.Information("[{0}] Stopping channel", _channelId);
             if (!_ct.IsCancellationRequested)
                 _cts.Cancel();
             if (runningTask == null)

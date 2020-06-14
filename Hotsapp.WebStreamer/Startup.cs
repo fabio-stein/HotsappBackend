@@ -3,6 +3,7 @@ using Hotsapp.WebStreamer.Hubs;
 using Hotsapp.WebStreamer.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -73,7 +74,10 @@ namespace Hotsapp.WebStreamer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<StreamHub>("/streamhub");
+                endpoints.MapHub<StreamHub>("/streamhub", options =>
+                {
+                    options.Transports = HttpTransportType.WebSockets;
+                });
             });
         }
     }

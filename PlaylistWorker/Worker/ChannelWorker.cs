@@ -80,7 +80,7 @@ namespace PlaylistWorker
                 catch (Exception e)
                 {
                     _log.Error(e, "Error in channel worker");
-                    await Stop();
+                    _ = Stop();
                 }
             });
         }
@@ -138,12 +138,12 @@ namespace PlaylistWorker
 
         public async Task Stop()
         {
-            _log.Information("Stopping channel [{0}]", _status?.ChannelId);
+            _log.Information("Stopping channel [{0}]", _channelId);
             if (!_ct.IsCancellationRequested)
                 _cts.Cancel();
             if (runningTask == null)
                 return;
-            await Task.WhenAll(runningTask);//TODO ADD TIMEOUT
+            await Task.WhenAll(runningTask);
         }
     }
 }

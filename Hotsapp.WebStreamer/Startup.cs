@@ -3,6 +3,7 @@ using Hotsapp.WebStreamer.Hubs;
 using Hotsapp.WebStreamer.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,14 +27,15 @@ namespace Hotsapp.WebStreamer
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR()
+    .AddNewtonsoftJsonProtocol(options =>
+    {
+        options.PayloadSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" });
+    });
+
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }));
-            services.AddSignalR()
-                .AddNewtonsoftJsonProtocol(options =>
-                {
-                    options.PayloadSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" });
-                });
 
             services.AddTransient<StreamWorker>();
             services.AddSingleton<StreamWorkerFactory>();
@@ -73,7 +75,10 @@ namespace Hotsapp.WebStreamer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<StreamHub>("/streamhub");
+                endpoints.MapHub<StreamHub>("/streamhub", options =>
+                {
+                    options.Transports = HttpTransportType.WebSockets;
+                });
             });
         }
     }

@@ -5,8 +5,8 @@ using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -22,14 +22,13 @@ namespace Hotsapp.WebApi.Controllers
         private readonly SigningConfigurations _signingConfigurations;
         private FirebaseService _firebaseService;
         private DataContext _dataContext;
-        private ILogger<AuthController> _log;
+        private ILogger _log = Log.ForContext<AuthController>();
 
-        public AuthController(SigningConfigurations signingConfigurations, FirebaseService firebaseService, DataContext dataContext, ILogger<AuthController> log)
+        public AuthController(SigningConfigurations signingConfigurations, FirebaseService firebaseService, DataContext dataContext)
         {
             _signingConfigurations = signingConfigurations;
             _firebaseService = firebaseService;
             _dataContext = dataContext;
-            _log = log;
         }
 
         [HttpPost]
@@ -39,31 +38,31 @@ namespace Hotsapp.WebApi.Controllers
 
             if (Info.refreshToken != null)
             {
-                _log.LogInformation("New login request through refreshToken");
+                _log.Information("New login request through refreshToken");
                 Info.idToken = Info.refreshToken;
                 var refreshToken = await RefreshTokenService.GetToken(Info.refreshToken);
                 if (refreshToken == null || refreshToken.IsRevoked)
                 {
-                    _log.LogInformation("Invalid refresh token {0}", Info.refreshToken);
+                    _log.Information("Invalid refresh token {0}", Info.refreshToken);
                     return Unauthorized();
                 }
                 else
                 {
                     user = refreshToken.User;
-                    _log.LogInformation("Accepted refresh token {0}, authenticating user: {1}", Info.refreshToken, user.Id);
+                    _log.Information("Accepted refresh token {0}, authenticating user: {1}", Info.refreshToken, user.Id);
                 }
             }
             else
             {
-                _log.LogInformation("New login request through Firebase");
+                _log.Information("New login request through Firebase");
                 var info = (await _firebaseService.getAccountInfo(Info.idToken)).users.First();
                 user = _dataContext.User.SingleOrDefault(q => q.FirebaseUid == info.localId);
-                _log.LogInformation("Firebase user found");
+                _log.Information("Firebase user found");
                 if (user == null)
                 {
                     if (!info.emailVerified)
                     {
-                        _log.LogInformation("User with email not verified");
+                        _log.Information("User with email not verified");
                         return BadRequest("Email not verified");
                     }
                     user = await CreateUser(info);
@@ -72,7 +71,7 @@ namespace Hotsapp.WebApi.Controllers
 
             if (user.Disabled)
             {
-                _log.LogInformation("User disabled");
+                _log.Information("User disabled");
                 return BadRequest("User disabled");
             }
 
@@ -92,7 +91,7 @@ namespace Hotsapp.WebApi.Controllers
             {
                 ret.refreshToken = (await RefreshTokenService.CreateRefreshToken(user.Id)).Id;
             }
-            _log.LogInformation("Successfully created session for user {0}", user.Id);
+            _log.Information("Successfully created session for user {0}", user.Id);
             return Ok(ret);
 
         }
@@ -126,9 +125,9 @@ namespace Hotsapp.WebApi.Controllers
 
         private async Task<User> CreateUser(FirebaseUser info)
         {
-            _log.LogInformation("Creating new user");
+            _log.Information("Creating new user");
             var username = await UsernameGeneratorService.GenerateNew();
-            _log.LogInformation("Generated username: {0}", username);
+            _log.Information("Generated username: {0}", username);
             User user = new User()
             {
                 Email = info.email,
@@ -138,7 +137,7 @@ namespace Hotsapp.WebApi.Controllers
             };
             await _dataContext.User.AddAsync(user);
             await _dataContext.SaveChangesAsync();
-            _log.LogInformation("New user saved");
+            _log.Information("New user saved");
             return user;
         }
 

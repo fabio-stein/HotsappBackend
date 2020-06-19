@@ -10,5 +10,6 @@ namespace Hotsapp.Data.Model
         public string Title { get; set; }
         public DateTime CreateDateUTC { get; set; }
         public string Status { get; set; }
+        public int OwnerId { get; set; }
     }
 }

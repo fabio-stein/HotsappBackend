@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Data", "Hotsapp.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.WebApi", "Hotsapp.WebApi\Hotsapp.WebApi.csproj", "{28BBADD2-AA5E-4EF0-98C8-F0527627C863}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hotsapp.WebStreamer", "Hotsapp.WebStreamer\Hotsapp.WebStreamer.csproj", "{8AEAB1B4-5880-4DE8-B7D7-002CBC59D066}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.WebStreamer", "Hotsapp.WebStreamer\Hotsapp.WebStreamer.csproj", "{8AEAB1B4-5880-4DE8-B7D7-002CBC59D066}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{C58703EF-B0A2-4CAD-930C-C4EE747ACDD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaylistWorker", "PlaylistWorker\PlaylistWorker.csproj", "{AEAC29C2-0D55-4441-9CFB-F508B6D122C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaylistWorker", "PlaylistWorker\PlaylistWorker.csproj", "{AEAC29C2-0D55-4441-9CFB-F508B6D122C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

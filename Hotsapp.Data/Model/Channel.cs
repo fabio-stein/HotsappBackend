@@ -8,7 +8,10 @@ namespace Hotsapp.Data.Model
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
         public DateTime CreateDateUTC { get; set; }
         public string Status { get; set; }
+        public int OwnerId { get; set; }
+        public bool IsDisabled { get; set; }
     }
 }

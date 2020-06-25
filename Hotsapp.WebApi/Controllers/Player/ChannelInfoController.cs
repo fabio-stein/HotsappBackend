@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Hotsapp.WebApi.Controllers
 {
@@ -16,6 +17,8 @@ namespace Hotsapp.WebApi.Controllers
     [AllowAnonymous]
     public class ChannelInfoController : ControllerBase
     {
+        private ILogger _log = Log.ForContext<ChannelInfoController>();
+
         [HttpGet("status")]
         public async Task<IActionResult> GetChannelInfo([FromQuery] Guid channelId, [FromServices] YouTubeCacheService youTubeCacheService)
         {
@@ -28,15 +31,21 @@ namespace Hotsapp.WebApi.Controllers
 
                 string lastMediaTitle = null;
 
-                var lastMedia = await ctx.PlayHistory
-                    .Where(c => c.ChannelId == channelId)
-                    .OrderByDescending(c => c.StartDateUTC)
-                    .FirstOrDefaultAsync();
-
-                if (lastMedia != null)
+                try
                 {
-                    var mediaInfo = await youTubeCacheService.GetVideoInfo(lastMedia.MediaId);
-                    lastMediaTitle = mediaInfo?.Snippet?.Title;
+                    var lastMedia = await ctx.PlayHistory
+                        .Where(c => c.ChannelId == channelId)
+                        .OrderByDescending(c => c.StartDateUTC)
+                        .FirstOrDefaultAsync();
+
+                    if (lastMedia != null)
+                    {
+                        var mediaInfo = await youTubeCacheService.GetVideoInfo(lastMedia.MediaId);
+                        lastMediaTitle = mediaInfo?.Snippet?.Title;
+                    }
+                }catch(Exception e)
+                {
+                    _log.Information(e, "[{0}] Failed to load channel last media", channelId);
                 }
 
                 return Ok(new

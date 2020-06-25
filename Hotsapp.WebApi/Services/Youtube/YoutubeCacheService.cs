@@ -41,5 +41,11 @@ namespace Hotsapp.WebApi.Services
             var res = await _videoCollection.Find(c => ids.Contains(c.Id) && c.Status.Embeddable == true).ToListAsync();
             return res;
         }
+
+        public async Task<Video> GetVideoInfo(string id)
+        {
+            var res = await _videoCollection.Find(c => c.Id == id && c.Status.Embeddable == true).FirstOrDefaultAsync();
+            return res;
+        }
     }
 }

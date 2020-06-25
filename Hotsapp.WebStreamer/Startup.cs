@@ -47,7 +47,7 @@ namespace Hotsapp.WebStreamer
             services.AddSingleton<StreamerService>();
             services.AddHostedService(sp => sp.GetRequiredService<StreamerService>());
 
-            services.AddDataFactory(Configuration.GetConnectionString("MySql"));
+            services.AddData(Configuration.GetConnectionString("MySql"));
 
             services.Configure<HostOptions>(option =>
             {

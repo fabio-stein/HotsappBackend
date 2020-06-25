@@ -18,6 +18,7 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<Streamer> Streamer { get; set; }
 
         public virtual DbSet<Channel> Channel { get; set; }
+        public virtual DbSet<ChannelPlaylist> ChannelPlaylist { get; set; }
 
 
     }

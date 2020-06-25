@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
+using Hotsapp.WebApi.Services;
+using Hotsapp.WebApi.Services.Youtube;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Hotsapp.WebApi.Controllers.AdmChannel
 {
@@ -14,6 +18,8 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
     [ApiController]
     public class ChannelController : ControllerBase
     {
+        private ILogger _log = Log.ForContext<ChannelController>();
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -52,6 +58,11 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                 };
 
                 await ctx.Channel.AddAsync(channel);
+
+                var channelPlaylist = new ChannelPlaylist() { ChannelId = channel.Id };
+
+                await ctx.ChannelPlaylist.AddAsync(channelPlaylist);
+
                 await ctx.SaveChangesAsync();
                 return Ok(channel.Id);
             }
@@ -76,10 +87,46 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
             }
         }
 
+        [HttpPost("import-playlist")]
+        public async Task<IActionResult> ImportPlaylist([FromServices] YoutubeClientService youtubeService, [FromServices] ChannelService channelService,
+            [FromBody] ImportPlaylistForm data)
+        {
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var channel = await ctx.Channel.FirstOrDefaultAsync(c => c.OwnerId == User.GetUserId() && c.Id == data.channelId && !c.IsDisabled);
+                if (channel == null)
+                    return NotFound();
+            }
+
+            string playlistId = null;
+            try
+            {
+                Uri playlistUri = new Uri(data.playlistUrl);
+                playlistId = HttpUtility.ParseQueryString(playlistUri.Query).Get("list");
+            }catch(Exception e)
+            {
+                _log.Information(e, "Invalid playlist url [{0}]", data.playlistUrl);
+                return BadRequest("Invalid playlist");
+            }
+
+            var videos = await youtubeService.ImportPlaylist(playlistId);
+
+            var videoIds = videos.Select(v => v.Id).ToList();
+
+            await channelService.AddVideosToPlaylist(data.channelId, videoIds);
+            return Ok();
+        }
+
         public class ChannelForm
         {
             public string channelTitle { get; set; }
             public string channelDescription { get; set; }
+        }
+
+        public class ImportPlaylistForm
+        {
+            public Guid channelId { get; set; }
+            public string playlistUrl { get; set; }
         }
     }
 }

@@ -1,6 +1,8 @@
 using FirebaseApi;
 using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Configuration;
+using Hotsapp.WebApi.Services;
+using Hotsapp.WebApi.Services.Youtube;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -38,7 +40,11 @@ namespace Hotsapp.WebApi
             ConfigureAuth(services);
             //ConfigureCors(services);
 
-            services.AddDataFactory(Configuration.GetConnectionString("MySql"));
+            services.AddData(Configuration.GetConnectionString("MySql"));
+            services.AddMongoDB(Configuration.GetConnectionString("MongoDB"));
+            services.AddSingleton<YouTubeCacheService>();
+            services.AddSingleton<YoutubeClientService>();
+            services.AddSingleton<ChannelService>();
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
         }

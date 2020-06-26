@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PlaylistWorker.Service
+namespace Hotsapp.PlaylistWorker.Service
 {
     public class PlaylistService
     {

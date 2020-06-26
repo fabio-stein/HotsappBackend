@@ -1,5 +1,4 @@
 using FirebaseApi;
-using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Configuration;
 using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Services.Youtube;

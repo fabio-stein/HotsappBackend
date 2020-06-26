@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hotsapp.Data.Util;
+﻿using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Hotsapp.WebApi.Controllers
 {
@@ -43,7 +41,8 @@ namespace Hotsapp.WebApi.Controllers
                         var mediaInfo = await youTubeCacheService.GetVideoInfo(lastMedia.MediaId);
                         lastMediaTitle = mediaInfo?.Snippet?.Title;
                     }
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     _log.Information(e, "[{0}] Failed to load channel last media", channelId);
                 }

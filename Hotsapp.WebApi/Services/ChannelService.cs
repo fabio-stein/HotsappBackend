@@ -30,7 +30,7 @@ namespace Hotsapp.WebApi.Services
             videoIds.ForEach(v =>
             {
                 var item = videos.FirstOrDefault(s => s.Id == v);
-                if(item != null)
+                if (item != null)
                 {
                     var duration = XmlConvert.ToTimeSpan(item.ContentDetails.Duration);
                     var video = new VideoInfo()

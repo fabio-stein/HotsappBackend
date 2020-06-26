@@ -1,9 +1,7 @@
 ﻿using Google.Apis.YouTube.v3.Data;
 using Hotsapp.Data.Util;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

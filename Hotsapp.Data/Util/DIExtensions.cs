@@ -1,9 +1,7 @@
 ﻿using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using System;
 
 namespace Hotsapp

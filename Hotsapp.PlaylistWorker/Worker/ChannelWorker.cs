@@ -1,13 +1,13 @@
 ﻿using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class ChannelWorker
     {

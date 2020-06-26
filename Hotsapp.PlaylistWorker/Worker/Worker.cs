@@ -1,7 +1,7 @@
 using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using PlaylistWorker.Service;
+using Hotsapp.PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class Worker : BackgroundService
     {

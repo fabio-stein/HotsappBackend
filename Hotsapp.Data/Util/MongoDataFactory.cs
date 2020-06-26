@@ -1,10 +1,6 @@
-﻿using Hotsapp.Data.Model;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using MySql.Data.MySqlClient;
 using System;
-using System.Data.Common;
 
 namespace Hotsapp.Data.Util
 {

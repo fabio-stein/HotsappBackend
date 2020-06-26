@@ -1,7 +1,7 @@
 using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Hotsapp.PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Collections.Generic;

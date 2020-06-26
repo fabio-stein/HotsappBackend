@@ -1,4 +1,3 @@
-using Hotsapp.Data.Util;
 using Hotsapp.WebStreamer.Hubs;
 using Hotsapp.WebStreamer.Service;
 using Microsoft.AspNetCore.Builder;

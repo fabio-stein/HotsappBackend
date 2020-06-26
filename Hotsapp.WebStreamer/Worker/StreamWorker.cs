@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

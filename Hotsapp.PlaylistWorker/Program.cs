@@ -1,8 +1,8 @@
 using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Hotsapp.PlaylistWorker.Service;
 using Serilog;
 
 namespace Hotsapp.PlaylistWorker

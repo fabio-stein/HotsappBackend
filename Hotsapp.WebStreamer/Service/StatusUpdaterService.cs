@@ -1,6 +1,5 @@
 ﻿using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -104,7 +103,8 @@ namespace Hotsapp.WebStreamer.Service
                 try
                 {
                     await _streamerService.StopWorker(c.Key);
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     _log.Error(e, "[{0}] Error stopping empty worker", c.Key);
                 }

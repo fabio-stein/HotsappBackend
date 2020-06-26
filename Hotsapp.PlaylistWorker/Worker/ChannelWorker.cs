@@ -1,7 +1,7 @@
 ﻿using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Hotsapp.PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Threading;

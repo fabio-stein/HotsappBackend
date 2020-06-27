@@ -20,28 +20,51 @@ namespace Hotsapp.WebApi.Services
             _cacheService = cacheService;
         }
 
-        public async Task AddVideosToPlaylist(Guid channelId, List<string> videoIds)
+        public async Task<List<VideoInfo>> AddVideosToLibrary(Guid channelId, List<string> videoIds)
         {
-            _log.Information("Trying to add {0} video(s) to playlist", videoIds.Count);
+            _log.Information("Trying to add {0} video(s) to library", videoIds.Count);
             var videos = await _cacheService.GetVideos(videoIds);
             _log.Information("Found {0} of {1} available videos", videos.Count, videoIds.Count);
 
-            var orderedList = new List<VideoInfo>();
-            videoIds.ForEach(v =>
+            var list = videos.Select(v =>
             {
-                var item = videos.FirstOrDefault(s => s.Id == v);
-                if (item != null)
+                var duration = XmlConvert.ToTimeSpan(v.ContentDetails.Duration);
+                return new VideoInfo()
                 {
-                    var duration = XmlConvert.ToTimeSpan(item.ContentDetails.Duration);
-                    var video = new VideoInfo()
-                    {
-                        Id = item.Id,
-                        Duration = (int)duration.TotalSeconds
-                    };
-                    orderedList.Add(video);
-                }
-            });
+                    Id = v.Id,
+                    Duration = (int)duration.TotalSeconds
+                };
+            }).ToList();
 
+            _log.Information("[{0}] Adding videos to playlist", channelId);
+
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var channelLibrary = await ctx.ChannelLibrary.FirstOrDefaultAsync(p => p.ChannelId == channelId);
+
+                var library = new List<VideoInfo>();
+                if (channelLibrary.Library != null)
+                    library = JsonConvert.DeserializeObject<List<VideoInfo>>(channelLibrary.Library);
+
+                var filteredList = list.Where(l => !library.Any(c => c.Id == l.Id)).ToList();
+                library.AddRange(filteredList);
+
+                if(filteredList.Count != list.Count)
+                    _log.Information("[{0}] Ignoring {1} already existing video(s)", channelId, (list.Count - filteredList.Count));
+
+                channelLibrary.Library = JsonConvert.SerializeObject(library);
+
+                ctx.Update(channelLibrary);
+
+                await ctx.SaveChangesAsync();
+            }
+
+            _log.Information("[{0}] Channel library updated successfully", channelId);
+            return list;
+        }
+
+        public async Task AddVideosToPlaylist(Guid channelId, List<VideoInfo> videos)
+        {
             _log.Information("[{0}] Adding videos to playlist", channelId);
 
             using (var ctx = DataFactory.GetDataContext())
@@ -52,7 +75,7 @@ namespace Hotsapp.WebApi.Services
                 if (channelPlaylist.Playlist != null)
                     playlist = JsonConvert.DeserializeObject<List<VideoInfo>>(channelPlaylist.Playlist);
 
-                playlist.AddRange(orderedList);
+                playlist.AddRange(videos);
 
                 channelPlaylist.Playlist = JsonConvert.SerializeObject(playlist);
 

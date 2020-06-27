@@ -37,7 +37,9 @@ namespace Hotsapp.WebApi.Services
         public async Task<List<Video>> GetVideos(List<string> ids)
         {
             var res = await _videoCollection.Find(c => ids.Contains(c.Id) && c.Status.Embeddable == true).ToListAsync();
-            return res;
+            var list = ids.Select(s => res.FirstOrDefault(v => v.Id == s)).ToList();//Order by 'ids' param
+            list.RemoveAll(v => v == null);
+            return list;
         }
 
         public async Task<Video> GetVideoInfo(string id)

@@ -55,14 +55,17 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                     OwnerId = User.GetUserId(),
                     CreateDateUTC = DateTime.UtcNow,
                     Title = data.channelTitle,
-                    Description = data.channelDescription
+                    Description = data.channelDescription,
+                    Status = "STOPPED",
                 };
 
                 await ctx.Channel.AddAsync(channel);
 
-                var channelPlaylist = new ChannelPlaylist() { ChannelId = channel.Id };
+                var channelPlaylist = new ChannelPlaylist() { ChannelId = channel.Id, Playlist = "[]" };
+                var channelLibrary = new ChannelLibrary() { ChannelId = channel.Id, Library = "[]" };
 
                 await ctx.ChannelPlaylist.AddAsync(channelPlaylist);
+                await ctx.ChannelLibrary.AddAsync(channelLibrary);
 
                 await ctx.SaveChangesAsync();
                 return Ok(channel.Id);
@@ -86,37 +89,6 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                     return Ok();
                 }
             }
-        }
-
-        [HttpPost("import-playlist")]
-        public async Task<IActionResult> ImportPlaylist([FromServices] YoutubeClientService youtubeService, [FromServices] ChannelService channelService,
-            [FromBody] ImportPlaylistForm data)
-        {
-            using (var ctx = DataFactory.GetDataContext())
-            {
-                var channel = await ctx.Channel.FirstOrDefaultAsync(c => c.OwnerId == User.GetUserId() && c.Id == data.channelId && !c.IsDisabled);
-                if (channel == null)
-                    return NotFound();
-            }
-
-            string playlistId = null;
-            try
-            {
-                Uri playlistUri = new Uri(data.playlistUrl);
-                playlistId = HttpUtility.ParseQueryString(playlistUri.Query).Get("list");
-            }
-            catch (Exception e)
-            {
-                _log.Information(e, "Invalid playlist url [{0}]", data.playlistUrl);
-                return BadRequest("Invalid playlist");
-            }
-
-            var videos = await youtubeService.ImportPlaylist(playlistId);
-
-            var videoIds = videos.Select(v => v.Id).ToList();
-
-            await channelService.AddVideosToPlaylist(data.channelId, videoIds);
-            return Ok();
         }
 
         [HttpGet("live-status/{channelId}")]
@@ -173,12 +145,6 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
         {
             public string channelTitle { get; set; }
             public string channelDescription { get; set; }
-        }
-
-        public class ImportPlaylistForm
-        {
-            public Guid channelId { get; set; }
-            public string playlistUrl { get; set; }
         }
 
         public class ChannelLiveStatus

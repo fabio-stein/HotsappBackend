@@ -20,6 +20,7 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<Channel> Channel { get; set; }
         public virtual DbSet<ChannelPlaylist> ChannelPlaylist { get; set; }
         public virtual DbSet<PlayHistory> PlayHistory { get; set; }
+        public virtual DbSet<ChannelLibrary> ChannelLibrary { get; set; }
 
     }
 }

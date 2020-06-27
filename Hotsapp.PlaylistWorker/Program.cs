@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 
 namespace Hotsapp.PlaylistWorker
 {
@@ -24,6 +25,7 @@ namespace Hotsapp.PlaylistWorker
 
                     Log.Logger = new LoggerConfiguration()
                         .Enrich.FromLogContext()
+                        .Enrich.WithExceptionDetails()
                         .WriteTo.Console()
                         .CreateLogger();
 

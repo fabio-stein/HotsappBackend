@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 using System;
 
 namespace Hotsapp.WebApi
@@ -22,6 +23,7 @@ namespace Hotsapp.WebApi
 
             Log.Logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
+            .Enrich.WithExceptionDetails()
             .WriteTo.Console()
             .CreateLogger();
         }
@@ -33,11 +35,12 @@ namespace Hotsapp.WebApi
         {
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
-    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }));
+                    options.SerializerSettings.Converters.Add(
+                        new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }
+                        ));
             services.AddMvc();
 
             ConfigureAuth(services);
-            //ConfigureCors(services);
 
             services.AddData(Configuration.GetConnectionString("MySql"));
             services.AddMongoDB(Configuration.GetConnectionString("MongoDB"));

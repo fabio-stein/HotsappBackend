@@ -5,16 +5,16 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["PlaylistWorker/PlaylistWorker.csproj", "PlaylistWorker/"]
-RUN dotnet restore "PlaylistWorker/PlaylistWorker.csproj"
+COPY ["Hotsapp.PlaylistWorker/PlaylistWorker.csproj", "Hotsapp.PlaylistWorker/"]
+RUN dotnet restore "Hotsapp.PlaylistWorker/Hotsapp.PlaylistWorker.csproj"
 COPY . .
-WORKDIR "/src/PlaylistWorker"
-RUN dotnet build "PlaylistWorker.csproj" -c Release -o /app/build
+WORKDIR "/src/Hotsapp.PlaylistWorker"
+RUN dotnet build "Hotsapp.PlaylistWorker.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "PlaylistWorker.csproj" -c Release -o /app/publish
+RUN dotnet publish "Hotsapp.PlaylistWorker.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "PlaylistWorker.dll"]
+ENTRYPOINT ["dotnet", "Hotsapp.PlaylistWorker.dll"]

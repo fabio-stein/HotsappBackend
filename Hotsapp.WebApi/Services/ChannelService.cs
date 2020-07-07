@@ -49,7 +49,7 @@ namespace Hotsapp.WebApi.Services
                 var filteredList = list.Where(l => !library.Any(c => c.Id == l.Id)).ToList();
                 library.AddRange(filteredList);
 
-                if(filteredList.Count != list.Count)
+                if (filteredList.Count != list.Count)
                     _log.Information("[{0}] Ignoring {1} already existing video(s)", channelId, (list.Count - filteredList.Count));
 
                 channelLibrary.Library = JsonConvert.SerializeObject(library);

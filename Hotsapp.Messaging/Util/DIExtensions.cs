@@ -1,6 +1,5 @@
 ﻿using Hotsapp.Messaging;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Hotsapp
 {

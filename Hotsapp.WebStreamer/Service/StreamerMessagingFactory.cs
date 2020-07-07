@@ -1,12 +1,7 @@
 ﻿using Hotsapp.Messaging;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Serilog;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Hotsapp.WebStreamer.Service
 {

@@ -1,7 +1,6 @@
 ﻿using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Services;
-using Hotsapp.WebApi.Services.Youtube;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -10,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using static Hotsapp.WebApi.Services.ChannelService;
 
 namespace Hotsapp.WebApi.Controllers.AdmChannel

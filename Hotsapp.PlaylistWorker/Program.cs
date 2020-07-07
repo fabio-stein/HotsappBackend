@@ -1,11 +1,12 @@
 using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlaylistWorker.Service;
 using Serilog;
+using Serilog.Exceptions;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class Program
     {
@@ -24,14 +25,16 @@ namespace PlaylistWorker
 
                     Log.Logger = new LoggerConfiguration()
                         .Enrich.FromLogContext()
+                        .Enrich.WithExceptionDetails()
                         .WriteTo.Console()
                         .CreateLogger();
 
+                    services.AddMessaging(config.GetConnectionString("RabbitMQ"));
+                    services.AddSingleton<PlaylistWorkerMessagingService>();
+
                     services.AddSingleton<PlaylistService>();
-                    services.AddSingleton<MessagingService>();
                     services.AddTransient<ChannelWorker>();
                     services.AddSingleton<ChannelWorkerFactory>();
-                    services.AddHostedService(sprovider => sprovider.GetRequiredService<MessagingService>());
                     services.AddHostedService<Worker>();
 
                     services.Configure<HostOptions>(option =>

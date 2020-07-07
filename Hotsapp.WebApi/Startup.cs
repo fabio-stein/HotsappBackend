@@ -1,6 +1,7 @@
 using FirebaseApi;
-using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Configuration;
+using Hotsapp.WebApi.Services;
+using Hotsapp.WebApi.Services.Youtube;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 using System;
 
 namespace Hotsapp.WebApi
@@ -21,6 +23,7 @@ namespace Hotsapp.WebApi
 
             Log.Logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
+            .Enrich.WithExceptionDetails()
             .WriteTo.Console()
             .CreateLogger();
         }
@@ -32,13 +35,19 @@ namespace Hotsapp.WebApi
         {
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
-    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }));
+                    options.SerializerSettings.Converters.Add(
+                        new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }
+                        ));
             services.AddMvc();
 
             ConfigureAuth(services);
-            //ConfigureCors(services);
 
-            services.AddDataFactory(Configuration.GetConnectionString("MySql"));
+            services.AddData(Configuration.GetConnectionString("MySql"));
+            services.AddMongoDB(Configuration.GetConnectionString("MongoDB"));
+            services.AddSingleton<YouTubeCacheService>();
+            services.AddSingleton<YoutubeClientService>();
+            services.AddSingleton<ChannelService>();
+            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
         }

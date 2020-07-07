@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class ChannelWorkerFactory
     {

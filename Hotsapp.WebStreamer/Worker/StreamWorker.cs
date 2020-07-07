@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +16,6 @@ namespace Hotsapp.WebStreamer.Service
     public class StreamWorker
     {
         private readonly ILogger _log = Log.ForContext<StreamWorker>();
-        private readonly MessagingService _messagingService;
         private string channelId;
         private ChannelConnection channelConnection;
         private bool streamRunning = false;
@@ -27,9 +25,8 @@ namespace Hotsapp.WebStreamer.Service
         private PlayModel _status;
         public int ClientsCount { get { return clients.Count; } }
 
-        public StreamWorker(MessagingService messagingService, IHubContext<StreamHub, IStreamHub> hub)
+        public StreamWorker(IHubContext<StreamHub, IStreamHub> hub)
         {
-            _messagingService = messagingService;
             _hub = hub;
         }
 
@@ -44,7 +41,7 @@ namespace Hotsapp.WebStreamer.Service
             streamRunning = true;
             await SendPlayEvent();
 
-            channelConnection = _messagingService.CreateChannel();
+            channelConnection = StreamerMessagingFactory.CreateChannel();
             channelConnection.OnMessageReceived += OnPlayEventReceived;
             channelConnection.Start(channelId);
         }

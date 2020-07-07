@@ -1,4 +1,3 @@
-using Hotsapp.Data.Util;
 using Hotsapp.WebStreamer.Hubs;
 using Hotsapp.WebStreamer.Service;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 
 namespace Hotsapp.WebStreamer
 {
@@ -19,6 +19,7 @@ namespace Hotsapp.WebStreamer
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
+                .Enrich.WithExceptionDetails()
                 .WriteTo.Console()
                 .CreateLogger();
         }
@@ -40,14 +41,13 @@ namespace Hotsapp.WebStreamer
             services.AddTransient<StreamWorker>();
             services.AddSingleton<StreamWorkerFactory>();
 
-            services.AddSingleton<MessagingService>();
-            services.AddHostedService(sp => sp.GetRequiredService<MessagingService>());
+            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             //Create a HostedService in a way that we can use it in DI
             services.AddSingleton<StreamerService>();
             services.AddHostedService(sp => sp.GetRequiredService<StreamerService>());
 
-            services.AddDataFactory(Configuration.GetConnectionString("MySql"));
+            services.AddData(Configuration.GetConnectionString("MySql"));
 
             services.Configure<HostOptions>(option =>
             {

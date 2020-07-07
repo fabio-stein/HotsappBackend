@@ -1,7 +1,7 @@
 using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger _log = Log.ForContext<Worker>();
-        private readonly MessagingService _messagingService;
+        private readonly PlaylistWorkerMessagingService _messagingService;
         private readonly PlaylistService _playlistService;
         private readonly ChannelWorkerFactory _channelWorkerFactory;
         private CancellationToken _ct;
@@ -22,7 +22,7 @@ namespace PlaylistWorker
 
         private List<Guid> channels;
 
-        public Worker(MessagingService messagingService, PlaylistService playlistService, ChannelWorkerFactory channelWorkerFactory)
+        public Worker(PlaylistWorkerMessagingService messagingService, PlaylistService playlistService, ChannelWorkerFactory channelWorkerFactory)
         {
             _messagingService = messagingService;
             _playlistService = playlistService;

@@ -1,13 +1,13 @@
 ﻿using Hotsapp.Data.Util;
+using Hotsapp.PlaylistWorker.Service;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using PlaylistWorker.Service;
 using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PlaylistWorker
+namespace Hotsapp.PlaylistWorker
 {
     public class ChannelWorker
     {
@@ -16,11 +16,11 @@ namespace PlaylistWorker
         private CancellationToken _ct;
         private CancellationTokenSource _cts;
         private readonly PlaylistService _playlistService;
-        private readonly MessagingService _messagingService;
+        private readonly PlaylistWorkerMessagingService _messagingService;
         private Task runningTask;
         private Guid _channelId;
 
-        public ChannelWorker(PlaylistService playlistService, MessagingService messagingService)
+        public ChannelWorker(PlaylistService playlistService, PlaylistWorkerMessagingService messagingService)
         {
             _playlistService = playlistService;
             _messagingService = messagingService;

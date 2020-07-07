@@ -7,18 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.46.0.1995" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.6.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Serilog.Exceptions" Version="5.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FirebaseApi\Hotsapp.Firebase.csproj" />
     <ProjectReference Include="..\Hotsapp.Data\Hotsapp.Data.csproj" />
+    <ProjectReference Include="..\Hotsapp.Messaging\Hotsapp.Messaging.csproj" />
   </ItemGroup>
 
   <ItemGroup>

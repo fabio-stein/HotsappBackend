@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
+using Hotsapp.WebApi.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hotsapp.Data.Model;
-using Hotsapp.Data.Util;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using static Hotsapp.WebApi.Services.ChannelService;
 
 namespace Hotsapp.WebApi.Controllers.AdmChannel
 {
@@ -14,6 +17,8 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
     [ApiController]
     public class ChannelController : ControllerBase
     {
+        private ILogger _log = Log.ForContext<ChannelController>();
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -48,10 +53,18 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                     OwnerId = User.GetUserId(),
                     CreateDateUTC = DateTime.UtcNow,
                     Title = data.channelTitle,
-                    Description = data.channelDescription
+                    Description = data.channelDescription,
+                    Status = "STOPPED",
                 };
 
                 await ctx.Channel.AddAsync(channel);
+
+                var channelPlaylist = new ChannelPlaylist() { ChannelId = channel.Id, Playlist = "[]" };
+                var channelLibrary = new ChannelLibrary() { ChannelId = channel.Id, Library = "[]" };
+
+                await ctx.ChannelPlaylist.AddAsync(channelPlaylist);
+                await ctx.ChannelLibrary.AddAsync(channelLibrary);
+
                 await ctx.SaveChangesAsync();
                 return Ok(channel.Id);
             }
@@ -76,10 +89,73 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
             }
         }
 
+        [HttpGet("live-status/{channelId}")]
+        public async Task<IActionResult> GetLiveStatus(Guid channelId, [FromServices] YouTubeCacheService youTubeCacheService)
+        {
+            Channel channel;
+            ChannelLiveStatus status = new ChannelLiveStatus();
+            PlayHistory currentMedia;
+            ChannelPlaylist playlist;
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                channel = await ctx.Channel.FirstOrDefaultAsync(c => c.OwnerId == User.GetUserId() && !c.IsDisabled && c.Id == channelId);
+                if (channel == null)
+                    return NotFound();
+
+                currentMedia = await ctx.PlayHistory.Where(p => p.ChannelId == channel.Id).OrderByDescending(p => p.StartDateUTC).FirstOrDefaultAsync();
+                playlist = await ctx.ChannelPlaylist.FirstOrDefaultAsync(p => p.ChannelId == channel.Id);
+            }
+
+            status.channelStatus = channel.Status;
+
+            string nextMediaId = null;
+            if (!string.IsNullOrEmpty(playlist?.Playlist))
+            {
+                var list = JsonConvert.DeserializeObject<List<VideoInfo>>(playlist.Playlist);
+                var firstItem = list.FirstOrDefault();
+                nextMediaId = firstItem?.Id;
+
+                if (list != null)
+                    status.mediaCountInPlaylist = list.Count;
+            }
+
+            status.currentMediaId = currentMedia?.MediaId;
+            status.startDateUTC = currentMedia?.StartDateUTC;
+            status.currentMediaDuration = currentMedia?.Duration;
+            status.nextMediaId = nextMediaId;
+
+            if (status.currentMediaId != null)
+            {
+                var info = await youTubeCacheService.GetVideoInfo(status.currentMediaId);
+                status.currentMediaTitle = info?.Snippet?.Title;
+            }
+
+            if (status.nextMediaId != null)
+            {
+                var info = await youTubeCacheService.GetVideoInfo(status.nextMediaId);
+                status.nextMediaTitle = info?.Snippet?.Title;
+            }
+
+            return Ok(status);
+        }
+
         public class ChannelForm
         {
             public string channelTitle { get; set; }
             public string channelDescription { get; set; }
+        }
+
+        public class ChannelLiveStatus
+        {
+            public string channelStatus { get; set; }
+            //public int usersCount { get; set; }
+            public string currentMediaId { get; set; }
+            public string currentMediaTitle { get; set; }
+            public string nextMediaId { get; set; }
+            public string nextMediaTitle { get; set; }
+            public DateTime? startDateUTC { get; set; }
+            public int? currentMediaDuration { get; set; }
+            public int mediaCountInPlaylist { get; set; }
         }
     }
 }

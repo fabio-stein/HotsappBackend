@@ -1,6 +1,4 @@
-﻿using Hotsapp.Data.Model;
-using Hotsapp.Data.Util;
-using Hotsapp.WebStreamer.Hubs;
+﻿using Hotsapp.WebStreamer.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -107,7 +105,7 @@ namespace Hotsapp.WebStreamer.Service
                 }
             }
 
-            if(worker != null)
+            if (worker != null)
                 await worker.StopStream();
         }
 

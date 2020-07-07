@@ -1,13 +1,14 @@
 ﻿using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Hotsapp.Data.Util
+namespace Hotsapp
 {
     public static class DIExtensions
     {
-        public static void AddDataFactory(this IServiceCollection services, string connectionString)
+        public static void AddData(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<DataContext>(options => options.UseMySql(connectionString,
                 mySqlOptions =>
@@ -20,6 +21,13 @@ namespace Hotsapp.Data.Util
             var sp = services.BuildServiceProvider();
             services.AddSingleton(new DataFactory());
             DataFactory.Initialize(sp, connectionString);
+        }
+
+        public static void AddMongoDB(this IServiceCollection services, string connectionString)
+        {
+            var sp = services.BuildServiceProvider();
+            services.AddSingleton(new MongoDataFactory());
+            MongoDataFactory.Initialize(sp, connectionString);
         }
     }
 }

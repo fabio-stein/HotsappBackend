@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Hotsapp.WebApi.Controllers
 {
@@ -16,8 +12,9 @@ namespace Hotsapp.WebApi.Controllers
         [HttpGet]
         public IActionResult Index([FromQuery] Guid channelId)
         {
+            //TODO REPLACE COOKIE BY CUSTOM STREAMER ID
             Response.Cookies.Append("routeKey", channelId.ToString());
-            return Ok(new { url = "https://api.hotsapp.net/streamer/streamhub?channelId=9fc680b0-a6cd-11ea-87a6-02dd375f4dba" });
+            return Ok(new { url = "https://api.hotsapp.net/streamer/streamhub?channelId=" + channelId.ToString() });
         }
     }
 }

@@ -2,7 +2,7 @@ stages:
 - name: compile
   steps:
   - publishImageConfig:
-      dockerfilePath: ./PlaylistWorker/Dockerfile
+      dockerfilePath: ./Hotsapp.PlaylistWorker/Dockerfile
       buildContext: .
       tag: hotsapp/playlist-worker
       pushRemote: true

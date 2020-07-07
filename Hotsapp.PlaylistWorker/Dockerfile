@@ -5,7 +5,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["Hotsapp.PlaylistWorker/PlaylistWorker.csproj", "Hotsapp.PlaylistWorker/"]
+COPY ["Hotsapp.PlaylistWorker/Hotsapp.PlaylistWorker.csproj", "Hotsapp.PlaylistWorker/"]
 RUN dotnet restore "Hotsapp.PlaylistWorker/Hotsapp.PlaylistWorker.csproj"
 COPY . .
 WORKDIR "/src/Hotsapp.PlaylistWorker"

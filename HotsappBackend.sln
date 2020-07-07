@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.PlaylistWorker", "Hotsapp.PlaylistWorker\Hotsapp.PlaylistWorker.csproj", "{2078D0C6-7DE5-47B3-8CD9-0FC5E0EF410A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hotsapp.Messaging", "Hotsapp.Messaging\Hotsapp.Messaging.csproj", "{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{2078D0C6-7DE5-47B3-8CD9-0FC5E0EF410A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2078D0C6-7DE5-47B3-8CD9-0FC5E0EF410A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2078D0C6-7DE5-47B3-8CD9-0FC5E0EF410A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

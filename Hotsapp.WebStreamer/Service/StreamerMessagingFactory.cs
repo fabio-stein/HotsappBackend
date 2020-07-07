@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Hotsapp.Messaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,41 +10,11 @@ using System.Threading.Tasks;
 
 namespace Hotsapp.WebStreamer.Service
 {
-    public class MessagingService : IHostedService
+    public class StreamerMessagingFactory
     {
-        private ILogger _log = Log.ForContext<MessagingService>();
-        private readonly string connectionString;
-        private ConnectionFactory factory;
-        private IConnection connection;
-        private IModel channel;
-
-        public MessagingService(IConfiguration config)
+        public static ChannelConnection CreateChannel()
         {
-            connectionString = config.GetConnectionString("RabbitMQ");
-        }
-
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            _log.Information("Messaging service starting");
-            factory = new ConnectionFactory()
-            {
-                Uri = new Uri(connectionString)
-            };
-
-            connection = factory.CreateConnection();
-
-            _log.Information("Messaging service connected: {0}", connection.IsOpen);
-        }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            _log.Information("Messaging service stopping");
-            connection?.Close();
-        }
-
-        public ChannelConnection CreateChannel()
-        {
-            return new ChannelConnection(connection);
+            return new ChannelConnection(MessagingFactory.GetConnection());
         }
     }
 

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hotsapp.Data\Hotsapp.Data.csproj" />
+    <ProjectReference Include="..\Hotsapp.Messaging\Hotsapp.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Hotsapp.Data.Util;
+using Hotsapp.WebApi.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hotsapp.Data.Util;
-using Hotsapp.WebApi.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using static Hotsapp.WebApi.Services.ChannelService;
 
 namespace Hotsapp.WebApi.Controllers.AdmChannel

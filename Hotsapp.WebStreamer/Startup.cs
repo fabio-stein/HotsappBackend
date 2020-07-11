@@ -41,8 +41,7 @@ namespace Hotsapp.WebStreamer
             services.AddTransient<StreamWorker>();
             services.AddSingleton<StreamWorkerFactory>();
 
-            services.AddSingleton<MessagingService>();
-            services.AddHostedService(sp => sp.GetRequiredService<MessagingService>());
+            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             //Create a HostedService in a way that we can use it in DI
             services.AddSingleton<StreamerService>();

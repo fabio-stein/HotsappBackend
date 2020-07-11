@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Hotsapp.PlaylistWorker.Service
 {
-    public class PlaylistService
+    public class PlaylistRepository
     {
-        private readonly ILogger<PlaylistService> _log;
+        private readonly ILogger<PlaylistRepository> _log;
 
-        public PlaylistService(ILogger<PlaylistService> log)
+        public PlaylistRepository(ILogger<PlaylistRepository> log)
         {
             _log = log;
         }

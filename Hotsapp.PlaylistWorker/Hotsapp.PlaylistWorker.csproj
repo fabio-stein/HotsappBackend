@@ -9,12 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
     <PackageReference Include="Serilog.Exceptions" Version="5.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Hotsapp.Data\Hotsapp.Data.csproj" />
+    <ProjectReference Include="..\Hotsapp.Messaging\Hotsapp.Messaging.csproj" />
   </ItemGroup>
 </Project>

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Hotsapp.Data.Util;
 using Hotsapp.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Hotsapp.WebApi.Controllers
 {
@@ -32,7 +31,7 @@ INNER JOIN channel c ON c.Id = i.ChannelId
 INNER JOIN play_history p ON i.lastDate = p.StartDateUTC AND p.ChannelId = c.Id";
 
             List<DbActiveChannel> channels;
-            using(var conn = DataFactory.OpenConnection())
+            using (var conn = DataFactory.OpenConnection())
             {
                 channels = (await conn.QueryAsync<DbActiveChannel>(sql)).ToList();
             }

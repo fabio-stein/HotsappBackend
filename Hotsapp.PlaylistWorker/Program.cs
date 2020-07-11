@@ -29,12 +29,13 @@ namespace Hotsapp.PlaylistWorker
                         .WriteTo.Console()
                         .CreateLogger();
 
-                    services.AddSingleton<PlaylistService>();
-                    services.AddSingleton<MessagingService>();
+                    services.AddMessaging(config.GetConnectionString("RabbitMQ"));
+                    services.AddSingleton<PlaylistWorkerMessagingService>();
+
+                    services.AddSingleton<PlaylistRepository>();
                     services.AddTransient<ChannelWorker>();
                     services.AddSingleton<ChannelWorkerFactory>();
-                    services.AddHostedService(sprovider => sprovider.GetRequiredService<MessagingService>());
-                    services.AddHostedService<Worker>();
+                    services.AddHostedService<WorkerManager>();
 
                     services.Configure<HostOptions>(option =>
                     {

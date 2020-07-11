@@ -1,13 +1,16 @@
 ﻿using Hotsapp.Data.Model;
 using Hotsapp.Data.Util;
+using Hotsapp.Messaging;
 using Hotsapp.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using RabbitMQ.Client;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using static Hotsapp.WebApi.Services.ChannelService;
 
@@ -139,6 +142,86 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
             return Ok(status);
         }
 
+        [HttpPost("{channelId}/start")]
+        public async Task<IActionResult> Start(Guid channelId)
+        {
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var data = await ctx.Channel.FirstOrDefaultAsync(c => c.OwnerId == User.GetUserId() && c.Id == channelId && !c.IsDisabled);
+
+                if (data == null)
+                    return NotFound();
+                else
+                {
+                    _log.Information("[{0}] Sending start message to channel", channelId);
+                    using (var channel = MessagingFactory.GetConnection().CreateModel())
+                    {
+                        var name = "channel-controller";
+                        channel.QueueDeclare(queue: name,
+                                             durable: true,
+                                             exclusive: false,
+                                             autoDelete: false,
+                                             arguments: null);
+
+                        var model = new ChannelControllerMessage()
+                        {
+                            ChannelId = channelId,
+                            Action = ChannelControllerMessageAction.START
+                        };
+
+                        string message = model.ToJson();
+                        var body = Encoding.UTF8.GetBytes(message);
+
+                        channel.BasicPublish(exchange: "",
+                                             routingKey: name,
+                                             basicProperties: null,
+                                             body: body);
+                    }
+                    return Ok();
+                }
+            }
+        }
+
+        [HttpPost("{channelId}/stop")]
+        public async Task<IActionResult> Stop(Guid channelId)
+        {
+            using (var ctx = DataFactory.GetDataContext())
+            {
+                var data = await ctx.Channel.FirstOrDefaultAsync(c => c.OwnerId == User.GetUserId() && c.Id == channelId && !c.IsDisabled);
+
+                if (data == null)
+                    return NotFound();
+                else
+                {
+                    _log.Information("[{0}] Sending stop message to channel", channelId);
+                    using (var channel = MessagingFactory.GetConnection().CreateModel())
+                    {
+                        var name = "channel-controller";
+                        channel.QueueDeclare(queue: name,
+                                             durable: true,
+                                             exclusive: false,
+                                             autoDelete: false,
+                                             arguments: null);
+
+                        var model = new ChannelControllerMessage()
+                        {
+                            ChannelId = channelId,
+                            Action = ChannelControllerMessageAction.STOP
+                        };
+
+                        string message = model.ToJson();
+                        var body = Encoding.UTF8.GetBytes(message);
+
+                        channel.BasicPublish(exchange: "",
+                                             routingKey: name,
+                                             basicProperties: null,
+                                             body: body);
+                    }
+                    return Ok();
+                }
+            }
+        }
+
         public class ChannelForm
         {
             public string channelTitle { get; set; }
@@ -156,6 +239,19 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
             public DateTime? startDateUTC { get; set; }
             public int? currentMediaDuration { get; set; }
             public int mediaCountInPlaylist { get; set; }
+        }
+
+
+        public class ChannelControllerMessage
+        {
+            public Guid ChannelId { get; set; }
+            public ChannelControllerMessageAction Action { get; set; }
+        }
+
+        public enum ChannelControllerMessageAction
+        {
+            START,
+            STOP
         }
     }
 }

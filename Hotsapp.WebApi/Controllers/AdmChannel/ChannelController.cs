@@ -177,6 +177,10 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                                              basicProperties: null,
                                              body: body);
                     }
+
+                    data.Status = "RUNNING";
+                    await ctx.SaveChangesAsync();
+
                     return Ok();
                 }
             }
@@ -217,6 +221,10 @@ namespace Hotsapp.WebApi.Controllers.AdmChannel
                                              basicProperties: null,
                                              body: body);
                     }
+
+                    data.Status = "STOPPED";
+                    await ctx.SaveChangesAsync();
+
                     return Ok();
                 }
             }

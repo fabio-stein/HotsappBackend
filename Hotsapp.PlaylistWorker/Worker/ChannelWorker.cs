@@ -15,12 +15,12 @@ namespace Hotsapp.PlaylistWorker
         private PlayModel _status;
         private CancellationToken _ct;
         private CancellationTokenSource _cts;
-        private readonly PlaylistService _playlistService;
+        private readonly PlaylistRepository _playlistService;
         private readonly PlaylistWorkerMessagingService _messagingService;
         private Task runningTask;
         private Guid _channelId;
 
-        public ChannelWorker(PlaylistService playlistService, PlaylistWorkerMessagingService messagingService)
+        public ChannelWorker(PlaylistRepository playlistService, PlaylistWorkerMessagingService messagingService)
         {
             _playlistService = playlistService;
             _messagingService = messagingService;

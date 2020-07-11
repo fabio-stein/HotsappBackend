@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 
 namespace Hotsapp.PlaylistWorker
 {
-    public class Worker : BackgroundService
+    public class WorkerManager : BackgroundService
     {
-        private readonly ILogger _log = Log.ForContext<Worker>();
+        private readonly ILogger _log = Log.ForContext<WorkerManager>();
         private readonly PlaylistWorkerMessagingService _messagingService;
-        private readonly PlaylistService _playlistService;
+        private readonly PlaylistRepository _playlistService;
         private readonly ChannelWorkerFactory _channelWorkerFactory;
         private CancellationToken _ct;
         private List<ChannelWorker> workerList = new List<ChannelWorker>();
 
         private List<Guid> channels;
 
-        public Worker(PlaylistWorkerMessagingService messagingService, PlaylistService playlistService, ChannelWorkerFactory channelWorkerFactory)
+        public WorkerManager(PlaylistWorkerMessagingService messagingService, PlaylistRepository playlistService, ChannelWorkerFactory channelWorkerFactory)
         {
             _messagingService = messagingService;
             _playlistService = playlistService;
@@ -32,7 +32,7 @@ namespace Hotsapp.PlaylistWorker
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _ct = stoppingToken;
-            await StartRunningChannels();
+            await ResumeRunningChannels();
             while (!stoppingToken.IsCancellationRequested)
             {
                 /*                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
@@ -54,9 +54,9 @@ namespace Hotsapp.PlaylistWorker
             _log.Information("All workers stopped");
         }
 
-        private async Task StartRunningChannels()
+        private async Task ResumeRunningChannels()
         {
-            _log.Information("Starting already running channels");
+            _log.Information("Resuming already running channels");
             using (var ctx = DataFactory.GetDataContext())
             {
                 channels = await ctx.Channel.Where(c => c.Status == "RUNNING").Select(c => c.Id).ToListAsync();

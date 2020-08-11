@@ -14,7 +14,7 @@ namespace Hotsapp.WebApi.Controllers
         {
             //TODO REPLACE COOKIE BY CUSTOM STREAMER ID
             Response.Cookies.Append("routeKey", channelId.ToString());
-            return Ok(new { url = "https://api.hotsapp.net/streamer/streamhub?channelId=" + channelId.ToString() });
+            return Ok(new { url = "https://api.plister.net/streamer/streamhub?channelId=" + channelId.ToString() });
         }
     }
 }

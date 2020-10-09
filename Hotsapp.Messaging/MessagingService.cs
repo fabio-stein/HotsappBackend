@@ -22,7 +22,6 @@ namespace Hotsapp.Messaging
                 Uri = new Uri(_connectionString)
             };
 
-            connection = factory.CreateConnection();
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

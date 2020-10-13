@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.PlaylistWorker", "H
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotsapp.Messaging", "Hotsapp.Messaging\Hotsapp.Messaging.csproj", "{A0897C3B-3A38-4591-978C-3FDF8A81FCB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaClient.Connector", "WaClient.Connector\WaClient.Connector.csproj", "{AA9E851B-E477-4897-85A7-53F13E66B249}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaClient.Connector", "WaClient.Connector\WaClient.Connector.csproj", "{AA9E851B-E477-4897-85A7-53F13E66B249}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaClient.Worker", "WaClient.Worker\WaClient.Worker.csproj", "{12D542C4-869B-498D-AC9A-E30775D2223A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{AA9E851B-E477-4897-85A7-53F13E66B249}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA9E851B-E477-4897-85A7-53F13E66B249}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA9E851B-E477-4897-85A7-53F13E66B249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12D542C4-869B-498D-AC9A-E30775D2223A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D542C4-869B-498D-AC9A-E30775D2223A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12D542C4-869B-498D-AC9A-E30775D2223A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12D542C4-869B-498D-AC9A-E30775D2223A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

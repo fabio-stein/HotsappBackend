@@ -16,9 +16,9 @@ namespace WaClient.Connector
         Task<StatusModel> GetStatus();
 
         [Post("/api/sendMessage")]
-        Task SendMessage(InitializeOptions options);
+        Task SendMessage(SendMessageModel options);
 
         [Get("/api/getMessages")]
-        Task GetMessages(InitializeOptions options);
+        Task<List<MessageModel>> GetMessages();
     }
 }

@@ -10,37 +10,42 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WaClient.Connector;
+using WaClient.Worker.Data;
+using WaClient.Worker.Worker;
 
 namespace WaClient.Worker
 {
     class Program
     {
-        async static Task Main(string[] args)
+        public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-    {
-        var sp = services.BuildServiceProvider();
-        var config = sp.GetRequiredService<IConfiguration>();
-        DataFactory.Initialize(sp, config.GetConnectionString("MySql"));
+                .ConfigureServices((hostContext, services) =>
+                {
+                    var sp = services.BuildServiceProvider();
+                    var config = sp.GetRequiredService<IConfiguration>();
+                    DataFactory.Initialize(sp, config.GetConnectionString("MySql"));
 
-        Log.Logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .Enrich.WithExceptionDetails()
-            .WriteTo.Console()
-            .CreateLogger();
+                    Log.Logger = new LoggerConfiguration()
+                        .Enrich.FromLogContext()
+                        .Enrich.WithExceptionDetails()
+                        .WriteTo.Console()
+                        .CreateLogger();
 
-        services.Configure<HostOptions>(option =>
-        {
-            option.ShutdownTimeout = System.TimeSpan.FromSeconds(20);
-        });
+                    services.AddSingleton<PhoneRepository>();
+                    services.AddSingleton<PhoneWorkerFactory>();
+                    services.AddTransient<PhoneWorker>();
+                    services.AddHostedService<WorkerManager>();
 
-        services.AddHostedService<DevService>();
-    }).UseSerilog();
-
+                    services.Configure<HostOptions>(option =>
+                    {
+                        option.ShutdownTimeout = TimeSpan.FromSeconds(20);
+                    });
+                }).UseSerilog();
     }
+
 }

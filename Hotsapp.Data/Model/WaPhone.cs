@@ -10,7 +10,7 @@ namespace Hotsapp.Data.Model
     public class WaPhone
     {
         [Key]
-        public double Number { get; set; }
+        public string Number { get; set; }
         public string Session { get; set; }
         public bool IsConnected { get; set; }
         public int OwnerId { get; set; }

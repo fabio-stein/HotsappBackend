@@ -20,5 +20,8 @@ namespace WaClient.Connector
 
         [Get("/api/getMessages")]
         Task<List<MessageModel>> GetMessages();
+
+        [Post("/api/stop")]
+        Task Stop();
     }
 }

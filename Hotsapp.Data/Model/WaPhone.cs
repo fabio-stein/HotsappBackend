@@ -14,5 +14,6 @@ namespace Hotsapp.Data.Model
         public string Session { get; set; }
         public bool IsConnected { get; set; }
         public int OwnerId { get; set; }
+        public string DefaultMessage { get; set; }
     }
 }

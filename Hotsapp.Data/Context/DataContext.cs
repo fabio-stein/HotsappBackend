@@ -22,6 +22,9 @@ namespace Hotsapp.Data.Model
         public virtual DbSet<PlayHistory> PlayHistory { get; set; }
         public virtual DbSet<ChannelLibrary> ChannelLibrary { get; set; }
         public virtual DbSet<WaPhone> WaPhone { get; set; }
+        public virtual DbSet<WaChat> WaChat { get; set; }
+        public virtual DbSet<WaChatMessage> WaChatMessage { get; set; }
+        public virtual DbSet<WaPhoneArea> WaPhoneArea { get; set; }
 
     }
 }

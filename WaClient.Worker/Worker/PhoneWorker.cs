@@ -1,4 +1,6 @@
 ﻿using Hotsapp.Data.Model;
+using Hotsapp.Data.Util;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -59,35 +61,83 @@ namespace WaClient.Worker.Worker
                         }
                         else
                         {
-                            //TODO SEND MESSAGES
+                            //SEND MESSAGES
+                            var toSend = (await _repository.GetPendingMessages(phoneInfo.Number)).ToList();
+                            var chatDict = new Dictionary<int, WaChat>();
+                            for (int i = 0; i < toSend.Count; i++)
+                            {
+                                var msg = toSend[i];
+                                WaChat chat;
+                                if (chatDict.ContainsKey(msg.ChatId))
+                                    chat = chatDict[msg.ChatId];
+                                else
+                                {
+                                    using (var ctx = DataFactory.GetDataContext())
+                                    {
+                                        chat = await ctx.WaChat.FirstOrDefaultAsync(c => c.Id == msg.ChatId);
+                                    }
+                                    chatDict[msg.ChatId] = chat;
+                                }
+
+                                await client.SendMessage(new Connector.Model.SendMessageModel()
+                                {
+                                    user = chat.RemoteNumber,
+                                    text = msg.Body
+                                });
+                                await _repository.SetMessageProcessed(msg.MessageId);
+                            }
 
                             //RECEIVE MESSAGES
                             var messagesList = await client.GetMessages();
                             var userMessages = messagesList.GroupBy(m => m.id.remote).ToList();
-                            //TODO ORDER MESSAGES INVALID, USE FOR(i;i++) synchronous
                             userMessages.ForEach(async messages =>
                             {
                                 var remote = messages.Key;
                                 var log = _log.ForContext("remote", remote);
+                                var listMessages = messages.ToList().OrderBy(m => m.timestamp).ToList();
 
                                 var activeChat = await _repository.CheckActiveChat(remote);
-                                
-                                if(activeChat == null)
+
+                                if (activeChat == null)
                                 {
+                                    var areas = _repository.GetPhoneAreas(phoneInfo.Number).ToList();
+
                                     log.Information("Active chat null, creating new");
-                                    activeChat = await _repository.CreateChat(phoneInfo.Number, remote);
+                                    var first = listMessages.First();
+                                    var text = first.body.Trim();
+                                    int option;
+                                    if(int.TryParse(text, out option) && areas.FirstOrDefault(f => f.Id == option) != null)
+                                    {
+                                        log.Information("Valid Option!");
+                                        //VALID
+                                        activeChat = await _repository.CreateChat(phoneInfo.Number, remote, option);
+                                        await client.SendMessage(new Connector.Model.SendMessageModel()
+                                        {
+                                            user = remote,
+                                            text = "Chat iniciado!\nEm breve um atendente entrará na conversa."
+                                        });
+                                    }
+                                    else
+                                    {
+                                        log.Information("Invalid Option!");
+                                        //INVALID
+                                        await client.SendMessage(new Connector.Model.SendMessageModel()
+                                        {
+                                            user = remote,
+                                            text = phoneInfo.DefaultMessage
+                                        });
+                                    }
                                 }
 
-                                messages.ToList().OrderBy(m => m.timestamp).ToList().ForEach(async m =>
+                                if (activeChat != null)
                                 {
-                                    await _repository.InsertMessage((int)activeChat, phoneInfo.Number, m.body, DateTime.UtcNow, false);
-                                    await client.SendMessage(new Connector.Model.SendMessageModel()
+                                    for (int i = 0; i < listMessages.Count; i++)
                                     {
-                                        user = remote,
-                                        text = "Message inserted"
-                                    });
-                                    log.Information("Message inserted");
-                                });
+                                        var msg = listMessages[i];
+                                        await _repository.InsertMessage((int)activeChat, phoneInfo.Number, msg.body, DateTime.UtcNow, false);
+                                        log.Information("Message inserted");
+                                    }
+                                }
                             });
                         }
                     }
@@ -101,7 +151,8 @@ namespace WaClient.Worker.Worker
                             try
                             {
                                 await client.Stop();
-                            }catch(Exception x)
+                            }
+                            catch (Exception x)
                             {
                                 _log.Information(x, "Failed to restart");
                             }

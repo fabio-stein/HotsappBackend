@@ -39,7 +39,7 @@ namespace WaClient.Worker.Worker
 
             workerTask = Task.Run(async () =>
             {
-                client = new WaConnector().GetClient();
+                client = new WaConnector(phoneInfo.ClientEndpoint).GetClient();
                 var errorCount = 0;
 
                 while (!_ct.IsCancellationRequested)

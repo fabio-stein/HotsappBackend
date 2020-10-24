@@ -15,5 +15,6 @@ namespace Hotsapp.Data.Model
         public bool IsConnected { get; set; }
         public int OwnerId { get; set; }
         public string DefaultMessage { get; set; }
+        public string ClientEndpoint { get; set; }
     }
 }

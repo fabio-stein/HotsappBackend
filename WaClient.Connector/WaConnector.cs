@@ -9,9 +9,9 @@ namespace WaClient.Connector
     {
         IWaConnector client;
 
-        public WaConnector()
+        public WaConnector(string endpoint)
         {
-            client = RestService.For<IWaConnector>("http://localhost:3000");
+            client = RestService.For<IWaConnector>(endpoint);
         }
 
         public IWaConnector GetClient()

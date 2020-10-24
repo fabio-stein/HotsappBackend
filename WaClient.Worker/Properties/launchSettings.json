@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WaClient.Worker": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -192,7 +192,7 @@ namespace WaClient.Worker.Worker
         //Should only be called from other classes
         public async Task Stop()
         {
-            _log.Information("Stopping channel");
+            _log.Information("Stopping PhoneWorker");
             if (!_ct.IsCancellationRequested)
                 _cts.Cancel();
             if (workerTask == null)

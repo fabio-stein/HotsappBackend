@@ -17,7 +17,7 @@ namespace Hotsapp.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetList()
         {
-            var userId = User.GetUserId();
+            var userId = 26;//TODO User.GetUserId();
             using (var conn = DataFactory.OpenConnection())
             {
                 var res = await conn.QueryAsync(@"SELECT c.*, a.Title AS AreaTitle FROM wa_phone p
@@ -31,7 +31,7 @@ AND c.IsActive", new { userId });
 
         public async Task<IActionResult> ChatUpdate([FromBody] ChatUpdateModel data)
         {
-            var userId = User.GetUserId();
+            var userId = 26;//TODO User.GetUserId();
             using (var conn = DataFactory.OpenConnection())
             {
                 var res = await conn.QueryAsync(@"SELECT m.* FROM wa_phone p
@@ -48,7 +48,7 @@ ORDER BY m.MessageId ASC", new { userId, data.ChatId, data.LastMessageId });
 
         public async Task<IActionResult> SendMessage([FromBody] SendMessageModel data)
         {
-            var userId = User.GetUserId();
+            var userId = 26;//TODO User.GetUserId();
             using (var conn = DataFactory.OpenConnection())
             {
                 var chat = await conn.QueryFirstOrDefaultAsync<WaChat>(@"SELECT c.* FROM wa_chat c
@@ -69,7 +69,7 @@ INSERT INTO wa_chat_message (ChatId, ChatPhoneNumber, Body, IsFromMe, IsProcesse
         [HttpPost("{chatId}")]
         public async Task<IActionResult> CloseChat(int chatId)
         {
-            var userId = User.GetUserId();
+            var userId = 26;//TODO User.GetUserId();
             using (var conn = DataFactory.OpenConnection())
             {
                 var chat = await conn.QueryFirstOrDefaultAsync<WaChat>(@"SELECT c.* FROM wa_chat c

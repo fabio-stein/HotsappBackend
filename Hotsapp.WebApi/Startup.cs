@@ -49,7 +49,7 @@ namespace Hotsapp.WebApi
             services.AddSingleton<YoutubeClientService>();
             services.AddSingleton<ChannelService>();
             services.AddSingleton(new WaConnector("http://dev"));
-            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
+            //services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
         }

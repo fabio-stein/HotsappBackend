@@ -10,7 +10,18 @@ namespace WaClient.Connector.Model
         public string qr { get; set; }
         public object session { get; set; }
         public bool ready { get; set; }
-        public object clientInfo { get; set; }
+        public ClientInfo clientInfo { get; set; }
         public object counter { get; set; }
+    }
+
+    public class ClientInfo
+    {
+        public MeInfo me { get; set; }
+    }
+
+    public class MeInfo
+    {
+        public string server { get; set; }
+        public string user { get; set; }
     }
 }

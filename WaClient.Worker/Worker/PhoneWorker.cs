@@ -63,6 +63,8 @@ namespace WaClient.Worker.Worker
                         {
                             //SEND MESSAGES
                             var toSend = (await _repository.GetPendingMessages(phoneInfo.Number)).ToList();
+                            if (toSend.Count > 0)
+                                _log.Information("Sending {0} message(s)", toSend.Count);
                             var chatDict = new Dictionary<int, WaChat>();
                             for (int i = 0; i < toSend.Count; i++)
                             {

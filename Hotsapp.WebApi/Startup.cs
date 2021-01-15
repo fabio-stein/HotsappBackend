@@ -2,10 +2,13 @@ using FirebaseApi;
 using Hotsapp.WebApi.Configuration;
 using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Services.Youtube;
+using Hotsapp.WebStreamer.Hubs;
+using Hotsapp.WebStreamer.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,6 +36,12 @@ namespace Hotsapp.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR()
+                .AddNewtonsoftJsonProtocol(options =>
+                {
+                    options.PayloadSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" });
+                });
+
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
                     options.SerializerSettings.Converters.Add(
@@ -47,9 +56,20 @@ namespace Hotsapp.WebApi
             services.AddSingleton<YouTubeCacheService>();
             services.AddSingleton<YoutubeClientService>();
             services.AddSingleton<ChannelService>();
-            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
+
+            //STREAMER HUB
+            services.AddTransient<StreamWorker>();
+            services.AddSingleton<StreamWorkerFactory>();
+            //Create a HostedService in a way that we can use it in DI
+            services.AddSingleton<StreamerService>();
+            services.AddHostedService(sp => sp.GetRequiredService<StreamerService>());
+
+            services.Configure<HostOptions>(option =>
+            {
+                option.ShutdownTimeout = System.TimeSpan.FromSeconds(20);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +96,10 @@ namespace Hotsapp.WebApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<StreamHub>("/streamhub", options =>
+                {
+                    options.Transports = HttpTransportType.WebSockets;
+                });
             });
         }
 

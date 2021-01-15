@@ -22,6 +22,8 @@
     <ProjectReference Include="..\FirebaseApi\Hotsapp.Firebase.csproj" />
     <ProjectReference Include="..\Hotsapp.Data\Hotsapp.Data.csproj" />
     <ProjectReference Include="..\Hotsapp.Messaging\Hotsapp.Messaging.csproj" />
+    <ProjectReference Include="..\Hotsapp.PlaylistWorker\Hotsapp.PlaylistWorker.csproj" />
+    <ProjectReference Include="..\Hotsapp.WebStreamer\Hotsapp.WebStreamer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

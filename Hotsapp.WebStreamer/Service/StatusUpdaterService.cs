@@ -75,7 +75,7 @@ namespace Hotsapp.WebStreamer.Service
 
             var status = _streamerService.GetConnectionStatus();
 
-            await StopEmptyWorkers(status);
+            //await StopEmptyWorkers(status); TEMP DISABLE
 
             var channelCount = status.Count;
             var clientsCount = status.Sum(s => s.Value);

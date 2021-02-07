@@ -1,4 +1,5 @@
-﻿using Google.Apis.Services;
+﻿using Google.Apis.Http;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +10,13 @@ using System.Threading.Tasks;
 
 namespace Hotsapp.WebApi.Services.Youtube
 {
+    public class TestClient : IConfigurableHttpClientInitializer
+    {
+        public void Initialize(ConfigurableHttpClient httpClient)
+        {
+            httpClient.DefaultRequestHeaders.Add("x-origin", "https://explorer.apis.google.com");
+        }
+    }
     public class YoutubeClientService
     {
         private ILogger _log = Log.ForContext<YoutubeClientService>();
@@ -22,7 +30,8 @@ namespace Hotsapp.WebApi.Services.Youtube
             _youTubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 ApiKey = key,
-                ApplicationName = this.GetType().ToString()
+                ApplicationName = this.GetType().ToString(),
+                HttpClientInitializer = new TestClient()
             });
         }
 

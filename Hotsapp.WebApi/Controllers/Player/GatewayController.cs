@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using System;
 
 namespace Hotsapp.WebApi.Controllers
@@ -10,11 +13,14 @@ namespace Hotsapp.WebApi.Controllers
     public class GatewayController : ControllerBase
     {
         [HttpGet]
-        public IActionResult Index([FromQuery] Guid channelId)
+        public IActionResult Index([FromQuery] Guid channelId, [FromServices] IConfiguration config)
         {
             //TODO REPLACE COOKIE BY CUSTOM STREAMER ID
             Response.Cookies.Append("routeKey", channelId.ToString());
-            return Ok(new { url = "https://api.plister.net/streamer/streamhub?channelId=" + channelId.ToString() });
+
+            string url = config["ApiAddress"] + "/streamhub?channelId=" + channelId.ToString();
+
+            return Ok(new { url });
         }
     }
 }

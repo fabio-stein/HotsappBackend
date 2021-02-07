@@ -1,4 +1,6 @@
 using FirebaseApi;
+using Hotsapp.PlaylistWorker;
+using Hotsapp.PlaylistWorker.Service;
 using Hotsapp.WebApi.Configuration;
 using Hotsapp.WebApi.Services;
 using Hotsapp.WebApi.Services.Youtube;
@@ -36,6 +38,7 @@ namespace Hotsapp.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddSignalR()
                 .AddNewtonsoftJsonProtocol(options =>
                 {
@@ -47,7 +50,7 @@ namespace Hotsapp.WebApi
                     options.SerializerSettings.Converters.Add(
                         new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.FFFZ" }
                         ));
-            services.AddMvc();
+            //services.AddMvc();
 
             ConfigureAuth(services);
 
@@ -56,8 +59,18 @@ namespace Hotsapp.WebApi
             services.AddSingleton<YouTubeCacheService>();
             services.AddSingleton<YoutubeClientService>();
             services.AddSingleton<ChannelService>();
+            services.AddMessaging(Configuration.GetConnectionString("RabbitMQ"));
 
             services.AddSingleton(new FirebaseService(Configuration["FirebaseApiKey"]));
+
+            //PLAYLIST WORKER
+            services.AddSingleton<PlaylistWorkerMessagingService>();
+
+            services.AddSingleton<PlaylistRepository>();
+            services.AddTransient<ChannelWorker>();
+            services.AddSingleton<ChannelWorkerFactory>();
+            services.AddHostedService<WorkerManager>();
+
 
             //STREAMER HUB
             services.AddTransient<StreamWorker>();
@@ -81,14 +94,13 @@ namespace Hotsapp.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors(options =>
-                options.AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowAnyOrigin());
-
-            app.UseHttpsRedirection();
-
             app.UseRouting();
+
+            app.UseCors(options =>
+                    options.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithOrigins(Configuration["Origins"].Split(',')));
 
             app.UseAuthentication();
             app.UseAuthorization();
